@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -33,18 +32,18 @@ export function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#C9B8A4]/40 bg-background/95 backdrop-blur-md">
+    <header className="bg-background/95 sticky top-0 z-50 border-b border-[#C9B8A4]/40 backdrop-blur-md">
       <div className="mx-auto flex h-24 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center">
-        <Image
-  src="/images/aylol-nest-logo.png"
-  alt="Aylol Nest Logo"
-  width={120}
-  height={120}
-  priority
-  className="h-20 w-auto object-contain"
-  style={{ borderRadius: "50%" }} 
-/>
+          <Image
+            src="/images/aylol-nest-logo.png"
+            alt="Aylol Nest Logo"
+            width={120}
+            height={120}
+            priority
+            className="h-20 w-auto object-contain"
+            style={{ borderRadius: "50%" }}
+          />
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -52,7 +51,7 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-semibold text-foreground/80 transition-colors hover:text-primary"
+              className="text-foreground/80 hover:text-primary text-sm font-semibold transition-colors"
             >
               {link.label}
             </Link>
@@ -60,12 +59,7 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-1 sm:gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={changeLanguage}
-            className="font-bold"
-          >
+          <Button variant="ghost" size="sm" onClick={changeLanguage} className="font-bold">
             {locale === "ar" ? "EN" : "عربي"}
           </Button>
 
@@ -73,7 +67,7 @@ export function Navbar() {
             variant="ghost"
             size="icon"
             onClick={() =>
-              setTheme((document.documentElement.classList.contains("dark")) ? "light" : "dark")
+              setTheme(document.documentElement.classList.contains("dark") ? "light" : "dark")
             }
             aria-label="Toggle theme"
           >
@@ -107,13 +101,13 @@ export function Navbar() {
       </div>
 
       {menuOpen && (
-        <nav className="flex flex-col gap-1 border-t border-border/60 bg-background px-4 py-3 md:hidden">
+        <nav className="border-border/60 bg-background flex flex-col gap-1 border-t px-4 py-3 md:hidden">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMenuOpen(false)}
-              className="rounded-lg px-3 py-3 font-semibold hover:bg-secondary"
+              className="hover:bg-secondary rounded-lg px-3 py-3 font-semibold"
             >
               {link.label}
             </Link>
