@@ -14,7 +14,7 @@ export async function getCurrentUser() {
 
   await connectDB();
 
-  const user = await User.findById({
+  const user = await User.findOne({
     clerkId: userId,
     isActive: true,
   }).lean();

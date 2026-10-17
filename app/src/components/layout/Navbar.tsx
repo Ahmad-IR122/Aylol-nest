@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import { Moon, Sun, ShoppingBag, Menu, X  } from "lucide-react";
+import { Moon, Sun, ShoppingBag, Menu, X } from "lucide-react";
 
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
