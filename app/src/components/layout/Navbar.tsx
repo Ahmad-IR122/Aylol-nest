@@ -8,6 +8,7 @@ import { Moon, Sun, ShoppingBag, Menu, X, UserRound } from "lucide-react";
 
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { Show, UserButton } from "@clerk/nextjs";
 
 export function Navbar() {
   const t = useTranslations("Navbar");
@@ -79,14 +80,17 @@ export function Navbar() {
             <ShoppingBag className="size-5" />
           </Button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label={t("login")}
-            className="hidden sm:inline-flex"
-          >
-            <UserRound className="size-5" />
-          </Button>
+          <div className="flex items-center">
+            <Show when="signed-out">
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/sign-in">{t("login")}</Link>
+              </Button>
+            </Show>
+
+            <Show when="signed-in">
+              <UserButton />
+            </Show>
+          </div>
 
           <Button
             variant="ghost"

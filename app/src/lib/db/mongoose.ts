@@ -3,24 +3,21 @@ import mongoose from "mongoose";
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error(
-    "Missing MONGODB_URI environment variable"
-  );
+  throw new Error("Missing MONGODB_URI environment variable");
 }
 
-type cached  = {
+type cached = {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
-}
+};
 
 const globalForMongoose = globalThis as typeof globalThis & {
   mongoose: cached;
-}
+};
 
 const chache = globalForMongoose.mongoose ?? { conn: null, promise: null };
 
 export const connectDB = async (): Promise<typeof mongoose> => {
-
   if (chache.conn) {
     return chache.conn;
   }
@@ -40,5 +37,4 @@ export const connectDB = async (): Promise<typeof mongoose> => {
   }
 
   return chache.conn;
-
-}
+};

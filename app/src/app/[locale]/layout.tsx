@@ -8,7 +8,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import "../globals.css";
 import { Cairo } from "next/font/google";
 import type { Metadata } from "next";
-
+import { AppClerkProvider } from "@/components/providers/clerk-provider";
 const cairo = Cairo({
   subsets: ["arabic", "latin"],
   variable: "--font-cairo",
@@ -47,17 +47,19 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} suppressHydrationWarning>
       <body className={`${cairo.variable} min-h-screen font-sans`}>
-        <NextIntlClientProvider messages={messages}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Navbar />
-            {children}
-          </ThemeProvider>
-        </NextIntlClientProvider>
+        <AppClerkProvider locale={locale}>
+          <NextIntlClientProvider messages={messages}>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Navbar />
+              {children}
+            </ThemeProvider>
+          </NextIntlClientProvider>
+        </AppClerkProvider>
       </body>
     </html>
   );
