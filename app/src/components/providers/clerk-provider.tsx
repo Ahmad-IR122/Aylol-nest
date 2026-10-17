@@ -1,4 +1,3 @@
-
 "use client";
 
 import { ClerkProvider } from "@clerk/nextjs";
@@ -14,8 +13,7 @@ type Props = {
 const arabicLocalization = {
   ...arSA,
 
-  formFieldInputPlaceholder__emailAddress_username:
-    "أدخل البريد الإلكتروني أو اسم المستخدم",
+  formFieldInputPlaceholder__emailAddress_username: "أدخل البريد الإلكتروني أو اسم المستخدم",
   formFieldInputPlaceholder__emailAddress: "أدخل بريدك الإلكتروني",
   formFieldInputPlaceholder__username: "أدخل اسم المستخدم",
   formFieldInputPlaceholder__password: "أدخل كلمة المرور",
