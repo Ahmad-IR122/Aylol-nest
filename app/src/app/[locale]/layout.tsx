@@ -9,6 +9,7 @@ import "../globals.css";
 import { Cairo } from "next/font/google";
 import type { Metadata } from "next";
 import { AppClerkProvider } from "@/components/providers/clerk-provider";
+import Footer from "@/components/layout/Footer";
 const cairo = Cairo({
   subsets: ["arabic", "latin"],
   variable: "--font-cairo",
@@ -57,6 +58,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             >
               <Navbar />
               {children}
+              <Footer />
             </ThemeProvider>
           </NextIntlClientProvider>
         </AppClerkProvider>

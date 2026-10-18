@@ -10,5 +10,32 @@
     "title": "Welcome to Aylol Nest",
     "description": "Beautiful clothing for boys and girls, from newborn to 14 years",
     "shopNow": "Shop Now"
+  },
+  "Footer": {
+    "description": "Stylish and high-quality clothes for children, designed to make every little moment beautiful.",
+    "shop": "Shop",
+    "girls": "Girls",
+    "boys": "Boys",
+    "babies": "Babies",
+    "accessories": "Accessories",
+    "newArrivals": "New Arrivals",
+    "customerService": "Customer Service",
+    "contactUs": "Contact Us",
+    "faq": "FAQs",
+    "shippingPolicy": "Shipping Policy",
+    "returns": "Returns & Refunds",
+    "terms": "Terms & Conditions",
+    "privacy": "Privacy Policy",
+    "contact": "Contact",
+    "location": "Palestine",
+    "workingHours": "Working hours: To be announced",
+    "rights": "All rights reserved.",
+    "madeWith": "Made with love"
+  },
+  "ComingSoon": {
+    "eyebrow": "SOMETHING LOVELY IS ON ITS WAY",
+    "title": "Coming Soon",
+    "description": "We're preparing something special for your little ones. Stay tuned for beautiful new arrivals!",
+    "backHome": "Back to Home"
   }
 }
