@@ -34,7 +34,7 @@ export function Navbar() {
 
   return (
     <header className="bg-background/95 sticky top-0 z-50 border-b border-[#C9B8A4]/40 backdrop-blur-md">
-      <div className="mx-auto flex h-24 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-2 px-3 sm:h-24 sm:gap-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center">
           <Image
             src="/images/aylol-nest-logo.png"
@@ -42,7 +42,7 @@ export function Navbar() {
             width={120}
             height={120}
             priority
-            className="h-20 w-auto object-contain"
+            className="h-16 w-auto object-contain sm:h-20"
             style={{ borderRadius: "50%" }}
           />
         </Link>
@@ -52,7 +52,7 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-foreground/80 hover:text-primary text-sm font-semibold transition-colors"
+              className="text-foreground/80 hover:text-primary inline-flex min-h-11 min-w-11 items-center justify-center text-sm font-semibold transition-colors lg:min-h-0 lg:min-w-0"
             >
               {link.label}
             </Link>
@@ -60,7 +60,12 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-1 sm:gap-2">
-          <Button variant="ghost" size="sm" onClick={changeLanguage} className="font-bold">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={changeLanguage}
+            className="min-h-11 min-w-11 px-2 font-bold lg:min-h-7 lg:min-w-0 lg:px-2.5"
+          >
             {locale === "ar" ? "EN" : "عربي"}
           </Button>
 
@@ -71,18 +76,24 @@ export function Navbar() {
               setTheme(document.documentElement.classList.contains("dark") ? "light" : "dark")
             }
             aria-label="Toggle theme"
+            className="size-11 lg:size-8"
           >
             <Sun className="hidden size-5 dark:block" />
             <Moon className="size-5 dark:hidden" />
           </Button>
 
-          <Button variant="ghost" size="icon" aria-label={t("cart")}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={t("cart")}
+            className="hidden size-11 md:inline-flex lg:size-8"
+          >
             <ShoppingBag className="size-5" />
           </Button>
 
-          <div className="flex items-center">
+          <div className="hidden items-center md:flex">
             <Show when="signed-out">
-              <Button variant="ghost" size="sm" asChild>
+              <Button variant="ghost" size="sm" className="min-h-11 lg:min-h-7" asChild>
                 <Link href="/sign-in">{t("login")}</Link>
               </Button>
             </Show>
@@ -95,7 +106,7 @@ export function Navbar() {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="size-11 md:hidden"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
@@ -116,6 +127,23 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
+          <Button
+            variant="ghost"
+            className="justify-start rounded-lg px-3 py-3 font-semibold"
+            onClick={() => setMenuOpen(false)}
+          >
+            <ShoppingBag className="size-5" />
+            {t("cart")}
+          </Button>
+          <Show when="signed-out">
+            <Link
+              href="/sign-in"
+              onClick={() => setMenuOpen(false)}
+              className="hover:bg-secondary rounded-lg px-3 py-3 font-semibold"
+            >
+              {t("login")}
+            </Link>
+          </Show>
         </nav>
       )}
     </header>
