@@ -1,0 +1,102 @@
+
+name: Aylol Nest Deploy
+
+on:
+  workflow_run:
+    workflows: ["Aylol Nest CI"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vercel-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+
+    defaults:
+      run:
+        working-directory: ./app
+
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      - name: Checkout verified commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Verify latest commit before build
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          LATEST_SHA=$(gh api \
+            repos/${{ github.repository }}/git/ref/heads/main \
+            --jq '.object.sha')
+
+          if [ "$LATEST_SHA" != "$VERIFIED_SHA" ]; then
+            echo "A newer commit exists on main."
+            echo "Skipping outdated deployment."
+            exit 1
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull production environment
+        run: |
+          vercel pull \
+            --yes \
+            --environment=production \
+            --token="$VERCEL_TOKEN"
+
+      - name: Build production deployment
+        run: |
+          vercel build \
+            --prod \
+            --token="$VERCEL_TOKEN"
+
+      - name: Verify latest commit before deployment
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          LATEST_SHA=$(gh api \
+            repos/${{ github.repository }}/git/ref/heads/main \
+            --jq '.object.sha')
+
+          if [ "$LATEST_SHA" != "$VERIFIED_SHA" ]; then
+            echo "A newer commit exists on main."
+            echo "Skipping outdated deployment."
+            exit 1
+          fi
+
+      - name: Deploy to production
+        run: |
+          vercel deploy \
+            --prebuilt \
+            --prod \
+            --token="$VERCEL_TOKEN"
