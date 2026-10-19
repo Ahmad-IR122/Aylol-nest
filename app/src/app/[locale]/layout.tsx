@@ -16,14 +16,25 @@ const cairo = Cairo({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Aylol Nest | Kids Clothing",
-    template: "%s | Aylol Nest",
-  },
-  description: "Aylol Nest — Beautiful clothing for boys and girls, from newborn to 14 years old.",
-  applicationName: "Aylol Nest",
-};
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+
+  const isArabic = locale === "ar";
+
+  return {
+    title: {
+      default: isArabic ? "ايلول نيست | ملابس أطفال" : "Aylol Nest | Kids Clothing",
+
+      template: isArabic ? "%s | ايلول نيست" : "%s | Aylol Nest",
+    },
+
+    description: isArabic
+      ? "ايلول نيست — ملابس جميلة ومريحة للأولاد والبنات، من حديثي الولادة حتى عمر 14 سنة."
+      : "Aylol Nest — Beautiful clothing for boys and girls, from newborn to 14 years old.",
+
+    applicationName: isArabic ? "ايلول نيست" : "Aylol Nest",
+  };
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
