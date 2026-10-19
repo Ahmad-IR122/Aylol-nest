@@ -1,4 +1,72 @@
 
+name: Aylol Nest Deploy
+
+on:
+  workflow_run:
+    workflows: ["Aylol Nest CI"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vercel-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      - name: Checkout verified commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Verify latest commit before build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          LATEST_SHA=$(gh api \
+            repos/${{ github.repository }}/git/ref/heads/main \
+            --jq '.object.sha')
+
+          if [ "$LATEST_SHA" != "$VERIFIED_SHA" ]; then
+            echo "A newer commit exists on main."
+            echo "Skipping outdated deployment."
+            exit 1
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull production environment
+        run: |
+          vercel pull \
+            --yes \
+            --environment=production \
+            --token="$VERCEL_TOKEN"
+
       - name: Validate Clerk production environment
         shell: bash
         run: |
@@ -14,28 +82,95 @@
 
           const content = fs.readFileSync(file, "utf8");
 
-          const match = content.match(
-            /^NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=(.*)$/m
+          function getEnvValue(name) {
+            const line = content
+              .split(/\r?\n/)
+              .find((line) => line.startsWith(`${name}=`));
+
+            if (!line) {
+              console.error(`${name} is missing.`);
+              process.exit(1);
+            }
+
+            let value = line.slice(name.length + 1).trim();
+
+            if (
+              (value.startsWith('"') && value.endsWith('"')) ||
+              (value.startsWith("'") && value.endsWith("'"))
+            ) {
+              value = value.slice(1, -1);
+            }
+
+            return value;
+          }
+
+          const publishableKey = getEnvValue(
+            "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
           );
 
-          if (!match) {
-            console.error("Clerk publishable key is missing.");
-            process.exit(1);
-          }
+          const secretKey = getEnvValue("CLERK_SECRET_KEY");
 
-          let key = match[1].trim();
-
-          if (
-            (key.startsWith('"') && key.endsWith('"')) ||
-            (key.startsWith("'") && key.endsWith("'"))
-          ) {
-            key = key.slice(1, -1);
-          }
-
-          if (!/^pk_(test|live)_[A-Za-z0-9_-]+$/.test(key)) {
+          if (!/^pk_(test|live)_[A-Za-z0-9_-]+$/.test(publishableKey)) {
             console.error("Clerk publishable key has an invalid format.");
             process.exit(1);
           }
 
-          console.log("Clerk publishable key format is valid.");
+          if (!/^sk_(test|live)_[A-Za-z0-9_-]+$/.test(secretKey)) {
+            console.error("Clerk secret key has an invalid format.");
+            process.exit(1);
+          }
+
+          const publishableEnvironment = publishableKey.startsWith(
+            "pk_live_"
+          )
+            ? "production"
+            : "development";
+
+          const secretEnvironment = secretKey.startsWith("sk_live_")
+            ? "production"
+            : "development";
+
+          if (publishableEnvironment !== secretEnvironment) {
+            console.error(
+              "Clerk publishable and secret keys belong to different environments."
+            );
+            process.exit(1);
+          }
+
+          if (publishableEnvironment !== "production") {
+            console.error(
+              "Production deployment requires Clerk production keys."
+            );
+            process.exit(1);
+          }
+
+          console.log("Clerk production key formats are valid.");
           NODE
+
+      - name: Build production deployment
+        run: |
+          vercel build \
+            --prod \
+            --token="$VERCEL_TOKEN"
+
+      - name: Verify latest commit before deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          LATEST_SHA=$(gh api \
+            repos/${{ github.repository }}/git/ref/heads/main \
+            --jq '.object.sha')
+
+          if [ "$LATEST_SHA" != "$VERIFIED_SHA" ]; then
+            echo "A newer commit exists on main."
+            echo "Skipping outdated deployment."
+            exit 1
+          fi
+
+      - name: Deploy to production
+        run: |
+          vercel deploy \
+            --prebuilt \
+            --prod \
+            --token="$VERCEL_TOKEN"
