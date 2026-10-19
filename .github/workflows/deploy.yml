@@ -112,12 +112,24 @@ jobs:
 
           const secretKey = getEnvValue("CLERK_SECRET_KEY");
 
-          if (!/^pk_(test|live)_[A-Za-z0-9_-]+$/.test(publishableKey)) {
+          function hasClerkKeyFormat(value, prefix) {
+            return (
+              value.startsWith(prefix) && value.slice(prefix.length).length > 0
+            );
+          }
+
+          if (
+            !hasClerkKeyFormat(publishableKey, "pk_test_") &&
+            !hasClerkKeyFormat(publishableKey, "pk_live_")
+          ) {
             console.error("Clerk publishable key has an invalid format.");
             process.exit(1);
           }
 
-          if (!/^sk_(test|live)_[A-Za-z0-9_-]+$/.test(secretKey)) {
+          if (
+            !hasClerkKeyFormat(secretKey, "sk_test_") &&
+            !hasClerkKeyFormat(secretKey, "sk_live_")
+          ) {
             console.error("Clerk secret key has an invalid format.");
             process.exit(1);
           }
