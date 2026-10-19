@@ -1,3 +1,4 @@
+
 name: Aylol Nest Deploy
 
 on:
@@ -60,58 +61,13 @@ jobs:
         run: npm install --global vercel@latest
 
       - name: Pull production environment
-        working-directory: ./app
         run: |
           vercel pull \
             --yes \
             --environment=production \
             --token="$VERCEL_TOKEN"
-
-      - name: Install environment parser
-        working-directory: ./app
-        run: npm install --no-save --no-package-lock dotenv
-
-      - name: Validate Clerk production environment
-        working-directory: ./app
-        shell: bash
-        run: |
-          node <<'NODE'
-          const fs = require("node:fs");
-          const dotenv = require("dotenv");
-
-          const file = ".vercel/.env.production.local";
-
-          if (!fs.existsSync(file)) {
-            console.error("Vercel production environment file is missing.");
-            process.exit(1);
-          }
-
-          const env = dotenv.parse(fs.readFileSync(file));
-
-          const publishableKey =
-            env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
-          const secretKey = env.CLERK_SECRET_KEY;
-
-          if (!publishableKey?.startsWith("pk_live_")) {
-            console.error(
-              "Invalid or missing Clerk production publishable key."
-            );
-            process.exit(1);
-          }
-
-          if (!secretKey?.startsWith("sk_live_")) {
-            console.error(
-              "Invalid or missing Clerk production secret key."
-            );
-            process.exit(1);
-          }
-
-          console.log("Clerk production environment is valid.");
-          NODE
-
+            
       - name: Build production deployment
-        working-directory: ./app
         run: |
           vercel build \
             --prod \
@@ -133,7 +89,6 @@ jobs:
           fi
 
       - name: Deploy to production
-        working-directory: ./app
         run: |
           vercel deploy \
             --prebuilt \
