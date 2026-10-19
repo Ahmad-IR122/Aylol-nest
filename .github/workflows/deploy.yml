@@ -1,4 +1,3 @@
-
 name: Aylol Nest Deploy
 
 on:
@@ -68,12 +67,17 @@ jobs:
             --environment=production \
             --token="$VERCEL_TOKEN"
 
+      - name: Install environment parser
+        working-directory: ./app
+        run: npm install --no-save --no-package-lock dotenv
+
       - name: Validate Clerk production environment
         working-directory: ./app
         shell: bash
         run: |
           node <<'NODE'
           const fs = require("node:fs");
+          const dotenv = require("dotenv");
 
           const file = ".vercel/.env.production.local";
 
@@ -82,83 +86,28 @@ jobs:
             process.exit(1);
           }
 
-          const content = fs.readFileSync(file, "utf8");
+          const env = dotenv.parse(fs.readFileSync(file));
 
-          function getEnvValue(name) {
-            const line = content
-              .split(/\r?\n/)
-              .find((line) => line.startsWith(`${name}=`));
+          const publishableKey =
+            env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
-            if (!line) {
-              console.error(`${name} is missing.`);
-              process.exit(1);
-            }
+          const secretKey = env.CLERK_SECRET_KEY;
 
-            let value = line.slice(name.length + 1).trim();
-
-            if (
-              (value.startsWith('"') && value.endsWith('"')) ||
-              (value.startsWith("'") && value.endsWith("'"))
-            ) {
-              value = value.slice(1, -1);
-            }
-
-            return value;
-          }
-
-          const publishableKey = getEnvValue(
-            "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
-          );
-
-          const secretKey = getEnvValue("CLERK_SECRET_KEY");
-
-          function hasClerkKeyFormat(value, prefix) {
-            return (
-              value.startsWith(prefix) && value.slice(prefix.length).length > 0
-            );
-          }
-
-          if (
-            !hasClerkKeyFormat(publishableKey, "pk_test_") &&
-            !hasClerkKeyFormat(publishableKey, "pk_live_")
-          ) {
-            console.error("Clerk publishable key has an invalid format.");
-            process.exit(1);
-          }
-
-          if (
-            !hasClerkKeyFormat(secretKey, "sk_test_") &&
-            !hasClerkKeyFormat(secretKey, "sk_live_")
-          ) {
-            console.error("Clerk secret key has an invalid format.");
-            process.exit(1);
-          }
-
-          const publishableEnvironment = publishableKey.startsWith(
-            "pk_live_"
-          )
-            ? "production"
-            : "development";
-
-          const secretEnvironment = secretKey.startsWith("sk_live_")
-            ? "production"
-            : "development";
-
-          if (publishableEnvironment !== secretEnvironment) {
+          if (!publishableKey?.startsWith("pk_live_")) {
             console.error(
-              "Clerk publishable and secret keys belong to different environments."
+              "Invalid or missing Clerk production publishable key."
             );
             process.exit(1);
           }
 
-          if (publishableEnvironment !== "production") {
+          if (!secretKey?.startsWith("sk_live_")) {
             console.error(
-              "Production deployment requires Clerk production keys."
+              "Invalid or missing Clerk production secret key."
             );
             process.exit(1);
           }
 
-          console.log("Clerk production key formats are valid.");
+          console.log("Clerk production environment is valid.");
           NODE
 
       - name: Build production deployment
