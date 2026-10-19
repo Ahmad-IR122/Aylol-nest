@@ -37,7 +37,7 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
 
-      - name: Verify latest commit before build
+      - name: Verify latest commit
         env:
           GH_TOKEN: ${{ github.token }}
           VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
@@ -60,37 +60,9 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Pull production environment
-        run: |
-          vercel pull \
-            --yes \
-            --environment=production \
-            --token="$VERCEL_TOKEN"
-            
-      - name: Build production deployment
-        run: |
-          vercel build \
-            --prod \
-            --token="$VERCEL_TOKEN"
-
-      - name: Verify latest commit before deployment
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
-        run: |
-          LATEST_SHA=$(gh api \
-            repos/${{ github.repository }}/git/ref/heads/main \
-            --jq '.object.sha')
-
-          if [ "$LATEST_SHA" != "$VERIFIED_SHA" ]; then
-            echo "A newer commit exists on main."
-            echo "Skipping outdated deployment."
-            exit 1
-          fi
-
-      - name: Deploy to production
+      - name: Deploy to Vercel Production
         run: |
           vercel deploy \
-            --prebuilt \
+            --yes \
             --prod \
             --token="$VERCEL_TOKEN"
