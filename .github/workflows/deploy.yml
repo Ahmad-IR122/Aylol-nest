@@ -25,10 +25,6 @@ jobs:
       github.event.workflow_run.head_branch == 'main' &&
       github.event.workflow_run.head_repository.full_name == github.repository
 
-    defaults:
-      run:
-        working-directory: ./app
-
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -42,7 +38,6 @@ jobs:
           persist-credentials: false
 
       - name: Verify latest commit before build
-        working-directory: .
         env:
           GH_TOKEN: ${{ github.token }}
           VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
@@ -79,7 +74,6 @@ jobs:
             --token="$VERCEL_TOKEN"
 
       - name: Verify latest commit before deployment
-        working-directory: .
         env:
           GH_TOKEN: ${{ github.token }}
           VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
