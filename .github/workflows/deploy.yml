@@ -67,6 +67,86 @@ jobs:
             --environment=production \
             --token="$VERCEL_TOKEN"
 
+      - name: Validate Clerk production environment
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require("node:fs");
+
+          const file = ".vercel/.env.production.local";
+
+          if (!fs.existsSync(file)) {
+            console.error("Vercel production environment file is missing.");
+            process.exit(1);
+          }
+
+          const content = fs.readFileSync(file, "utf8");
+
+          function getEnvValue(name) {
+            const line = content
+              .split(/\r?\n/)
+              .find((line) => line.startsWith(`${name}=`));
+
+            if (!line) {
+              console.error(`${name} is missing.`);
+              process.exit(1);
+            }
+
+            let value = line.slice(name.length + 1).trim();
+
+            if (
+              (value.startsWith('"') && value.endsWith('"')) ||
+              (value.startsWith("'") && value.endsWith("'"))
+            ) {
+              value = value.slice(1, -1);
+            }
+
+            return value;
+          }
+
+          const publishableKey = getEnvValue(
+            "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+          );
+
+          const secretKey = getEnvValue("CLERK_SECRET_KEY");
+
+          if (!/^pk_(test|live)_[A-Za-z0-9_-]+$/.test(publishableKey)) {
+            console.error("Clerk publishable key has an invalid format.");
+            process.exit(1);
+          }
+
+          if (!/^sk_(test|live)_[A-Za-z0-9_-]+$/.test(secretKey)) {
+            console.error("Clerk secret key has an invalid format.");
+            process.exit(1);
+          }
+
+          const publishableEnvironment = publishableKey.startsWith(
+            "pk_live_"
+          )
+            ? "production"
+            : "development";
+
+          const secretEnvironment = secretKey.startsWith("sk_live_")
+            ? "production"
+            : "development";
+
+          if (publishableEnvironment !== secretEnvironment) {
+            console.error(
+              "Clerk publishable and secret keys belong to different environments."
+            );
+            process.exit(1);
+          }
+
+          if (publishableEnvironment !== "production") {
+            console.error(
+              "Production deployment requires Clerk production keys."
+            );
+            process.exit(1);
+          }
+
+          console.log("Clerk production key formats are valid.");
+          NODE
+
       - name: Build production deployment
         run: |
           vercel build \
