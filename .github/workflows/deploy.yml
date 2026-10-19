@@ -61,6 +61,7 @@ jobs:
         run: npm install --global vercel@latest
 
       - name: Pull production environment
+        working-directory: ./app
         run: |
           vercel pull \
             --yes \
@@ -68,6 +69,7 @@ jobs:
             --token="$VERCEL_TOKEN"
 
       - name: Validate Clerk production environment
+        working-directory: ./app
         shell: bash
         run: |
           node <<'NODE'
@@ -148,6 +150,7 @@ jobs:
           NODE
 
       - name: Build production deployment
+        working-directory: ./app
         run: |
           vercel build \
             --prod \
@@ -169,6 +172,7 @@ jobs:
           fi
 
       - name: Deploy to production
+        working-directory: ./app
         run: |
           vercel deploy \
             --prebuilt \
