@@ -1,4 +1,3 @@
-
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -7,7 +6,7 @@ export default function HeroSection() {
   const t = useTranslations("Home");
 
   return (
-    <section className="relative overflow-hidden bg-[#F8F6F1] py-16 transition-colors duration-300 dark:bg-[#171512] md:py-24">
+    <section className="relative overflow-hidden bg-[#F8F6F1] py-16 transition-colors duration-300 md:py-24 dark:bg-[#171512]">
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 md:px-10 lg:grid-cols-2 lg:gap-16">
         {/* Hero Text */}
         <div className="order-1 space-y-6 text-center lg:order-2 lg:text-start">
@@ -15,7 +14,7 @@ export default function HeroSection() {
             AYLOL NEST
           </span>
 
-          <h1 className="text-4xl leading-[1.3] font-bold text-[#3B342D] dark:text-[#F8F6F1] md:text-5xl lg:text-6xl">
+          <h1 className="text-4xl leading-[1.3] font-bold text-[#3B342D] md:text-5xl lg:text-6xl dark:text-[#F8F6F1]">
             {t("title")}
           </h1>
 
