@@ -64,7 +64,6 @@ const categorySchema = new Schema(
   },
 );
 
-
 categorySchema.index({ parent: 1, sortOrder: 1 });
 categorySchema.index({ isActive: 1 });
 
