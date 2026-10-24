@@ -1,4 +1,3 @@
-
 export type LocalizedText = {
   ar: string;
   en: string;

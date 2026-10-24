@@ -62,7 +62,7 @@ export default function CategoriesTable({
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-850px text-sm">
+          <table className="min-w-850px w-full text-sm">
             <thead className="bg-[#faf8f6] text-[#817571]">
               <tr>
                 <th className="px-5 py-4 text-start">{t("التصنيف", "Category")}</th>

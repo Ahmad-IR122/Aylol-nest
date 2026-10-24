@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, type FormEvent } from "react";
@@ -12,14 +11,9 @@ import CategoryFormModal from "./CategoryFormModal";
 import CategoryDetailsModal from "./CategoryDetailsModal";
 import DeleteCategoryModal from "./DeleteCategoryModal";
 
-import type {
-  Category,
-  CategoryManagerProps,
-} from "@/types/category";
+import type { Category, CategoryManagerProps } from "@/types/category";
 
-export default function CategoriesManager({
-  locale,
-}: CategoryManagerProps) {
+export default function CategoriesManager({ locale }: CategoryManagerProps) {
   const {
     categories,
     loading,
@@ -35,22 +29,12 @@ export default function CategoriesManager({
     clearMessages,
   } = useCategories();
 
-  const {
-    form,
-    isOpen,
-    mode,
-    editingId,
-    updateField,
-    openCreate,
-    openEdit,
-    closeForm,
-  } = useCategoryForm();
+  const { form, isOpen, mode, editingId, updateField, openCreate, openEdit, closeForm } =
+    useCategoryForm();
 
-  const [detailsCategory, setDetailsCategory] =
-    useState<Category | null>(null);
+  const [detailsCategory, setDetailsCategory] = useState<Category | null>(null);
 
-  const [deletingCategory, setDeletingCategory] =
-    useState<Category | null>(null);
+  const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
 
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [detailsError, setDetailsError] = useState("");
@@ -89,11 +73,7 @@ export default function CategoriesManager({
       const details = await getCategoryById(category._id);
       setDetailsCategory(details);
     } catch (err) {
-      setDetailsError(
-        err instanceof Error
-          ? err.message
-          : "Failed to load category details",
-      );
+      setDetailsError(err instanceof Error ? err.message : "Failed to load category details");
     } finally {
       setDetailsLoading(false);
     }
@@ -117,10 +97,7 @@ export default function CategoriesManager({
   return (
     <main className="min-h-screen bg-[#faf8f6] px-4 py-8 md:px-8">
       <div className="mx-auto max-w-7xl space-y-7">
-        <CategoriesHeader
-          locale={locale}
-          onAdd={handleAdd}
-        />
+        <CategoriesHeader locale={locale} onAdd={handleAdd} />
 
         {error && !isOpen && !deletingCategory && (
           <div
@@ -142,9 +119,7 @@ export default function CategoriesManager({
 
         {detailsLoading && (
           <p className="text-sm text-[#817571]">
-            {locale === "ar"
-              ? "جاري تحميل التفاصيل..."
-              : "Loading details..."}
+            {locale === "ar" ? "جاري تحميل التفاصيل..." : "Loading details..."}
           </p>
         )}
 

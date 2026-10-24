@@ -1,4 +1,3 @@
-
 "use client";
 
 import { AlertTriangle, X } from "lucide-react";
@@ -48,25 +47,13 @@ export default function DeleteCategoryModal({
           </button>
         </div>
 
-        <h2
-          id="delete-category-title"
-          className="mt-5 text-xl font-bold text-[#352d2b]"
-        >
+        <h2 id="delete-category-title" className="mt-5 text-xl font-bold text-[#352d2b]">
           {t("حذف التصنيف", "Delete Category")}
         </h2>
 
-        <p
-          id="delete-category-description"
-          className="mt-3 text-sm leading-7 text-[#817571]"
-        >
-          {t(
-            "هل أنت متأكد من حذف التصنيف",
-            "Are you sure you want to delete",
-          )}{" "}
-          <strong className="text-[#352d2b]">
-            {category.name[isArabic ? "ar" : "en"]}
-          </strong>
-          ؟
+        <p id="delete-category-description" className="mt-3 text-sm leading-7 text-[#817571]">
+          {t("هل أنت متأكد من حذف التصنيف", "Are you sure you want to delete")}{" "}
+          <strong className="text-[#352d2b]">{category.name[isArabic ? "ar" : "en"]}</strong>؟
         </p>
 
         <p className="mt-3 text-sm text-red-600">
@@ -98,9 +85,7 @@ export default function DeleteCategoryModal({
             onClick={onConfirm}
             className="flex-1 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
           >
-            {saving
-              ? t("جاري الحذف...", "Deleting...")
-              : t("نعم، احذف", "Yes, Delete")}
+            {saving ? t("جاري الحذف...", "Deleting...") : t("نعم، احذف", "Yes, Delete")}
           </button>
         </div>
       </div>

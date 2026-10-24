@@ -143,9 +143,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       if (!isRecord(body.description)) {
         return badRequest("Invalid description field");
       }
-      if (typeof body.description.ar !== "string" ||
-        typeof body.description.en !== "string"
-      ) {
+      if (typeof body.description.ar !== "string" || typeof body.description.en !== "string") {
         return badRequest("Invalid description fields");
       }
       updates.description = {
@@ -153,7 +151,6 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
         en: body.description.en.trim(),
       };
     }
-
 
     // Validate image URL
     if (body.imageUrl !== undefined) {
@@ -169,13 +166,8 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
         try {
           const url = new URL(imageUrl);
 
-          if (
-            url.protocol !== "https:" ||
-            url.hostname !== "res.cloudinary.com"
-          ) {
-            return badRequest(
-              "Image must be a Cloudinary HTTPS URL",
-            );
+          if (url.protocol !== "https:" || url.hostname !== "res.cloudinary.com") {
+            return badRequest("Image must be a Cloudinary HTTPS URL");
           }
         } catch {
           return badRequest("Invalid image URL");
@@ -192,9 +184,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
         !Number.isSafeInteger(body.sortOrder) ||
         body.sortOrder < 0
       ) {
-        return badRequest(
-          "Sort order must be a non-negative integer",
-        );
+        return badRequest("Sort order must be a non-negative integer");
       }
 
       updates.sortOrder = body.sortOrder;
@@ -214,29 +204,19 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       if (body.parent === null || body.parent === "") {
         updates.parent = null;
       } else {
-        if (
-          typeof body.parent !== "string" ||
-          !isValidId(body.parent)
-        ) {
+        if (typeof body.parent !== "string" || !isValidId(body.parent)) {
           return badRequest("Invalid parent category ID");
         }
 
         if (body.parent.toLowerCase() === id.toLowerCase()) {
-          return badRequest(
-            "A category cannot be its own parent",
-          );
+          return badRequest("A category cannot be its own parent");
         }
 
-        const parentCategory = await Category.findById(
-          body.parent,
-        )
-          .select("_id parent")
-          .lean();
+        const parentCategory = await Category.findById(body.parent).select("_id parent").lean();
 
         if (!parentCategory) {
           return badRequest("Parent category not found");
         }
-
 
         const visited = new Set<string>([id.toLowerCase()]);
 
@@ -246,9 +226,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
           const currentId = String(current._id).toLowerCase();
 
           if (visited.has(currentId)) {
-            return badRequest(
-              "Cannot assign a descendant as parent",
-            );
+            return badRequest("Cannot assign a descendant as parent");
           }
 
           visited.add(currentId);
@@ -257,13 +235,9 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
             break;
           }
 
-          current = await Category.findById(current.parent)
-            .select("_id parent")
-            .lean();
+          current = await Category.findById(current.parent).select("_id parent").lean();
         }
-        updates.parent = new mongoose.Types.ObjectId(
-          body.parent,
-        );
+        updates.parent = new mongoose.Types.ObjectId(body.parent);
       }
     }
 
@@ -290,10 +264,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
 }
 
 // DELETE /api/admin/categories/:id
-export async function DELETE(
-  _request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function DELETE(_request: NextRequest, { params }: RouteContext) {
   try {
     await requireAdmin();
 
@@ -306,10 +277,7 @@ export async function DELETE(
     const category = await Category.findById(id);
 
     if (!category) {
-      return NextResponse.json(
-        { message: "Category not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ message: "Category not found" }, { status: 404 });
     }
 
     // Do not delete categories containing subcategories.
@@ -320,8 +288,7 @@ export async function DELETE(
     if (hasChildren) {
       return NextResponse.json(
         {
-          message:
-            "Cannot delete a category that contains subcategories",
+          message: "Cannot delete a category that contains subcategories",
         },
         { status: 409 },
       );
@@ -336,8 +303,7 @@ export async function DELETE(
     if (hasProducts) {
       return NextResponse.json(
         {
-          message:
-            "Cannot delete a category that contains products",
+          message: "Cannot delete a category that contains products",
         },
         { status: 409 },
       );

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
@@ -7,7 +6,15 @@ import type { Category, CategoryForm } from "@/types/category";
 
 const BASE_URL = "/api/admin/categories";
 
-async function parseResponse<T>(response: Response): Promise<T> {
+type CategoriesResponse = {
+  categories: Category[];
+};
+
+type CategoryResponse = {
+  category: Category;
+};
+
+async function parseResponse<T = unknown>(response: Response): Promise<T> {
   const data: unknown = await response.json();
 
   if (!response.ok) {
@@ -23,6 +30,10 @@ async function parseResponse<T>(response: Response): Promise<T> {
   }
 
   return data as T;
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
 }
 
 function toPayload(form: CategoryForm) {
@@ -42,6 +53,17 @@ function toPayload(form: CategoryForm) {
   };
 }
 
+async function requestCategories(signal?: AbortSignal) {
+  const response = await fetch(BASE_URL, {
+    cache: "no-store",
+    signal,
+  });
+
+  const data = await parseResponse<CategoriesResponse>(response);
+
+  return data.categories;
+}
+
 export function useCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,154 +76,143 @@ export function useCategories() {
     setError("");
 
     try {
-      const response = await fetch(BASE_URL, {
-        cache: "no-store",
-      });
-
-      const data = await parseResponse<{
-        categories: Category[];
-      }>(response);
-
-      setCategories(data.categories);
+      const data = await requestCategories();
+      setCategories(data);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to load categories",
-      );
+      setError(getErrorMessage(err, "Failed to load categories"));
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    void fetchCategories();
-  }, [fetchCategories]);
+    const controller = new AbortController();
 
-  async function getCategoryById(id: string) {
+    async function loadInitialCategories() {
+      try {
+        const data = await requestCategories(controller.signal);
+
+        if (!controller.signal.aborted) {
+          setCategories(data);
+        }
+      } catch (err) {
+        if (!controller.signal.aborted) {
+          setError(getErrorMessage(err, "Failed to load categories"));
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadInitialCategories();
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
+  const getCategoryById = useCallback(async (id: string) => {
     const response = await fetch(`${BASE_URL}/${id}`, {
       cache: "no-store",
     });
 
-    const data = await parseResponse<{
-      category: Category;
-    }>(response);
+    const data = await parseResponse<CategoryResponse>(response);
 
     return data.category;
+  }, []);
+
+  async function runMutation(
+    request: () => Promise<Response>,
+    successMessage: string,
+    fallbackError: string,
+  ): Promise<boolean> {
+    setSaving(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await request();
+
+      await parseResponse(response);
+
+      const updatedCategories = await requestCategories();
+      setCategories(updatedCategories);
+
+      setSuccess(successMessage);
+
+      return true;
+    } catch (err) {
+      setError(getErrorMessage(err, fallbackError));
+      return false;
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function createCategory(form: CategoryForm) {
-    setSaving(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      const response = await fetch(BASE_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(toPayload(form)),
-      });
-
-      await parseResponse(response);
-      await fetchCategories();
-
-      setSuccess("Category created successfully");
-      return true;
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to create category",
-      );
-      return false;
-    } finally {
-      setSaving(false);
-    }
+    return runMutation(
+      () =>
+        fetch(BASE_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(toPayload(form)),
+        }),
+      "Category created successfully",
+      "Failed to create category",
+    );
   }
 
   async function updateCategory(id: string, form: CategoryForm) {
-    setSaving(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      const response = await fetch(`${BASE_URL}/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(toPayload(form)),
-      });
-
-      await parseResponse(response);
-      await fetchCategories();
-
-      setSuccess("Category updated successfully");
-      return true;
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to update category",
-      );
-      return false;
-    } finally {
-      setSaving(false);
-    }
+    return runMutation(
+      () =>
+        fetch(`${BASE_URL}/${id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(toPayload(form)),
+        }),
+      "Category updated successfully",
+      "Failed to update category",
+    );
   }
 
   async function deleteCategory(id: string) {
-    setSaving(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      const response = await fetch(`${BASE_URL}/${id}`, {
-        method: "DELETE",
-      });
-
-      await parseResponse(response);
-      await fetchCategories();
-
-      setSuccess("Category deleted successfully");
-      return true;
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to delete category",
-      );
-      return false;
-    } finally {
-      setSaving(false);
-    }
+    return runMutation(
+      () =>
+        fetch(`${BASE_URL}/${id}`, {
+          method: "DELETE",
+        }),
+      "Category deleted successfully",
+      "Failed to delete category",
+    );
   }
 
   async function toggleCategory(category: Category) {
-    setSaving(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      const response = await fetch(
-        `${BASE_URL}/${category._id}`,
-        {
+    return runMutation(
+      () =>
+        fetch(`${BASE_URL}/${category._id}`, {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({
             isActive: !category.isActive,
           }),
-        },
-      );
-
-      await parseResponse(response);
-      await fetchCategories();
-
-      setSuccess("Category status updated successfully");
-      return true;
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to change category status",
-      );
-      return false;
-    } finally {
-      setSaving(false);
-    }
+        }),
+      "Category status updated successfully",
+      "Failed to change category status",
+    );
   }
+
+  const clearMessages = useCallback(() => {
+    setError("");
+    setSuccess("");
+  }, []);
 
   return {
     categories,
@@ -215,9 +226,6 @@ export function useCategories() {
     updateCategory,
     deleteCategory,
     toggleCategory,
-    clearMessages: () => {
-      setError("");
-      setSuccess("");
-    },
+    clearMessages,
   };
 }

@@ -1,14 +1,9 @@
-
 "use client";
 
 import type { FormEvent } from "react";
 import { X } from "lucide-react";
 
-import type {
-  Category,
-  CategoryForm,
-  CategoryMode,
-} from "@/types/category";
+import type { Category, CategoryForm, CategoryMode } from "@/types/category";
 
 type CategoryFormModalProps = {
   locale: string;
@@ -18,10 +13,7 @@ type CategoryFormModalProps = {
   editingId: string | null;
   saving: boolean;
   error: string;
-  onChange: <K extends keyof CategoryForm>(
-    field: K,
-    value: CategoryForm[K],
-  ) => void;
+  onChange: <K extends keyof CategoryForm>(field: K, value: CategoryForm[K]) => void;
   onClose: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 };
@@ -46,9 +38,7 @@ export default function CategoryFormModal({
   const t = (ar: string, en: string) => (isArabic ? ar : en);
 
   // Exclude the category being edited from parent options.
-  const availableParents = categories.filter(
-    (category) => category._id !== editingId,
-  );
+  const availableParents = categories.filter((category) => category._id !== editingId);
 
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 p-4">
@@ -60,10 +50,7 @@ export default function CategoryFormModal({
       >
         {/* Modal Header */}
         <div className="mb-6 flex items-center justify-between gap-3">
-          <h2
-            id="category-form-title"
-            className="text-xl font-bold text-[#352d2b]"
-          >
+          <h2 id="category-form-title" className="text-xl font-bold text-[#352d2b]">
             {mode === "create"
               ? t("إضافة تصنيف جديد", "Add New Category")
               : t("تعديل التصنيف", "Edit Category")}
@@ -93,9 +80,7 @@ export default function CategoryFormModal({
                 required
                 dir="rtl"
                 value={form.nameAr}
-                onChange={(e) =>
-                  onChange("nameAr", e.target.value)
-                }
+                onChange={(e) => onChange("nameAr", e.target.value)}
                 placeholder="ملابس الأطفال"
                 className={inputClass}
               />
@@ -110,9 +95,7 @@ export default function CategoryFormModal({
                 required
                 dir="ltr"
                 value={form.nameEn}
-                onChange={(e) =>
-                  onChange("nameEn", e.target.value)
-                }
+                onChange={(e) => onChange("nameEn", e.target.value)}
                 placeholder="Kids Clothing"
                 className={inputClass}
               />
@@ -121,9 +104,7 @@ export default function CategoryFormModal({
 
           {/* Slug */}
           <label className="block space-y-2">
-            <span className="block text-sm font-medium text-[#352d2b]">
-              Slug *
-            </span>
+            <span className="block text-sm font-medium text-[#352d2b]">Slug *</span>
 
             <input
               required
@@ -131,12 +112,7 @@ export default function CategoryFormModal({
               pattern="[a-z0-9]+(-[a-z0-9]+)*"
               placeholder="kids-clothing"
               value={form.slug}
-              onChange={(e) =>
-                onChange(
-                  "slug",
-                  e.target.value.toLowerCase(),
-                )
-              }
+              onChange={(e) => onChange("slug", e.target.value.toLowerCase())}
               className={inputClass}
             />
 
@@ -159,9 +135,7 @@ export default function CategoryFormModal({
                 rows={3}
                 dir="rtl"
                 value={form.descriptionAr}
-                onChange={(e) =>
-                  onChange("descriptionAr", e.target.value)
-                }
+                onChange={(e) => onChange("descriptionAr", e.target.value)}
                 placeholder="وصف التصنيف بالعربي"
                 className={inputClass}
               />
@@ -176,9 +150,7 @@ export default function CategoryFormModal({
                 rows={3}
                 dir="ltr"
                 value={form.descriptionEn}
-                onChange={(e) =>
-                  onChange("descriptionEn", e.target.value)
-                }
+                onChange={(e) => onChange("descriptionEn", e.target.value)}
                 placeholder="Category description in English"
                 className={inputClass}
               />
@@ -194,23 +166,13 @@ export default function CategoryFormModal({
 
               <select
                 value={form.parent}
-                onChange={(e) =>
-                  onChange("parent", e.target.value)
-                }
+                onChange={(e) => onChange("parent", e.target.value)}
                 className={inputClass}
               >
-                <option value="">
-                  {t(
-                    "بدون تصنيف رئيسي",
-                    "No parent category",
-                  )}
-                </option>
+                <option value="">{t("بدون تصنيف رئيسي", "No parent category")}</option>
 
                 {availableParents.map((category) => (
-                  <option
-                    key={category._id}
-                    value={category._id}
-                  >
+                  <option key={category._id} value={category._id}>
                     {category.name[isArabic ? "ar" : "en"]}
                   </option>
                 ))}
@@ -235,17 +197,12 @@ export default function CategoryFormModal({
                 min="0"
                 step="1"
                 value={form.sortOrder}
-                onChange={(e) =>
-                  onChange("sortOrder", e.target.value)
-                }
+                onChange={(e) => onChange("sortOrder", e.target.value)}
                 className={inputClass}
               />
 
               <span className="block text-xs text-[#817571]">
-                {t(
-                  "الأرقام الأصغر تظهر أولًا.",
-                  "Lower numbers appear first.",
-                )}
+                {t("الأرقام الأصغر تظهر أولًا.", "Lower numbers appear first.")}
               </span>
             </label>
           </div>
@@ -255,9 +212,7 @@ export default function CategoryFormModal({
             <input
               type="checkbox"
               checked={form.isActive}
-              onChange={(e) =>
-                onChange("isActive", e.target.checked)
-              }
+              onChange={(e) => onChange("isActive", e.target.checked)}
               className="size-4 accent-[#a97872]"
             />
 

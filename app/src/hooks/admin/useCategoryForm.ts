@@ -1,13 +1,8 @@
-
 "use client";
 
 import { useState } from "react";
 
-import type {
-  Category,
-  CategoryForm,
-  CategoryMode,
-} from "@/types/category";
+import type { Category, CategoryForm, CategoryMode } from "@/types/category";
 
 const initialForm: CategoryForm = {
   nameAr: "",
@@ -26,10 +21,7 @@ export function useCategoryForm() {
   const [mode, setMode] = useState<CategoryMode>("create");
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  function updateField<K extends keyof CategoryForm>(
-    field: K,
-    value: CategoryForm[K],
-  ) {
+  function updateField<K extends keyof CategoryForm>(field: K, value: CategoryForm[K]) {
     setForm((previous) => ({
       ...previous,
       [field]: value,
