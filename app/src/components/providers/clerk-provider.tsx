@@ -21,6 +21,14 @@ const arabicLocalization = {
   formFieldInputPlaceholder__firstName: "أدخل الاسم الأول",
   formFieldInputPlaceholder__lastName: "أدخل اسم العائلة",
   formFieldInputPlaceholder__phoneNumber: "أدخل رقم الهاتف",
+
+  // Sign-in errors
+  unstable__errors: {
+    ...arSA.unstable__errors,
+    form_password_incorrect: "كلمة المرور غير صحيحة، حاول مرة أخرى.",
+    form_identifier_not_found: "لم يتم العثور على حساب بهذه البيانات.",
+    form_code_incorrect: "رمز التحقق غير صحيح، حاول مرة أخرى.",
+  },
 } satisfies LocalizationResource;
 
 export function AppClerkProvider({ children, locale }: Props) {

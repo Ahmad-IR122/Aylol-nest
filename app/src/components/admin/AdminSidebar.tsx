@@ -50,41 +50,51 @@ export default function AdminSidebar({ locale, isOpen, onClose }: Props) {
 
   return (
     <>
+      {/* Mobile Overlay */}
       {isOpen && (
         <button
           type="button"
           aria-label={isArabic ? "إغلاق القائمة" : "Close menu"}
           onClick={onClose}
-          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
         />
       )}
 
+      {/* Sidebar */}
       <aside
         dir={isArabic ? "rtl" : "ltr"}
-        className={`fixed inset-y-0 z-50 flex w-72 flex-col border-e border-[#eee5e0] bg-white transition-transform duration-300 ${isArabic ? "right-0" : "left-0"} ${
+        className={`fixed inset-y-0 z-50 flex w-72 flex-col border-e border-[#eee5e0] bg-white transition-colors duration-300 dark:border-[#3a3431] dark:bg-[#211e1c] ${
+          isArabic ? "right-0" : "left-0"
+        } ${
           isOpen
             ? "translate-x-0"
             : isArabic
               ? "translate-x-full lg:translate-x-0"
               : "-translate-x-full lg:translate-x-0"
-        } `}
+        }`}
+        style={{
+          transitionProperty: "transform, background-color, border-color",
+        }}
       >
-        <div className="flex h-20 items-center justify-between border-b border-[#eee5e0] px-6">
+        {/* Sidebar Header */}
+        <div className="flex h-20 items-center justify-between border-b border-[#eee5e0] px-6 dark:border-[#3a3431]">
           <div>
-            <p className="text-xl font-bold text-[#a97872]">Aylol Nest</p>
-            <p className="text-xs text-[#817571]">Admin Panel</p>
+            <p className="text-xl font-bold text-[#a97872] dark:text-[#d4a39b]">Aylol Nest</p>
+
+            <p className="text-xs text-[#817571] dark:text-[#aaa09b]">Admin Panel</p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
             aria-label={isArabic ? "إغلاق القائمة" : "Close menu"}
-            className="rounded-lg p-2 text-[#817571] lg:hidden"
+            className="rounded-lg p-2 text-[#817571] transition-colors hover:bg-[#faf6f3] lg:hidden dark:text-[#aaa09b] dark:hover:bg-[#332d2a]"
           >
             <X size={20} />
           </button>
         </div>
 
+        {/* Navigation */}
         <nav className="flex-1 space-y-1 overflow-y-auto p-4">
           {links.map(({ href, label, icon: Icon }) => {
             const active =
@@ -97,8 +107,10 @@ export default function AdminSidebar({ locale, isOpen, onClose }: Props) {
                 onClick={onClose}
                 aria-current={active ? "page" : undefined}
                 className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
-                  active ? "bg-[#f8eeeb] text-[#a97872]" : "text-[#6d625e] hover:bg-[#faf6f3]"
-                } `}
+                  active
+                    ? "bg-[#f8eeeb] text-[#a97872] dark:bg-[#3b2d2b] dark:text-[#e2ada4]"
+                    : "text-[#6d625e] hover:bg-[#faf6f3] dark:text-[#c9c0bb] dark:hover:bg-[#332d2a]"
+                }`}
               >
                 <Icon size={19} />
                 <span>{label}</span>
@@ -107,11 +119,12 @@ export default function AdminSidebar({ locale, isOpen, onClose }: Props) {
           })}
         </nav>
 
-        <div className="border-t border-[#eee5e0] p-4">
+        {/* Sign Out */}
+        <div className="border-t border-[#eee5e0] p-4 dark:border-[#3a3431]">
           <SignOutButton redirectUrl={`/${locale}`}>
             <button
               type="button"
-              className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50"
+              className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
             >
               <LogOut size={19} />
               {isArabic ? "تسجيل الخروج" : "Sign Out"}

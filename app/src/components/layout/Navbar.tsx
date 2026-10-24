@@ -2,19 +2,25 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import { Moon, Sun, ShoppingBag, Menu, X } from "lucide-react";
+import { Moon, Sun, ShoppingBag, Menu, X, LayoutDashboard } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Show, UserButton } from "@clerk/nextjs";
 import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
 
-export function Navbar() {
-  const t = useTranslations("Navbar");
-  const { setTheme } = useTheme();
+type NavbarProps = {
+  isAdmin?: boolean;
+};
 
+export function Navbar({ isAdmin = false }: NavbarProps) {
+  const t = useTranslations("Navbar");
+  const locale = useLocale();
+  const isArabic = locale === "ar";
+
+  const { setTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const links = [
@@ -75,6 +81,21 @@ export function Navbar() {
             <ShoppingBag className="size-5" />
           </Button>
 
+          {/* Admin Dashboard - Desktop */}
+          {isAdmin && (
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="hidden items-center gap-2 border-[#a97872]/40 text-[#a97872] hover:bg-[#f8eeeb] md:inline-flex dark:text-[#d4a39b] dark:hover:bg-[#3b2d2b]"
+            >
+              <Link href="/admin">
+                <LayoutDashboard className="size-4" />
+                {isArabic ? "لوحة التحكم" : "Dashboard"}
+              </Link>
+            </Button>
+          )}
+
           <div className="hidden items-center md:flex">
             <Show when="signed-out">
               <Button variant="ghost" size="sm" className="min-h-11 lg:min-h-7" asChild>
@@ -99,6 +120,7 @@ export function Navbar() {
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {menuOpen && (
         <nav className="border-border/60 bg-background flex flex-col gap-1 border-t px-4 py-3 md:hidden">
           {links.map((link) => (
@@ -111,6 +133,19 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
+
+          {/* Admin Dashboard - Mobile */}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-3 rounded-lg px-3 py-3 font-semibold text-[#a97872] hover:bg-[#f8eeeb] dark:text-[#d4a39b] dark:hover:bg-[#3b2d2b]"
+            >
+              <LayoutDashboard className="size-5" />
+              {isArabic ? "لوحة التحكم" : "Admin Dashboard"}
+            </Link>
+          )}
+
           <Button
             variant="ghost"
             className="justify-start rounded-lg px-3 py-3 font-semibold"
@@ -119,6 +154,7 @@ export function Navbar() {
             <ShoppingBag className="size-5" />
             {t("cart")}
           </Button>
+
           <Show when="signed-out">
             <Link
               href="/sign-in"
