@@ -1,4 +1,3 @@
-
 import { getLocale } from "next-intl/server";
 import CategoriesManager from "@/components/admin/categories/CategoriesManager";
 

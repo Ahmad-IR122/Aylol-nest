@@ -1,4 +1,3 @@
-
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
@@ -25,9 +24,5 @@ export default async function AdminLayout({ children }: Props) {
     redirect(`/${locale}`);
   }
 
-  return (
-     <AdminShell locale={locale}>
-      {children}
-    </AdminShell>
-  );
+  return <AdminShell locale={locale}>{children}</AdminShell>;
 }

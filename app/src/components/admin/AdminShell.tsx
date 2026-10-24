@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, type ReactNode } from "react";
@@ -14,29 +13,15 @@ type Props = {
   locale: string;
 };
 
-export default function AdminShell({
-  children,
-  locale,
-}: Props) {
+export default function AdminShell({ children, locale }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isArabic = locale === "ar";
 
   return (
-    <div
-      dir={isArabic ? "rtl" : "ltr"}
-      className="min-h-screen bg-[#faf8f6]"
-    >
-      <AdminSidebar
-        locale={locale}
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
+    <div dir={isArabic ? "rtl" : "ltr"} className="min-h-screen bg-[#faf8f6]">
+      <AdminSidebar locale={locale} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div
-        className={
-          isArabic ? "lg:mr-72" : "lg:ml-72"
-        }
-      >
+      <div className={isArabic ? "lg:mr-72" : "lg:ml-72"}>
         <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-[#eee5e0] bg-white px-5 md:px-8">
           <div className="flex items-center gap-4">
             <button
@@ -50,13 +35,9 @@ export default function AdminShell({
 
             <div>
               <h2 className="font-semibold text-[#352d2b]">
-                {isArabic
-                  ? "إدارة المتجر"
-                  : "Store Management"}
+                {isArabic ? "إدارة المتجر" : "Store Management"}
               </h2>
-              <p className="text-xs text-[#817571]">
-                Aylol Nest
-              </p>
+              <p className="text-xs text-[#817571]">Aylol Nest</p>
             </div>
           </div>
 
@@ -75,16 +56,8 @@ export default function AdminShell({
             <button
               type="button"
               disabled
-              title={
-                isArabic
-                  ? "الإشعارات قريبًا"
-                  : "Notifications coming soon"
-              }
-              aria-label={
-                isArabic
-                  ? "الإشعارات قريبًا"
-                  : "Notifications coming soon"
-              }
+              title={isArabic ? "الإشعارات قريبًا" : "Notifications coming soon"}
+              aria-label={isArabic ? "الإشعارات قريبًا" : "Notifications coming soon"}
               className="cursor-not-allowed rounded-lg p-2 text-[#bdb4af]"
             >
               <Bell size={21} />
@@ -94,9 +67,7 @@ export default function AdminShell({
           </div>
         </header>
 
-        <div className="min-w-0">
-          {children}
-        </div>
+        <div className="min-w-0">{children}</div>
       </div>
     </div>
   );

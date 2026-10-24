@@ -29,3 +29,5 @@ export type CategoryForm = {
   sortOrder: string;
   isActive: boolean;
 };
+
+export type CategoryMode = "create" | "edit";

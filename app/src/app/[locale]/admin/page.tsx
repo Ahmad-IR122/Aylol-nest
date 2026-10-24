@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
 
@@ -16,13 +15,12 @@ export default async function AdminDashboardPage() {
 
   await connectDB();
 
-  const [productsCount, categoriesCount, ordersCount, customersCount] =
-    await Promise.all([
-      Product.countDocuments(),
-      Category.countDocuments(),
-      Order.countDocuments(),
-      User.countDocuments({ role: "customer" }),
-    ]);
+  const [productsCount, categoriesCount, ordersCount, customersCount] = await Promise.all([
+    Product.countDocuments(),
+    Category.countDocuments(),
+    Order.countDocuments(),
+    User.countDocuments({ role: "customer" }),
+  ]);
 
   const stats = [
     {
@@ -55,9 +53,7 @@ export default async function AdminDashboardPage() {
     <main className="min-h-screen bg-[#faf8f6] px-5 py-10 md:px-10">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10">
-          <p className="mb-2 text-sm font-medium text-[#a97872]">
-            Aylol Nest
-          </p>
+          <p className="mb-2 text-sm font-medium text-[#a97872]">Aylol Nest</p>
 
           <h1 className="text-3xl font-bold text-[#352d2b]">
             {isArabic ? "لوحة التحكم" : "Admin Dashboard"}
@@ -82,14 +78,10 @@ export default async function AdminDashboardPage() {
                 <span className="text-sm text-[#a97872]">↗</span>
               </div>
 
-              <p className="text-sm text-[#817571]">
-                {stat.title}
-              </p>
+              <p className="text-sm text-[#817571]">{stat.title}</p>
 
               <p className="mt-2 text-4xl font-bold text-[#352d2b]">
-                {stat.value.toLocaleString(
-                  isArabic ? "ar" : "en",
-                )}
+                {stat.value.toLocaleString(isArabic ? "ar" : "en")}
               </p>
             </Link>
           ))}

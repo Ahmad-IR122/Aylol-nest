@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useLocale } from "next-intl";
@@ -9,9 +8,7 @@ type Props = {
   onLanguageChange?: () => void;
 };
 
-export function LanguageSwitcher({
-  onLanguageChange,
-}: Props) {
+export function LanguageSwitcher({ onLanguageChange }: Props) {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
@@ -30,11 +27,7 @@ export function LanguageSwitcher({
       variant="ghost"
       size="sm"
       onClick={changeLanguage}
-      aria-label={
-        locale === "ar"
-          ? "Switch to English"
-          : "التبديل إلى العربية"
-      }
+      aria-label={locale === "ar" ? "Switch to English" : "التبديل إلى العربية"}
       className="min-h-11 min-w-11 px-2 font-bold lg:min-h-7 lg:min-w-0 lg:px-2.5"
     >
       {locale === "ar" ? "EN" : "عربي"}

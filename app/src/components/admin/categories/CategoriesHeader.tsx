@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Plus } from "lucide-react";
@@ -8,18 +7,13 @@ type CategoriesHeaderProps = {
   onAdd: () => void;
 };
 
-export default function CategoriesHeader({
-  locale,
-  onAdd,
-}: CategoriesHeaderProps) {
+export default function CategoriesHeader({ locale, onAdd }: CategoriesHeaderProps) {
   const isArabic = locale === "ar";
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <p className="mb-2 text-sm font-medium text-[#a97872]">
-          Aylol Nest / Admin
-        </p>
+        <p className="mb-2 text-sm font-medium text-[#a97872]">Aylol Nest / Admin</p>
 
         <h1 className="text-3xl font-bold text-[#352d2b]">
           {isArabic ? "إدارة التصنيفات" : "Categories Management"}
