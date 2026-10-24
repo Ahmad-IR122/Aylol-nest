@@ -1,4 +1,3 @@
-
 import type { ReactNode } from "react";
 
 import { Navbar } from "@/components/layout/Navbar";

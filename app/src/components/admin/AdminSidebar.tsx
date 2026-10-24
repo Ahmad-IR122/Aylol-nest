@@ -1,19 +1,9 @@
-
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SignOutButton } from "@clerk/nextjs";
-import {
-  LayoutDashboard,
-  Package,
-  Tags,
-  ShoppingBag,
-  Users,
-  Truck,
-  LogOut,
-  X,
-} from "lucide-react";
+import { LayoutDashboard, Package, Tags, ShoppingBag, Users, Truck, LogOut, X } from "lucide-react";
 
 type Props = {
   locale: string;
@@ -21,11 +11,7 @@ type Props = {
   onClose: () => void;
 };
 
-export default function AdminSidebar({
-  locale,
-  isOpen,
-  onClose,
-}: Props) {
+export default function AdminSidebar({ locale, isOpen, onClose }: Props) {
   const pathname = usePathname();
   const isArabic = locale === "ar";
 
@@ -93,20 +79,16 @@ export default function AdminSidebar({
         {/* Sidebar Header */}
         <div className="flex h-20 items-center justify-between border-b border-[#eee5e0] px-6 dark:border-[#3a3431]">
           <div>
-            <p className="text-xl font-bold text-[#a97872] dark:text-[#d4a39b]">
-              Aylol Nest
-            </p>
+            <p className="text-xl font-bold text-[#a97872] dark:text-[#d4a39b]">Aylol Nest</p>
 
-            <p className="text-xs text-[#817571] dark:text-[#aaa09b]">
-              Admin Panel
-            </p>
+            <p className="text-xs text-[#817571] dark:text-[#aaa09b]">Admin Panel</p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
             aria-label={isArabic ? "إغلاق القائمة" : "Close menu"}
-            className="rounded-lg p-2 text-[#817571] transition-colors hover:bg-[#faf6f3] dark:text-[#aaa09b] dark:hover:bg-[#332d2a] lg:hidden"
+            className="rounded-lg p-2 text-[#817571] transition-colors hover:bg-[#faf6f3] lg:hidden dark:text-[#aaa09b] dark:hover:bg-[#332d2a]"
           >
             <X size={20} />
           </button>
@@ -116,9 +98,7 @@ export default function AdminSidebar({
         <nav className="flex-1 space-y-1 overflow-y-auto p-4">
           {links.map(({ href, label, icon: Icon }) => {
             const active =
-              pathname === href ||
-              (href !== `/${locale}/admin` &&
-                pathname.startsWith(`${href}/`));
+              pathname === href || (href !== `/${locale}/admin` && pathname.startsWith(`${href}/`));
 
             return (
               <Link

@@ -1,18 +1,10 @@
-
 "use client";
 
 import { useState } from "react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import {
-  Moon,
-  Sun,
-  ShoppingBag,
-  Menu,
-  X,
-  LayoutDashboard,
-} from "lucide-react";
+import { Moon, Sun, ShoppingBag, Menu, X, LayoutDashboard } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -71,11 +63,7 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
             variant="ghost"
             size="icon"
             onClick={() =>
-              setTheme(
-                document.documentElement.classList.contains("dark")
-                  ? "light"
-                  : "dark",
-              )
+              setTheme(document.documentElement.classList.contains("dark") ? "light" : "dark")
             }
             aria-label="Toggle theme"
             className="size-11 lg:size-8"
@@ -99,7 +87,7 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
               variant="outline"
               size="sm"
               asChild
-              className="hidden items-center gap-2 border-[#a97872]/40 text-[#a97872] hover:bg-[#f8eeeb] dark:text-[#d4a39b] dark:hover:bg-[#3b2d2b] md:inline-flex"
+              className="hidden items-center gap-2 border-[#a97872]/40 text-[#a97872] hover:bg-[#f8eeeb] md:inline-flex dark:text-[#d4a39b] dark:hover:bg-[#3b2d2b]"
             >
               <Link href="/admin">
                 <LayoutDashboard className="size-4" />
@@ -110,12 +98,7 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
 
           <div className="hidden items-center md:flex">
             <Show when="signed-out">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="min-h-11 lg:min-h-7"
-                asChild
-              >
+              <Button variant="ghost" size="sm" className="min-h-11 lg:min-h-7" asChild>
                 <Link href="/sign-in">{t("login")}</Link>
               </Button>
             </Show>
@@ -132,11 +115,7 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
-            {menuOpen ? (
-              <X className="size-5" />
-            ) : (
-              <Menu className="size-5" />
-            )}
+            {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </Button>
         </div>
       </div>
