@@ -2,29 +2,20 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { Moon, Sun, ShoppingBag, Menu, X } from "lucide-react";
 
-import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Show, UserButton } from "@clerk/nextjs";
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
 
 export function Navbar() {
   const t = useTranslations("Navbar");
-  const locale = useLocale();
-  const pathname = usePathname();
-  const router = useRouter();
   const { setTheme } = useTheme();
 
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const changeLanguage = () => {
-    router.replace(pathname, {
-      locale: locale === "ar" ? "en" : "ar",
-    });
-    setMenuOpen(false);
-  };
 
   const links = [
     { href: "/", label: t("home") },
@@ -60,14 +51,7 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-1 sm:gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={changeLanguage}
-            className="min-h-11 min-w-11 px-2 font-bold lg:min-h-7 lg:min-w-0 lg:px-2.5"
-          >
-            {locale === "ar" ? "EN" : "عربي"}
-          </Button>
+          <LanguageSwitcher />
 
           <Button
             variant="ghost"

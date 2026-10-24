@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 import { getLocale } from "next-intl/server";
 
 import { getCurrentUser } from "@/lib/auth/current-user";
+import AdminShell from "@/components/admin/AdminShell";
 
 type Props = {
   children: ReactNode;
@@ -10,17 +12,17 @@ type Props = {
 
 export default async function AdminLayout({ children }: Props) {
   const locale = await getLocale();
-  const user = await getCurrentUser();
+  const { userId } = await auth();
 
-  // User is not authenticated or not found in MongoDB
-  if (!user) {
+  if (!userId) {
     redirect(`/${locale}/sign-in`);
   }
 
-  // User is authenticated but not an admin
-  if (user.role !== "admin") {
+  const user = await getCurrentUser();
+
+  if (!user || !user.isActive || user.role !== "admin") {
     redirect(`/${locale}`);
   }
 
-  return <>{children}</>;
+  return <AdminShell locale={locale}>{children}</AdminShell>;
 }
