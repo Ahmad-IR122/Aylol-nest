@@ -95,14 +95,14 @@ export default function CategoriesManager({ locale }: CategoryManagerProps) {
   }
 
   return (
-    <main className="min-h-screen bg-[#faf8f6] px-4 py-8 md:px-8">
+    <main className="min-h-dvh bg-[#faf8f6] px-4 py-8 text-[#352d2b] md:px-8 dark:bg-[#171717] dark:text-[#f5efec]">
       <div className="mx-auto max-w-7xl space-y-7">
         <CategoriesHeader locale={locale} onAdd={handleAdd} />
 
         {error && !isOpen && !deletingCategory && (
           <div
             role="alert"
-            className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+            className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
           >
             {error}
           </div>
@@ -111,14 +111,14 @@ export default function CategoriesManager({ locale }: CategoryManagerProps) {
         {detailsError && (
           <div
             role="alert"
-            className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+            className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
           >
             {detailsError}
           </div>
         )}
 
         {detailsLoading && (
-          <p className="text-sm text-[#817571]">
+          <p className="text-sm text-[#817571] dark:text-[#aaa09b]">
             {locale === "ar" ? "جاري تحميل التفاصيل..." : "Loading details..."}
           </p>
         )}
@@ -126,7 +126,7 @@ export default function CategoriesManager({ locale }: CategoryManagerProps) {
         {success && (
           <div
             role="status"
-            className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700"
+            className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-200"
           >
             {success}
           </div>

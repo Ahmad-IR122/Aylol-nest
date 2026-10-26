@@ -3,15 +3,17 @@ import CategorySection from "@/components/home/CategorySection";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import PromoBanner from "@/components/home/PromoBanner";
 import NewArrivals from "@/components/home/NewArrivals";
+import { getHomeProducts } from "@/lib/products/storefront";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { featured, arrivals } = await getHomeProducts();
   return (
     <main>
       <HeroSection />
       <CategorySection />
-      <FeaturedProducts />
+      <FeaturedProducts {...featured} />
       <PromoBanner />
-      <NewArrivals />
+      <NewArrivals {...arrivals} />
     </main>
   );
 }
