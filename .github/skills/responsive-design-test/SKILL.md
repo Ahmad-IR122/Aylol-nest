@@ -11,37 +11,37 @@ layouts glued together at breakpoints.
 
 ## Stack facts this skill relies on
 
-| Concern | Library | What to remember |
-|---|---|---|
-| Framework | `next` 16, `react` 19 | App Router, server components by default; use `next/image` with `sizes` |
-| Styling | `tailwindcss` 4 | Mobile-first. Config lives in CSS (`@theme` in `globals.css`), not `tailwind.config.js` |
-| UI kit | `shadcn`, `radix-ui`, `class-variance-authority`, `cn` | Variants via `cva`; merge classes with `cn()` |
-| Animation | `tw-animate-css` | Respect `motion-reduce:` |
-| Icons | `lucide-react`, `react-icons` | Size with `size-*`, never fixed `width` attributes |
-| i18n | `next-intl`, `@clerk/localizations` | Text length changes per language; **RTL** (e.g. Arabic) must work |
-| Theme | `next-themes` | Test light + dark at every size |
-| Forms | `react-hook-form`, `zod` | Error messages must not break layout |
-| Toasts | `sonner` | Must not cover primary actions on mobile |
-| Auth UI | `@clerk/nextjs` | Embedded Clerk components must fit 320px |
-| State | `zustand` | Sidebar/menu open state must reset sensibly on resize |
-| Images | `cloudinary` | Use responsive transforms + `next/image` `sizes` |
+| Concern   | Library                                                | What to remember                                                                        |
+| --------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| Framework | `next` 16, `react` 19                                  | App Router, server components by default; use `next/image` with `sizes`                 |
+| Styling   | `tailwindcss` 4                                        | Mobile-first. Config lives in CSS (`@theme` in `globals.css`), not `tailwind.config.js` |
+| UI kit    | `shadcn`, `radix-ui`, `class-variance-authority`, `cn` | Variants via `cva`; merge classes with `cn()`                                           |
+| Animation | `tw-animate-css`                                       | Respect `motion-reduce:`                                                                |
+| Icons     | `lucide-react`, `react-icons`                          | Size with `size-*`, never fixed `width` attributes                                      |
+| i18n      | `next-intl`, `@clerk/localizations`                    | Text length changes per language; **RTL** (e.g. Arabic) must work                       |
+| Theme     | `next-themes`                                          | Test light + dark at every size                                                         |
+| Forms     | `react-hook-form`, `zod`                               | Error messages must not break layout                                                    |
+| Toasts    | `sonner`                                               | Must not cover primary actions on mobile                                                |
+| Auth UI   | `@clerk/nextjs`                                        | Embedded Clerk components must fit 320px                                                |
+| State     | `zustand`                                              | Sidebar/menu open state must reset sensibly on resize                                   |
+| Images    | `cloudinary`                                           | Use responsive transforms + `next/image` `sizes`                                        |
 
 ## Viewport matrix (always test all of these)
 
 Tailwind 4 default breakpoints: `sm 640`, `md 768`, `lg 1024`, `xl 1280`, `2xl 1536`.
 Test **at and one pixel below** each breakpoint to catch jumps.
 
-| Name | Width x Height | Represents |
-|---|---|---|
-| xs-phone | 320 x 568 | Smallest supported phone (hard floor) |
-| phone | 375 x 667 | iPhone SE / small Android |
-| phone-lg | 430 x 932 | Large phones |
-| tablet-portrait | 768 x 1024 | iPad portrait |
-| tablet-landscape | 1024 x 768 | iPad landscape / small laptop |
-| laptop | 1280 x 800 | Common laptop |
-| desktop | 1536 x 864 | Full HD scaled |
-| wide | 1920 x 1080 | Full HD |
-| ultrawide | 2560 x 1080 | Ultrawide (content must not stretch endlessly) |
+| Name             | Width x Height | Represents                                     |
+| ---------------- | -------------- | ---------------------------------------------- |
+| xs-phone         | 320 x 568      | Smallest supported phone (hard floor)          |
+| phone            | 375 x 667      | iPhone SE / small Android                      |
+| phone-lg         | 430 x 932      | Large phones                                   |
+| tablet-portrait  | 768 x 1024     | iPad portrait                                  |
+| tablet-landscape | 1024 x 768     | iPad landscape / small laptop                  |
+| laptop           | 1280 x 800     | Common laptop                                  |
+| desktop          | 1536 x 864     | Full HD scaled                                 |
+| wide             | 1920 x 1080    | Full HD                                        |
+| ultrawide        | 2560 x 1080    | Ultrawide (content must not stretch endlessly) |
 
 Boundary widths to also check: 639, 640, 767, 768, 1023, 1024, 1279, 1280, 1535, 1536.
 
@@ -67,7 +67,7 @@ Flag and fix:
 
 - Fixed pixel widths on containers: `w-[600px]`, `width: 800px`, `min-w-[...]` larger than 320 without a breakpoint guard.
 - `h-screen` / `100vh` for full-height areas. Use `min-h-dvh` / `h-dvh` (mobile browser bars).
-- Desktop-first patterns: `max-md:`, `max-sm:` used to *undo* desktop styles. Write base styles for mobile, then add `sm:` `md:` `lg:`.
+- Desktop-first patterns: `max-md:`, `max-sm:` used to _undo_ desktop styles. Write base styles for mobile, then add `sm:` `md:` `lg:`.
 - Physical direction utilities that break RTL: `ml-* mr-* pl-* pr-* left-* right-* text-left text-right border-l border-r rounded-l rounded-r`. Replace with logical ones: `ms-* me-* ps-* pe-* start-* end-* text-start text-end border-s border-e rounded-s rounded-e`.
 - Directional icons (chevrons, arrows) without `rtl:rotate-180` (or `rtl:-scale-x-100`).
 - Hard-coded colors (`#fff`, `bg-white`, `text-black`) instead of theme tokens (`bg-background`, `text-foreground`, `bg-card`, `border-border`, `text-muted-foreground`), which break dark mode.
@@ -92,13 +92,25 @@ const BASE = process.env.BASE_URL ?? "http://localhost:3000";
 // Every route is tested in BOTH locales. Pass locale-less paths, e.g. ROUTES="/,/dashboard"
 const LOCALES = ["en", "ar"];
 const PATHS = (process.env.ROUTES ?? "/").split(",");
-const ROUTES = LOCALES.flatMap((l) => PATHS.map((p) => `/${l}${p === "/" ? "" : p}`));
+const ROUTES = LOCALES.flatMap((l) =>
+  PATHS.map((p) => `/${l}${p === "/" ? "" : p}`),
+);
 const OUT = "responsive-report";
 
 const VIEWPORTS = [
-  [320, 568], [375, 667], [430, 932], [639, 900], [640, 900],
-  [767, 1024], [768, 1024], [1023, 768], [1024, 768],
-  [1280, 800], [1536, 864], [1920, 1080], [2560, 1080],
+  [320, 568],
+  [375, 667],
+  [430, 932],
+  [639, 900],
+  [640, 900],
+  [767, 1024],
+  [768, 1024],
+  [1023, 768],
+  [1024, 768],
+  [1280, 800],
+  [1536, 864],
+  [1920, 1080],
+  [2560, 1080],
 ];
 const THEMES = ["light", "dark"];
 
@@ -125,11 +137,20 @@ for (const route of ROUTES) {
         const offenders = [...document.querySelectorAll("body *")]
           .filter((el) => el.getBoundingClientRect().right > de.clientWidth + 1)
           .slice(0, 5)
-          .map((el) => el.tagName.toLowerCase() + "." + [...el.classList].join("."));
+          .map(
+            (el) =>
+              el.tagName.toLowerCase() + "." + [...el.classList].join("."),
+          );
         return { scrolls: de.scrollWidth > de.clientWidth, offenders };
       });
       if (overflow.scrolls)
-        problems.push({ route, theme, width, type: "h-overflow", detail: overflow.offenders });
+        problems.push({
+          route,
+          theme,
+          width,
+          type: "h-overflow",
+          detail: overflow.offenders,
+        });
 
       // 2. Tap targets < 44px on touch widths
       if (width < 1024) {
@@ -142,11 +163,25 @@ for (const route of ROUTES) {
             .slice(0, 5)
             .map((el) => el.outerHTML.slice(0, 80)),
         );
-        if (small.length) problems.push({ route, theme, width, type: "small-tap-target", detail: small });
+        if (small.length)
+          problems.push({
+            route,
+            theme,
+            width,
+            type: "small-tap-target",
+            detail: small,
+          });
       }
 
       // 3. Console errors (hydration, image sizes, etc.)
-      if (errors.length) problems.push({ route, theme, width, type: "console", detail: errors.slice(0, 3) });
+      if (errors.length)
+        problems.push({
+          route,
+          theme,
+          width,
+          type: "console",
+          detail: errors.slice(0, 3),
+        });
 
       await page.screenshot({
         path: `${OUT}/${route.replace(/\W+/g, "_") || "home"}-${theme}-${width}x${height}.png`,
