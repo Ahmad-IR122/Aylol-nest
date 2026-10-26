@@ -11,6 +11,22 @@
     "description": "أجمل ملابس الأطفال من عمر يوم حتى 14 سنة",
     "shopNow": "تسوق الآن"
   },
+  "StorefrontProducts": {
+    "featuredEyebrow": "مختارة بعناية",
+    "featuredTitle": "منتجات مميزة",
+    "featuredDescription": "قطع ناعمة وأنيقة لصغاركم.",
+    "arrivalsEyebrow": "جديد أيلول",
+    "arrivalsTitle": "أحدث المنتجات",
+    "arrivalsDescription": "اكتشف أحدث تشكيلات ملابس الأطفال من Aylol Nest.",
+    "newBadge": "جديد",
+    "inStock": "متوفر",
+    "outOfStock": "نفدت الكمية",
+    "fromPrice": "ابتداءً من {price}",
+    "priceUnavailable": "غير متوفر حاليًا",
+    "imagePlaceholder": "صورة المنتج غير متوفرة",
+    "empty": "لا توجد منتجات متاحة حاليًا.",
+    "loadError": "تعذر تحميل المنتجات. يرجى المحاولة لاحقًا."
+  },
   "Footer": {
     "description": "ملابس أطفال أنيقة وعالية الجودة، صُممت لتجعل كل لحظة صغيرة أجمل.",
     "shop": "تسوق",

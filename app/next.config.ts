@@ -4,6 +4,12 @@ import createNextIntlPlugin from "next-intl/plugin";
 const nextConfig: NextConfig = {
   cacheComponents: false,
 
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "res.cloudinary.com", port: "", pathname: "/**" },
+    ],
+  },
+
   turbopack: {
     rules: {
       "*.css": {

@@ -11,6 +11,22 @@
     "description": "Beautiful clothing for boys and girls, from newborn to 14 years",
     "shopNow": "Shop Now"
   },
+  "StorefrontProducts": {
+    "featuredEyebrow": "THOUGHTFULLY SELECTED",
+    "featuredTitle": "Featured Products",
+    "featuredDescription": "Soft, stylish pieces for your little ones.",
+    "arrivalsEyebrow": "FRESH AT AYLOL",
+    "arrivalsTitle": "New Arrivals",
+    "arrivalsDescription": "Discover the latest children's clothing collections from Aylol Nest.",
+    "newBadge": "New",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "fromPrice": "From {price}",
+    "priceUnavailable": "Currently unavailable",
+    "imagePlaceholder": "Product image unavailable",
+    "empty": "No products are available at the moment.",
+    "loadError": "Products could not be loaded. Please try again later."
+  },
   "Footer": {
     "description": "Stylish and high-quality clothes for children, designed to make every little moment beautiful.",
     "shop": "Shop",

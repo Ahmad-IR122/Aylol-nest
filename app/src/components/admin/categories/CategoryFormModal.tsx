@@ -19,7 +19,7 @@ type CategoryFormModalProps = {
 };
 
 const inputClass =
-  "w-full rounded-xl border border-[#e8ddd7] bg-white px-4 py-3 text-sm text-[#352d2b] outline-none transition focus:border-[#a97872] focus:ring-2 focus:ring-[#a97872]/15";
+  "w-full min-w-0 rounded-xl border border-[#e8ddd7] dark:border-[#3a3431] bg-white dark:bg-[#171717] px-4 py-3 text-base md:text-sm text-[#352d2b] dark:text-[#f5efec] placeholder:text-[#817571] dark:placeholder:text-[#aaa09b] outline-none transition focus:border-[#a97872] dark:focus:border-[#d4a39b] focus:ring-2 focus:ring-[#a97872]/15 dark:focus:ring-[#d4a39b]/30";
 
 export default function CategoryFormModal({
   locale,
@@ -41,16 +41,19 @@ export default function CategoryFormModal({
   const availableParents = categories.filter((category) => category._id !== editingId);
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 p-4 text-[#352d2b] dark:bg-black/65 dark:text-[#f5efec]">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="category-form-title"
-        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-[#faf8f6] p-6 shadow-xl"
+        className="max-h-[90dvh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-[#faf8f6] p-6 shadow-xl dark:bg-[#292524]"
       >
         {/* Modal Header */}
         <div className="mb-6 flex items-center justify-between gap-3">
-          <h2 id="category-form-title" className="text-xl font-bold text-[#352d2b]">
+          <h2
+            id="category-form-title"
+            className="text-xl font-bold text-[#352d2b] dark:text-[#f5efec]"
+          >
             {mode === "create"
               ? t("إضافة تصنيف جديد", "Add New Category")
               : t("تعديل التصنيف", "Edit Category")}
@@ -61,7 +64,7 @@ export default function CategoryFormModal({
             onClick={onClose}
             disabled={saving}
             aria-label={t("إغلاق", "Close")}
-            className="rounded-lg p-2 text-[#817571] transition hover:bg-white disabled:opacity-50"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 text-[#817571] transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a97872] disabled:opacity-50 dark:text-[#aaa09b] dark:hover:bg-[#3a3431] dark:focus-visible:outline-[#d4a39b]"
           >
             <X size={21} />
           </button>
@@ -72,7 +75,7 @@ export default function CategoryFormModal({
           {/* Category Names */}
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block space-y-2">
-              <span className="block text-sm font-medium text-[#352d2b]">
+              <span className="block text-sm font-medium text-[#352d2b] dark:text-[#f5efec]">
                 {t("الاسم بالعربي", "Arabic Name")} *
               </span>
 
@@ -87,7 +90,7 @@ export default function CategoryFormModal({
             </label>
 
             <label className="block space-y-2">
-              <span className="block text-sm font-medium text-[#352d2b]">
+              <span className="block text-sm font-medium text-[#352d2b] dark:text-[#f5efec]">
                 {t("الاسم بالإنجليزي", "English Name")} *
               </span>
 
@@ -104,7 +107,9 @@ export default function CategoryFormModal({
 
           {/* Slug */}
           <label className="block space-y-2">
-            <span className="block text-sm font-medium text-[#352d2b]">Slug *</span>
+            <span className="block text-sm font-medium text-[#352d2b] dark:text-[#f5efec]">
+              Slug *
+            </span>
 
             <input
               required
@@ -116,7 +121,7 @@ export default function CategoryFormModal({
               className={inputClass}
             />
 
-            <span className="block text-xs text-[#817571]">
+            <span className="block text-xs text-[#817571] dark:text-[#aaa09b]">
               {t(
                 "معرّف فريد للتصنيف، يُستخدم في رابط الصفحة. مثال: kids-clothing",
                 "A unique identifier used in the category URL. Example: kids-clothing",
@@ -127,7 +132,7 @@ export default function CategoryFormModal({
           {/* Descriptions */}
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block space-y-2">
-              <span className="block text-sm font-medium text-[#352d2b]">
+              <span className="block text-sm font-medium text-[#352d2b] dark:text-[#f5efec]">
                 {t("الوصف بالعربي", "Arabic Description")}
               </span>
 
@@ -142,7 +147,7 @@ export default function CategoryFormModal({
             </label>
 
             <label className="block space-y-2">
-              <span className="block text-sm font-medium text-[#352d2b]">
+              <span className="block text-sm font-medium text-[#352d2b] dark:text-[#f5efec]">
                 {t("الوصف بالإنجليزي", "English Description")}
               </span>
 
@@ -160,7 +165,7 @@ export default function CategoryFormModal({
           {/* Parent Category & Sort Order */}
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block space-y-2">
-              <span className="block text-sm font-medium text-[#352d2b]">
+              <span className="block text-sm font-medium text-[#352d2b] dark:text-[#f5efec]">
                 {t("التصنيف الرئيسي", "Parent Category")}
               </span>
 
@@ -178,7 +183,7 @@ export default function CategoryFormModal({
                 ))}
               </select>
 
-              <span className="block text-xs text-[#817571]">
+              <span className="block text-xs text-[#817571] dark:text-[#aaa09b]">
                 {t(
                   "اتركه فارغًا إذا كان التصنيف رئيسيًا.",
                   "Leave empty if this is a main category.",
@@ -187,7 +192,7 @@ export default function CategoryFormModal({
             </label>
 
             <label className="block space-y-2">
-              <span className="block text-sm font-medium text-[#352d2b]">
+              <span className="block text-sm font-medium text-[#352d2b] dark:text-[#f5efec]">
                 {t("الترتيب", "Sort Order")}
               </span>
 
@@ -201,22 +206,22 @@ export default function CategoryFormModal({
                 className={inputClass}
               />
 
-              <span className="block text-xs text-[#817571]">
+              <span className="block text-xs text-[#817571] dark:text-[#aaa09b]">
                 {t("الأرقام الأصغر تظهر أولًا.", "Lower numbers appear first.")}
               </span>
             </label>
           </div>
 
           {/* Active Status */}
-          <label className="flex items-center gap-3 rounded-xl border border-[#e8ddd7] bg-white p-4">
+          <label className="flex items-center gap-3 rounded-xl border border-[#e8ddd7] bg-white p-4 dark:border-[#3a3431] dark:bg-[#292524]">
             <input
               type="checkbox"
               checked={form.isActive}
               onChange={(e) => onChange("isActive", e.target.checked)}
-              className="size-4 accent-[#a97872]"
+              className="size-4 accent-[#a97872] dark:accent-[#d4a39b]"
             />
 
-            <span className="text-sm font-medium text-[#352d2b]">
+            <span className="text-sm font-medium text-[#352d2b] dark:text-[#f5efec]">
               {t("تصنيف نشط", "Active Category")}
             </span>
           </label>
@@ -225,19 +230,19 @@ export default function CategoryFormModal({
           {error && (
             <div
               role="alert"
-              className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600"
+              className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
             >
               {error}
             </div>
           )}
 
           {/* Form Actions */}
-          <div className="flex flex-wrap justify-end gap-3 border-t border-[#eee5e0] pt-5">
+          <div className="flex flex-wrap justify-end gap-3 border-t border-[#eee5e0] pt-5 dark:border-[#3a3431]">
             <button
               type="button"
               disabled={saving}
               onClick={onClose}
-              className="rounded-xl border border-[#e8ddd7] px-5 py-3 text-sm font-medium text-[#6d625e] transition hover:bg-white disabled:opacity-50"
+              className="rounded-xl border border-[#e8ddd7] px-5 py-3 text-sm font-medium text-[#6d625e] transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a97872] disabled:opacity-50 dark:border-[#3a3431] dark:text-[#aaa09b] dark:hover:bg-[#3a3431] dark:focus-visible:outline-[#d4a39b]"
             >
               {t("إلغاء", "Cancel")}
             </button>
@@ -245,7 +250,7 @@ export default function CategoryFormModal({
             <button
               type="submit"
               disabled={saving}
-              className="rounded-xl bg-[#a97872] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#93635d] disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-[#a97872] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#93635d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a97872] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[#d4a39b] dark:text-[#352d2b] dark:hover:bg-[#e2b8b0] dark:focus-visible:outline-[#d4a39b]"
             >
               {saving
                 ? t("جاري الحفظ...", "Saving...")
