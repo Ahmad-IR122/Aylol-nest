@@ -1,6 +1,6 @@
 # Aylol Nest
 
-Aylol Nest is a full-stack bilingual e-commerce platform for children's clothing in Palestine. It provides a customer storefront for boys' and girls' clothing and an authenticated administration area for managing the catalog.
+Aylol Nest is a full-stack e-commerce platform for children's clothing in Palestine. It provides a customer storefront for boys' and girls' clothing and an authenticated administration area for managing the catalog.
 
 ## Project Overview
 
