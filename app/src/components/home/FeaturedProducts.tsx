@@ -1,5 +1,6 @@
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import ProductImage from "@/components/home/ProductImage";
+import { Link } from "@/i18n/navigation";
 import type { HomeLocale, HomeProduct } from "@/lib/home-data";
 import type { StorefrontProducts } from "@/lib/products/storefront";
 
@@ -18,46 +19,51 @@ export function ProductCard({ product }: { product: HomeProduct }) {
 
   return (
     <article className="group min-w-0">
-      <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#F0E8DF] dark:bg-[#302923]">
-        <ProductImage
-          src={product.image}
-          alt={product.imageAlt[locale] || product.name[locale]}
-          placeholder={t("imagePlaceholder")}
-        />
+      <Link
+        href={`/products/${product.slug}`}
+        className="block rounded-2xl outline-offset-4 focus-visible:outline-2 focus-visible:outline-[#a97872] dark:focus-visible:outline-[#d4a39b]"
+      >
+        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#F0E8DF] dark:bg-[#302923]">
+          <ProductImage
+            src={product.image}
+            alt={product.imageAlt[locale] || product.name[locale]}
+            placeholder={t("imagePlaceholder")}
+          />
 
-        {product.isNew && (
-          <span className="absolute start-4 top-4 rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#3B342D] shadow-sm dark:bg-[#3B342D] dark:text-white">
-            {t("newBadge")}
-          </span>
-        )}
-      </div>
+          {product.isNew && (
+            <span className="absolute start-4 top-4 rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#3B342D] shadow-sm dark:bg-[#3B342D] dark:text-white">
+              {t("newBadge")}
+            </span>
+          )}
+        </div>
 
-      <div className="pt-4">
-        <h3 className="text-sm font-semibold wrap-anywhere text-[#3B342D] md:text-base dark:text-[#F8F6F1]">
-          {product.name[locale]}
-        </h3>
+        <div className="pt-4">
+          <h3 className="text-sm font-semibold wrap-anywhere text-[#3B342D] md:text-base dark:text-[#F8F6F1]">
+            {product.name[locale]}
+          </h3>
 
-        {product.category && (
-          <p className="mt-1 text-xs wrap-anywhere text-[#8A7B6B] dark:text-[#C9B8A4]">
-            {product.category[locale]}
+          {product.category && (
+            <p className="mt-1 text-xs wrap-anywhere text-[#8A7B6B] dark:text-[#C9B8A4]">
+              {product.category[locale]}
+            </p>
+          )}
+
+          <p className="mt-2 font-bold text-[#8A7B6B] dark:text-[#C9B8A4]">
+            <bdi>
+              {price === null
+                ? t("priceUnavailable")
+                : product.maxPrice !== product.price
+                  ? t("fromPrice", { price })
+                  : price}
+            </bdi>
           </p>
-        )}
-
-        <p className="mt-2 font-bold text-[#8A7B6B] dark:text-[#C9B8A4]">
-          <bdi>
-            {price === null
-              ? t("priceUnavailable")
-              : product.maxPrice !== product.price
-                ? t("fromPrice", { price })
-                : price}
-          </bdi>
-        </p>
-        <span
-          className={`mt-2 inline-block rounded-full px-2 py-1 text-xs ${product.inStock ? "bg-green-50 text-green-800 dark:bg-green-950/40 dark:text-green-200" : "bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-200"}`}
-        >
-          {t(product.inStock ? "inStock" : "outOfStock")}
-        </span>
-      </div>
+          <span
+            className={`mt-2 inline-block rounded-full px-2 py-1 text-xs ${product.inStock ? "bg-green-50 text-green-800 dark:bg-green-950/40 dark:text-green-200" : "bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-200"}`}
+          >
+            {t(product.inStock ? "inStock" : "outOfStock")}
+          </span>
+        </div>
+      </Link>
     </article>
   );
 }

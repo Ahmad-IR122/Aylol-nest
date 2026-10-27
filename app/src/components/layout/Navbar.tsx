@@ -10,6 +10,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Show, UserButton } from "@clerk/nextjs";
 import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
+import { useCart } from "@/components/cart/CartProvider";
 
 type NavbarProps = {
   isAdmin?: boolean;
@@ -17,6 +18,8 @@ type NavbarProps = {
 
 export function Navbar({ isAdmin = false }: NavbarProps) {
   const t = useTranslations("Navbar");
+  const cartText = useTranslations("Cart");
+  const cart = useCart();
   const locale = useLocale();
   const isArabic = locale === "ar";
 
@@ -75,10 +78,19 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
           <Button
             variant="ghost"
             size="icon"
-            aria-label={t("cart")}
-            className="hidden size-11 md:inline-flex lg:size-8"
+            aria-label={cartText("open", { count: cart.count })}
+            onClick={cart.openCart}
+            className="relative hidden size-11 md:inline-flex lg:size-8"
           >
             <ShoppingBag className="size-5" />
+            {cart.count > 0 && (
+              <span
+                aria-hidden="true"
+                className="absolute -end-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#a97872] px-1 text-[10px] text-white dark:bg-[#d4a39b] dark:text-[#171717]"
+              >
+                {cart.count > 99 ? "99+" : cart.count}
+              </span>
+            )}
           </Button>
 
           {/* Admin Dashboard - Desktop */}
@@ -114,6 +126,7 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
             className="size-11 md:hidden"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
+            data-store-menu-trigger
           >
             {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </Button>
@@ -149,10 +162,14 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
           <Button
             variant="ghost"
             className="justify-start rounded-lg px-3 py-3 font-semibold"
-            onClick={() => setMenuOpen(false)}
+            onClick={() => {
+              setMenuOpen(false);
+              cart.openCart();
+            }}
+            aria-label={cartText("open", { count: cart.count })}
           >
             <ShoppingBag className="size-5" />
-            {t("cart")}
+            {t("cart")} {cart.count > 0 && <span aria-hidden="true">({cart.count})</span>}
           </Button>
 
           <Show when="signed-out">
