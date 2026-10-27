@@ -10,8 +10,14 @@ import ts from "typescript";
 const sourceRoot = new URL("../src/", import.meta.url);
 registerHooks({
   resolve(specifier, context, nextResolve) {
-    if (specifier === "server-only" || specifier === "next/server")
+    if (
+      specifier === "server-only" ||
+      specifier === "next/server" ||
+      specifier === "next-intl/plugin"
+    )
       return { url: `storefront-test:${specifier}`, shortCircuit: true };
+    if (specifier === "next/navigation" || specifier === "next/link")
+      return nextResolve(`${specifier}.js`, context);
     let candidate;
     if (specifier.startsWith("@/")) candidate = new URL(specifier.slice(2), sourceRoot);
     else if (specifier.startsWith(".") && context.parentURL?.startsWith(sourceRoot.href))
@@ -25,6 +31,14 @@ registerHooks({
     return nextResolve(specifier, context);
   },
   load(url, context, nextLoad) {
+    // The build plugin's native SWC dependency is unrelated to these runtime
+    // tests; keep the actual next.config image configuration without loading it.
+    if (url === "storefront-test:next-intl/plugin")
+      return {
+        format: "commonjs",
+        shortCircuit: true,
+        source: "module.exports = () => config => config;",
+      };
     if (url.startsWith("storefront-test:"))
       return {
         format: "commonjs",
@@ -60,7 +74,11 @@ registerHooks({
 
 const require = createRequire(import.meta.url);
 const { Product } = require("../src/models/Product.ts");
-const { getHomeProducts } = require("../src/lib/products/storefront.ts");
+const {
+  getHomeProducts,
+  getStorefrontProduct,
+  getRelatedProducts,
+} = require("../src/lib/products/storefront.ts");
 const db = require("../src/lib/db/mongoose.ts");
 const requestContext = require("next/server");
 const React = require("react");
@@ -87,15 +105,27 @@ const image = {
 };
 const row = (id = "1", overrides = {}) => ({
   _id: id,
+  slug: `outfit-${id}`,
   name: { ar: "طقم أطفال", en: "Kids outfit" },
-  category: { name: { ar: "أطفال", en: "Kids" } },
+  description: { ar: "ملابس مريحة", en: "Comfortable clothing" },
+  category: { _id: "category-1", slug: "kids", name: { ar: "أطفال", en: "Kids" } },
   isActive: true,
   isFeatured: false,
   isNewArrival: false,
   createdAt: Number(id),
   images: [image],
   variants: [
-    { isActive: true, price: 95.5, stock: 2, images: [], sku: "PRIVATE-SKU" },
+    {
+      _id: "variant-1",
+      isActive: true,
+      price: 95.5,
+      compareAtPrice: 120,
+      stock: 2,
+      images: [],
+      sku: "PRIVATE-SKU",
+      size: "2Y",
+      color: { name: { ar: "وردي", en: "Pink" }, hex: "#ddaaaa" },
+    },
     { isActive: true, price: 120, stock: 0, images: [] },
     { isActive: false, price: 1, stock: 100, images: [] },
   ],
@@ -127,7 +157,14 @@ function catalog(rows) {
       },
       async lean() {
         return rows
-          .filter((item) => Object.entries(filter).every(([key, value]) => item[key] === value))
+          .filter((item) =>
+            Object.entries(filter).every(([key, value]) => {
+              if (key === "category") return item.category?._id === value;
+              if (key === "_id" && value.$ne) return item._id !== value.$ne;
+              if (key === "_id" && value.$nin) return !value.$nin.includes(item._id);
+              return item[key] === value;
+            }),
+          )
           .sort((a, b) => b.createdAt - a.createdAt)
           .slice(0, limit);
       },
@@ -187,7 +224,18 @@ test("public cards derive price, stock and images from active variants without l
   assert.equal(product.imageAlt.ar, image.alt.ar);
   assert.deepEqual(
     Object.keys(product).sort(),
-    ["id", "name", "category", "price", "maxPrice", "image", "imageAlt", "inStock", "isNew"].sort(),
+    [
+      "id",
+      "slug",
+      "name",
+      "category",
+      "price",
+      "maxPrice",
+      "image",
+      "imageAlt",
+      "inStock",
+      "isNew",
+    ].sort(),
   );
   assert.doesNotMatch(
     JSON.stringify(product),
@@ -250,7 +298,7 @@ test("request-time rendering signals are not swallowed as database errors", asyn
   await assert.rejects(getHomeProducts, (error) => error === signal);
 });
 
-test("both locales render real names, ILS, availability, empty states and no placeholder detail links", async () => {
+test("both locales render real names, ILS, availability, empty states and localized product links", async () => {
   catalog([row("1", { isNewArrival: true })]);
   const product = (await getHomeProducts()).arrivals.products[0];
   for (const locale of ["en", "ar"]) {
@@ -259,7 +307,7 @@ test("both locales render real names, ILS, availability, empty states and no pla
     assert.ok(html.includes("₪"));
     assert.ok(html.includes(messages[locale].StorefrontProducts.inStock));
     assert.ok(html.includes(image.alt[locale]));
-    assert.doesNotMatch(html, /href=/);
+    assert.ok(html.includes(`href="/${locale}/products/${product.slug}"`));
     const empty = render(NewArrivals, { products: [], error: false }, locale);
     assert.ok(empty.includes(messages[locale].StorefrontProducts.empty));
     assert.ok(empty.includes(messages[locale].StorefrontProducts.arrivalsTitle));
@@ -268,4 +316,144 @@ test("both locales render real names, ILS, availability, empty states and no pla
       /demo-|href=/,
     );
   }
+});
+
+function detailCatalog(rows) {
+  return mock.method(Product, "findOne", (filter) => {
+    assert.equal(filter.isActive, true);
+    return {
+      select(projection) {
+        assert.ok(projection.includes("variants.sku"));
+        assert.ok(projection.includes("variants._id"));
+        assert.ok(!projection.includes("publicId"));
+        return this;
+      },
+      populate(options) {
+        assert.deepEqual(options.match, { isActive: true });
+        return this;
+      },
+      async lean() {
+        return rows.find((item) => item.slug === filter.slug && item.isActive) ?? null;
+      },
+    };
+  });
+}
+
+test("product details reject malformed slugs before database access and hide missing/inactive products", async () => {
+  const find = detailCatalog([row("1", { isActive: false })]);
+  const connect = mock.method(db, "connectDB", async () => {});
+  for (const slug of ["", "../admin", "Bad-Slug", "a%2fb", "x".repeat(201), "a--b"]) {
+    assert.equal(await getStorefrontProduct(slug), null);
+  }
+  assert.equal(connect.mock.callCount(), 0);
+  assert.equal(find.mock.callCount(), 0);
+  assert.equal(await getStorefrontProduct("outfit-1"), null);
+  assert.equal(await getStorefrontProduct("missing-product"), null);
+});
+
+test("detail DTO retains exact active variant identity, inventory and prices without media/database internals", async () => {
+  const product = row("1");
+  product.variants = [
+    { ...product.variants[0], images: [image], __v: 7 },
+    { ...product.variants[0], _id: "inactive", sku: "INACTIVE-SKU", isActive: false },
+    { ...product.variants[0], _id: "broken-price", price: NaN },
+  ];
+  product.images = [image, image, { ...image, url: "http://insecure.test/image.jpg" }];
+  product.__v = 5;
+  detailCatalog([product]);
+  const result = await getStorefrontProduct(product.slug);
+  assert.equal(result.slug, product.slug);
+  assert.equal(result.description.en, product.description.en);
+  assert.deepEqual(result.category, {
+    id: "category-1",
+    slug: "kids",
+    name: product.category.name,
+  });
+  assert.equal(result.images.length, 1);
+  assert.deepEqual(result.variants, [
+    {
+      id: "variant-1",
+      sku: "PRIVATE-SKU",
+      size: "2Y",
+      color: product.variants[0].color,
+      stock: 2,
+      price: 95.5,
+      compareAtPrice: 120,
+      images: [{ url: image.url, alt: image.alt }],
+    },
+  ]);
+  assert.doesNotMatch(
+    JSON.stringify(result),
+    /publicId|private-media-id|__v|createdAt|INACTIVE-SKU|broken-price/,
+  );
+  assert.equal(JSON.stringify(result).includes('"_id"'), false);
+});
+
+test("details safely support missing categories/images and all-retired variants", async () => {
+  detailCatalog([row("1", { category: null, images: [], variants: [{ isActive: false }] })]);
+  const result = await getStorefrontProduct("outfit-1");
+  assert.equal(result.category, null);
+  assert.deepEqual(result.images, []);
+  assert.deepEqual(result.variants, []);
+});
+
+test("related products prioritize the same category, fill from active catalog, and exclude current or duplicate IDs", async () => {
+  catalog([
+    row("1"),
+    row("2"),
+    row("3"),
+    row("4", { category: null }),
+    row("5", { category: null }),
+    row("6", { isActive: false }),
+  ]);
+  const result = await getRelatedProducts({ id: "1", category: { id: "category-1" } });
+  assert.equal(result.error, false);
+  assert.deepEqual(
+    result.products.map((item) => item.id),
+    ["3", "2", "5", "4"],
+  );
+  assert.equal(new Set(result.products.map((item) => item.id)).size, 4);
+});
+
+test("related queries are bounded and skip fallback when the category fills the grid", async () => {
+  const find = catalog(Array.from({ length: 8 }, (_, index) => row(String(index + 1))));
+  const result = await getRelatedProducts({ id: "1", category: { id: "category-1" } });
+  assert.equal(result.products.length, 4);
+  assert.equal(find.mock.callCount(), 1);
+});
+
+test("related products without an active category fall back to the active catalog", async () => {
+  const find = catalog([row("1"), row("2"), row("3", { isActive: false })]);
+  const result = await getRelatedProducts({ id: "1", category: null });
+  assert.deepEqual(
+    result.products.map((item) => item.id),
+    ["2"],
+  );
+  assert.equal(find.mock.callCount(), 1);
+});
+
+test("detail failures remain server errors, related failures remain isolated, and request rendering signals propagate", async () => {
+  mock.method(console, "error", () => {});
+  mock.method(db, "connectDB", async () => {
+    throw new Error("SECRET URI");
+  });
+  await assert.rejects(getStorefrontProduct("outfit-1"), {
+    message: "Storefront product could not be loaded",
+  });
+  assert.deepEqual(await getRelatedProducts({ id: "1", category: null }), {
+    products: [],
+    error: true,
+  });
+  const signal = new Error("prerender control flow");
+  mock.method(requestContext, "connection", async () => {
+    throw signal;
+  });
+  await assert.rejects(
+    () => getStorefrontProduct("outfit-1"),
+    (error) => error === signal,
+  );
+  await assert.rejects(
+    () => getRelatedProducts({ id: "1", category: null }),
+    (error) => error === signal,
+  );
 });

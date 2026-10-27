@@ -4,6 +4,7 @@ export type HomeLocale = "ar" | "en";
 
 export type HomeProduct = {
   id: string;
+  slug: string;
   name: LocalizedText;
   category: LocalizedText | null;
   price: number | null;
