@@ -78,19 +78,20 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
           <Button
             variant="ghost"
             size="icon"
-            aria-label={cartText("open", { count: cart.count })}
-            onClick={cart.openCart}
+            asChild
             className="relative hidden size-11 md:inline-flex lg:size-8"
           >
-            <ShoppingBag className="size-5" />
-            {cart.count > 0 && (
-              <span
-                aria-hidden="true"
-                className="absolute -end-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#a97872] px-1 text-[10px] text-white dark:bg-[#d4a39b] dark:text-[#171717]"
-              >
-                {cart.count > 99 ? "99+" : cart.count}
-              </span>
-            )}
+            <Link href="/cart" aria-label={cartText("open", { count: cart.count })}>
+              <ShoppingBag className="size-5" />
+              {cart.count > 0 && (
+                <span
+                  aria-hidden="true"
+                  className="absolute -end-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#a97872] px-1 text-[10px] text-white dark:bg-[#d4a39b] dark:text-[#171717]"
+                >
+                  {cart.count > 99 ? "99+" : cart.count}
+                </span>
+              )}
+            </Link>
           </Button>
 
           {/* Admin Dashboard - Desktop */}
@@ -161,15 +162,17 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
 
           <Button
             variant="ghost"
+            asChild
             className="justify-start rounded-lg px-3 py-3 font-semibold"
-            onClick={() => {
-              setMenuOpen(false);
-              cart.openCart();
-            }}
-            aria-label={cartText("open", { count: cart.count })}
           >
-            <ShoppingBag className="size-5" />
-            {t("cart")} {cart.count > 0 && <span aria-hidden="true">({cart.count})</span>}
+            <Link
+              href="/cart"
+              onClick={() => setMenuOpen(false)}
+              aria-label={cartText("open", { count: cart.count })}
+            >
+              <ShoppingBag className="size-5" />
+              {t("cart")} {cart.count > 0 && <span aria-hidden="true">({cart.count})</span>}
+            </Link>
           </Button>
 
           <Show when="signed-out">

@@ -82,7 +82,13 @@
       "server": "Could not check your bag. Please try again.",
       "busy": "Please wait while your bag is updated.",
       "full": "Your bag is full. Remove an item before adding another."
-    }
+    },
+    "signInRequired": "Sign in to view your saved cart.",
+    "signIn": "Sign in",
+    "unitPrice": "Unit price",
+    "itemSubtotal": "Item subtotal",
+    "clear": "Clear cart",
+    "stockWarning": "Only {count, number} available. Reduce the quantity to continue."
   },
   "ProductDetails": {
     "breadcrumb": "Breadcrumb",

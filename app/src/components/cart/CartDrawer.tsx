@@ -59,7 +59,7 @@ export default function CartDrawer() {
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-6" aria-busy={cart.busy}>
           <div role="status" aria-live="polite" className="space-y-2 text-sm">
-            {cart.busy && <p className="mb-4">{t("checking")}</p>}
+            {(cart.busy || cart.loading) && <p className="mb-4">{t("checking")}</p>}
             {cart.sessionOnly && (
               <p className="mb-4 rounded-xl bg-amber-50 p-3 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
                 {t("sessionOnly")}
@@ -85,7 +85,18 @@ export default function CartDrawer() {
               </button>
             </div>
           )}
-          {cart.items.length === 0 ? (
+          {cart.loading ? null : cart.unauthenticated ? (
+            <div className="flex flex-col items-center gap-4 py-16 text-center">
+              <ShoppingBag
+                className="size-10 text-[#a97872] dark:text-[#d4a39b]"
+                aria-hidden="true"
+              />
+              <p>{t("signInRequired")}</p>
+              <Button asChild onClick={cart.closeCart}>
+                <Link href="/sign-in">{t("signIn")}</Link>
+              </Button>
+            </div>
+          ) : cart.items.length === 0 ? (
             <div className="flex flex-col items-center gap-4 py-16 text-center">
               <ShoppingBag
                 className="size-10 text-[#a97872] dark:text-[#d4a39b]"

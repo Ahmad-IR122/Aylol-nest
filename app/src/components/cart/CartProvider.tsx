@@ -2,7 +2,6 @@
 
 import {
   createContext,
-  startTransition,
   useCallback,
   useContext,
   useEffect,
@@ -10,147 +9,114 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { refreshCart, validateCartItem } from "@/lib/cart/actions";
-import {
-  CART_STORAGE_KEY,
-  MAX_CART_LINES,
-  cartKey,
-  cartReferenceSchema,
-  cartReferences,
-  parseStoredCart,
-  requestedCartQuantity,
-  type CartError,
-  type CartItem,
-  type CartReference,
-  type CartResult,
-} from "@/lib/cart/state";
+import type { CartError, CartItem, CartResult } from "@/lib/cart/state";
 import CartDrawer from "./CartDrawer";
 
+export type ApiCartItem = CartItem & { id: string; lineTotal: number; available: boolean };
+type ApiCart = { id: string | null; items: ApiCartItem[]; subtotal: number; itemCount: number };
 type CartContextValue = {
-  items: CartItem[];
+  items: ApiCartItem[];
   count: number;
+  subtotal: number;
   busy: boolean;
+  loading: boolean;
   open: boolean;
   sessionOnly: boolean;
   error: CartError | null;
   adjusted: boolean;
+  unauthenticated: boolean;
   addItem: (slug: string, variantId: string, quantity: number) => Promise<CartResult>;
-  updateQuantity: (item: CartItem, quantity: number) => Promise<CartResult>;
-  removeItem: (item: CartItem) => void;
+  updateQuantity: (item: ApiCartItem, quantity: number) => Promise<CartResult>;
+  removeItem: (item: ApiCartItem) => Promise<CartResult>;
+  clearCart: () => Promise<CartResult>;
+  refresh: () => Promise<void>;
   openCart: () => void;
   closeCart: () => void;
   restoreFocus: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
+const emptyCart: ApiCart = { id: null, items: [], subtotal: 0, itemCount: 0 };
 
-function callAction<T>(action: () => Promise<T>): Promise<T> {
-  return new Promise((resolve, reject) => {
-    startTransition(async () => {
-      try {
-        resolve(await action());
-      } catch (error) {
-        reject(error);
-      }
-    });
-  });
+function errorFor(status: number): CartError {
+  if (status === 400) return "invalid";
+  if (status === 404) return "unavailable";
+  if (status === 409) return "stock";
+  return "server";
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
-  const [busy, setBusy] = useState(true);
+  const [cart, setCart] = useState<ApiCart>(emptyCart);
+  const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
-  const [sessionOnly, setSessionOnly] = useState(false);
   const [error, setError] = useState<CartError | null>(null);
-  const [adjusted, setAdjusted] = useState(false);
-  const itemsRef = useRef<CartItem[]>([]);
-  const referencesRef = useRef<CartReference[]>([]);
-  const locked = useRef(true);
+  const [unauthenticated, setUnauthenticated] = useState(false);
+  const locked = useRef(false);
+  const requestVersion = useRef(0);
   const opener = useRef<HTMLElement | null>(null);
 
-  const commit = useCallback((next: CartItem[]) => {
-    itemsRef.current = next;
-    referencesRef.current = cartReferences(next);
-    setItems(next);
+  const refresh = useCallback(async () => {
+    const version = ++requestVersion.current;
+    setLoading(true);
     try {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(referencesRef.current));
-      setSessionOnly(false);
+      const response = await fetch("/api/cart", { cache: "no-store" });
+      if (version !== requestVersion.current) return;
+      if (response.status === 401) {
+        setUnauthenticated(true);
+        setCart(emptyCart);
+        setError(null);
+      } else if (!response.ok) {
+        setError(errorFor(response.status));
+      } else {
+        const data: { cart: ApiCart } = await response.json();
+        if (version !== requestVersion.current) return;
+        setCart(data.cart);
+        setUnauthenticated(false);
+        setError(null);
+      }
     } catch {
-      // The cart still works for this tab. Explain the persistence limit in UI.
-      setSessionOnly(true);
+      if (version === requestVersion.current) setError("server");
+    } finally {
+      if (version === requestVersion.current) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    async function restore() {
-      let storageUnavailable = false;
-      let references: CartReference[] = [];
-      try {
-        references = parseStoredCart(localStorage.getItem(CART_STORAGE_KEY));
-      } catch {
-        storageUnavailable = true;
-      }
-      referencesRef.current = references;
-      try {
-        const result = references.length
-          ? await callAction(() => refreshCart(references))
-          : await Promise.resolve({ ok: true as const, items: [], adjusted: false });
-        if (cancelled) return;
-        if (result.ok) {
-          commit(result.items);
-          setAdjusted(result.adjusted);
-        } else {
-          setError(result.error);
-        }
-      } catch {
-        if (!cancelled) setError("server");
-      } finally {
-        if (!cancelled) {
-          if (storageUnavailable) setSessionOnly(true);
-          locked.current = false;
-          setBusy(false);
-        }
-      }
-    }
-    void restore();
-    return () => {
-      cancelled = true;
-    };
-  }, [commit]);
+    const timer = window.setTimeout(() => void refresh(), 0);
+    return () => window.clearTimeout(timer);
+  }, [refresh]);
 
-  async function changeItem(reference: CartReference, append: boolean): Promise<CartResult> {
+  async function change(url: string, method: string, body?: unknown): Promise<CartResult> {
     if (locked.current) return { ok: false, error: "busy" };
-    const parsed = cartReferenceSchema.safeParse(reference);
-    if (!parsed.success) return { ok: false, error: "invalid" };
-    // Preserve un-restored references after a network failure; retry in the
-    // drawer before changing the cart so persisted items are never overwritten.
-    if (referencesRef.current.length && !itemsRef.current.length) {
-      return { ok: false, error: "server" };
-    }
-    const existing = itemsRef.current.find((item) => cartKey(item) === cartKey(reference));
-    if (!existing && itemsRef.current.length >= MAX_CART_LINES) {
-      return { ok: false, error: "full" };
-    }
-    const quantity = append
-      ? requestedCartQuantity(itemsRef.current, parsed.data)
-      : parsed.data.quantity;
-    if (!Number.isSafeInteger(quantity)) return { ok: false, error: "invalid" };
     locked.current = true;
+    const version = ++requestVersion.current;
     setBusy(true);
+    setLoading(false);
     setError(null);
     try {
-      const result = await callAction(() => validateCartItem({ ...parsed.data, quantity }));
-      if (!result.ok) {
-        setError(result.error);
-        return result;
+      const response = await fetch(url, {
+        method,
+        headers: body ? { "Content-Type": "application/json" } : undefined,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      if (response.status === 401) {
+        setUnauthenticated(true);
+        setCart(emptyCart);
+        setError("unavailable");
+        return { ok: false, error: "unavailable" };
       }
-      const next = existing
-        ? itemsRef.current.map((item) =>
-            cartKey(item) === cartKey(result.item) ? result.item : item,
-          )
-        : [...itemsRef.current, result.item];
-      commit(next);
+      if (!response.ok) {
+        const nextError = errorFor(response.status);
+        setError(nextError);
+        if (response.status === 409 || response.status === 404) {
+          await refresh();
+          setError(nextError);
+        }
+        return { ok: false, error: nextError };
+      }
+      const data: { cart: ApiCart } = await response.json();
+      if (version === requestVersion.current) setCart(data.cart);
       return { ok: true };
     } catch {
       setError("server");
@@ -161,57 +127,37 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function recheck() {
-    if (locked.current) return;
-    locked.current = true;
-    setBusy(true);
-    setError(null);
-    try {
-      const result = await callAction(() => refreshCart(referencesRef.current));
-      if (result.ok) {
-        commit(result.items);
-        setAdjusted(result.adjusted);
-      } else setError(result.error);
-    } catch {
-      setError("server");
-    } finally {
-      locked.current = false;
-      setBusy(false);
-    }
-  }
-
   return (
     <CartContext.Provider
       value={{
-        items,
-        count: items.reduce((total, item) => total + item.quantity, 0),
+        items: cart.items,
+        count: cart.itemCount,
+        subtotal: cart.subtotal,
         busy,
+        loading,
         open,
-        sessionOnly,
+        sessionOnly: false,
         error,
-        adjusted,
-        addItem: (slug, variantId, quantity) => changeItem({ slug, variantId, quantity }, true),
+        adjusted: false,
+        unauthenticated,
+        addItem: (slug, variantId, quantity) =>
+          change("/api/cart/items", "POST", { slug, variantId, quantity }),
         updateQuantity: (item, quantity) =>
-          changeItem({ slug: item.slug, variantId: item.variantId, quantity }, false),
-        removeItem: (item) => {
-          if (locked.current) return;
-          commit(itemsRef.current.filter((candidate) => cartKey(candidate) !== cartKey(item)));
-          setError(null);
-        },
+          change(`/api/cart/items/${item.id}`, "PATCH", { quantity }),
+        removeItem: (item) => change(`/api/cart/items/${item.id}`, "DELETE"),
+        clearCart: () => change("/api/cart", "DELETE"),
+        refresh,
         openCart: () => {
-          if (!open && document.activeElement instanceof HTMLElement) {
+          if (document.activeElement instanceof HTMLElement)
             opener.current = document.activeElement;
-          }
           setOpen(true);
-          void recheck();
+          void refresh();
         },
         closeCart: () => setOpen(false),
-        restoreFocus: () => {
-          const target = opener.current?.isConnected
-            ? opener.current
-            : document.querySelector<HTMLElement>("[data-store-menu-trigger]");
-          target?.focus();
-        },
+        restoreFocus: () =>
+          opener.current?.isConnected
+            ? opener.current.focus()
+            : document.querySelector<HTMLElement>("[data-store-menu-trigger]")?.focus(),
       }}
     >
       {children}
