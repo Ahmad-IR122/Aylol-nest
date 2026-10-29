@@ -25,7 +25,12 @@ type CartContextValue = {
   error: CartError | null;
   adjusted: boolean;
   unauthenticated: boolean;
-  addItem: (slug: string, variantId: string, quantity: number) => Promise<CartResult>;
+  addItem: (
+    slug: string,
+    variantId: string,
+    quantity: number,
+    productId: string,
+  ) => Promise<CartResult>;
   updateQuantity: (item: ApiCartItem, quantity: number) => Promise<CartResult>;
   removeItem: (item: ApiCartItem) => Promise<CartResult>;
   clearCart: () => Promise<CartResult>;
@@ -103,8 +108,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (response.status === 401) {
         setUnauthenticated(true);
         setCart(emptyCart);
-        setError("unavailable");
-        return { ok: false, error: "unavailable" };
+        setError("unauthorized");
+        return { ok: false, error: "unauthorized" };
       }
       if (!response.ok) {
         const nextError = errorFor(response.status);
@@ -140,8 +145,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         error,
         adjusted: false,
         unauthenticated,
-        addItem: (slug, variantId, quantity) =>
-          change("/api/cart/items", "POST", { slug, variantId, quantity }),
+        addItem: (slug, variantId, quantity, productId) =>
+          change("/api/cart/items", "POST", { slug, productId, variantId, quantity }),
         updateQuantity: (item, quantity) =>
           change(`/api/cart/items/${item.id}`, "PATCH", { quantity }),
         removeItem: (item) => change(`/api/cart/items/${item.id}`, "DELETE"),

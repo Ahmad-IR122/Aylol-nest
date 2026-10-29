@@ -15,8 +15,10 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   try {
     const owner = await ownerId();
-    const { slug, variantId, quantity } = addSchema.parse(await readBody(request));
+    const { slug, productId, variantId, quantity } = addSchema.parse(await readBody(request));
     const { product } = await selectedProduct(slug, variantId);
+    if (productId && product.id !== productId.toLowerCase())
+      throw new CartApiError(400, "Product ID does not match slug");
     let created = false;
     await mutateCart(owner, async (items) => {
       const { variant } = await selectedProduct(slug, variantId);

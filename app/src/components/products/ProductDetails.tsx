@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Check, Minus, Plus, ShoppingBag, Truck, Wallet } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useCart } from "@/components/cart/CartProvider";
+import { useRouter } from "@/i18n/navigation";
 import ProductGallery from "@/components/products/ProductGallery";
 import { Button } from "@/components/ui/button";
 import type { HomeLocale } from "@/lib/home-data";
@@ -22,10 +23,12 @@ export default function ProductDetails({ product }: { product: StorefrontProduct
   const cartText = useTranslations("Cart");
   const format = useFormatter();
   const cart = useCart();
+  const router = useRouter();
   const [size, setSize] = useState("");
   const [color, setColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [feedback, setFeedback] = useState<{ ok: boolean; message: string } | null>(null);
+  const submitting = useRef(false);
   const variants = product.variants;
   const selected = findSelectedVariant(variants, size, color);
   const inStock = variants.some((variant) => variant.stock > 0);
@@ -57,17 +60,39 @@ export default function ProductDetails({ product }: { product: StorefrontProduct
     setFeedback(null);
   }
 
-  async function addToCart() {
-    if (!selected || selected.stock < 1) {
+  async function addToCart(buyNow = false) {
+    if (submitting.current || cart.busy) return;
+    if (!size || !color || !selected) {
       setFeedback({ ok: false, message: t("selectOptions") });
       return;
     }
-    const result = await cart.addItem(product.slug, selected.id, safeQuantity);
-    setFeedback(
-      result.ok
-        ? { ok: true, message: t("addedToCart") }
-        : { ok: false, message: cartText(`errors.${result.error}`) },
-    );
+    if (selected.stock < 1) {
+      setFeedback({ ok: false, message: cartText("errors.unavailable") });
+      return;
+    }
+    if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > selected.stock) {
+      setFeedback({ ok: false, message: cartText("errors.stock") });
+      return;
+    }
+    const productPath = `/${locale}/products/${product.slug}`;
+    if (cart.unauthenticated) {
+      router.push(`/sign-in?returnTo=${encodeURIComponent(productPath)}`);
+      return;
+    }
+    submitting.current = true;
+    try {
+      const result = await cart.addItem(product.slug, selected.id, quantity, product.id);
+      if (result.ok) {
+        setFeedback({ ok: true, message: t("addedToCart") });
+        if (buyNow) router.push("/cart");
+      } else if (result.error === "unauthorized") {
+        router.push(`/sign-in?returnTo=${encodeURIComponent(productPath)}`);
+      } else {
+        setFeedback({ ok: false, message: cartText(`errors.${result.error}`) });
+      }
+    } finally {
+      submitting.current = false;
+    }
   }
 
   return (
@@ -253,25 +278,25 @@ export default function ProductDetails({ product }: { product: StorefrontProduct
               type="button"
               className="h-14 w-full gap-3 rounded-xl bg-[#a97872] text-base font-semibold text-white hover:bg-[#91645e] dark:bg-[#d4a39b] dark:text-[#171717] dark:hover:bg-[#e4b7af]"
               disabled={!selected || stock < 1 || cart.busy}
-              onClick={addToCart}
+              onClick={() => void addToCart()}
             >
               <ShoppingBag className="size-5" aria-hidden="true" />
               {t(cart.busy ? "addingToCart" : "addToCart")}
             </Button>
             <Button
               type="button"
-              disabled
               variant="outline"
-              aria-describedby="checkout-message"
+              disabled={!selected || stock < 1 || cart.busy}
+              onClick={() => void addToCart(true)}
               className="h-14 w-full rounded-xl border-[#a97872]/50 bg-transparent text-base font-semibold text-[#704c47] disabled:opacity-65 dark:border-[#d4a39b]/50 dark:text-[#d4a39b]"
             >
-              {t("buyNow")}
+              {t(cart.busy ? "addingToCart" : "buyNow")}
             </Button>
             <p
               id="checkout-message"
               className="text-xs leading-6 text-[#817571] dark:text-[#aaa09b]"
             >
-              {t("checkoutUnavailable")}
+              {t("buyNowCartHint")}
             </p>
             <div aria-live="polite" aria-atomic="true">
               {feedback && (

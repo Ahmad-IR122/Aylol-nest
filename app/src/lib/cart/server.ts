@@ -11,11 +11,11 @@ import { Cart } from "@/models/Cart";
 import { Product } from "@/models/Product";
 import type { StorefrontProduct, StorefrontVariant } from "@/types/storefront";
 
-export const addSchema = cartReferenceSchema;
+export const objectIdSchema = z.string().regex(/^[a-f\d]{24}$/i);
+export const addSchema = cartReferenceSchema.extend({ productId: objectIdSchema.optional() });
 export const quantitySchema = z.strictObject({
   quantity: z.number().int().min(1).max(Number.MAX_SAFE_INTEGER),
 });
-export const objectIdSchema = z.string().regex(/^[a-f\d]{24}$/i);
 
 export class CartApiError extends Error {
   constructor(

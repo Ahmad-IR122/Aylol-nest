@@ -9,7 +9,8 @@
     "lint": "eslint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "seed:categories": "node src/scripts/seed-categories.mjs"
   },
   "dependencies": {
     "@clerk/localizations": "^4.23.0",

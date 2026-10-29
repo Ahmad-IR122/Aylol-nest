@@ -11,6 +11,8 @@ const sourceRoot = new URL("../src/", import.meta.url);
 const cartUrl = new URL("components/cart/CartProvider.tsx", sourceRoot).href;
 registerHooks({
   resolve(specifier, context, nextResolve) {
+    if (specifier === "@/i18n/navigation")
+      return { url: "product-details-test:navigation", shortCircuit: true };
     if (specifier === "next-intl/plugin")
       return { url: "product-details-test:plugin", shortCircuit: true };
     let candidate;
@@ -26,6 +28,13 @@ registerHooks({
     return nextResolve(specifier, context);
   },
   load(url, context, nextLoad) {
+    if (url === "product-details-test:navigation")
+      return {
+        format: "commonjs",
+        shortCircuit: true,
+        source:
+          "exports.useRouter = () => ({ push: () => { throw new Error('SSR must not navigate'); } });",
+      };
     if (url === "product-details-test:plugin")
       return {
         format: "commonjs",
@@ -73,6 +82,20 @@ const nextConfig = require("../next.config.ts").default;
 const ProductDetails = require("../src/components/products/ProductDetails.tsx").default;
 const ProductGallery = require("../src/components/products/ProductGallery.tsx").default;
 const ProductImage = require("../src/components/home/ProductImage.tsx").default;
+const { productReturnPath } = require("../src/lib/auth/product-return.ts");
+test("sign-in return accepts only a product path in the current locale", () => {
+  assert.equal(productReturnPath("en", "/en/products/rose-set"), "/en/products/rose-set");
+  assert.equal(productReturnPath("ar", "/ar/products/rose-set"), "/ar/products/rose-set");
+  for (const path of [
+    "//evil.test",
+    "https://evil.test",
+    "/ar/products/rose-set",
+    "/en/admin",
+    "/en/products/rose-set?next=/admin",
+  ]) {
+    assert.equal(productReturnPath("en", path), null);
+  }
+});
 const {
   colorKey,
   sizeKey,
@@ -243,7 +266,7 @@ for (const locale of ["en", "ar"]) {
       copy.quantity,
       copy.chooseSizeFirst,
       copy.selectOptions,
-      copy.checkoutUnavailable,
+      copy.buyNowCartHint,
       copy.cashOnDelivery,
     ]) {
       assert.ok(html.includes(text), `Expected localized content: ${text}`);

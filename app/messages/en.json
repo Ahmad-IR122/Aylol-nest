@@ -81,7 +81,8 @@
       "stock": "There is not enough stock for this quantity, including items already in your bag.",
       "server": "Could not check your bag. Please try again.",
       "busy": "Please wait while your bag is updated.",
-      "full": "Your bag is full. Remove an item before adding another."
+      "full": "Your bag is full. Remove an item before adding another.",
+      "unauthorized": "Sign in to save items in your cart."
     },
     "signInRequired": "Sign in to view your saved cart.",
     "signIn": "Sign in",
@@ -142,7 +143,8 @@
     "previousImage": "Previous image",
     "nextImage": "Next image",
     "imageCounter": "{current, number} / {total, number}",
-    "imagePlaceholder": "Image unavailable"
+    "imagePlaceholder": "Image unavailable",
+    "buyNowCartHint": "This adds your selection to the cart. Checkout is not available yet."
   },
   "Products": {
     "title": "Product Management",
