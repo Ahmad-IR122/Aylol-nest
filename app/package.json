@@ -10,7 +10,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "seed:categories": "node src/scripts/seed-categories.mjs"
+    "seed:categories": "node src/scripts/seed-categories.mjs",
+    "seed:products": "node src/scripts/seed-products.mjs"
   },
   "dependencies": {
     "@clerk/localizations": "^4.23.0",

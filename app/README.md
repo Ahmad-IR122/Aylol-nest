@@ -34,3 +34,20 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+# Product seed (development database)
+
+Set `MONGODB_URI` to the intended MongoDB deployment (Atlas is supported). The seed uses
+the application's configured database, `aylol_nest`, displays its connected name, and
+requires that exact name in `--confirm-db` before writing.
+
+From `app/` in PowerShell:
+
+```powershell
+npm.cmd run seed:products
+$env:SEED_PRODUCTS_TARGET = "development"
+npm.cmd run seed:products -- --apply --confirm-db=aylol_nest
+```
+
+The first command is a dry run. Applying requires all 40 matching photos in
+`seed-assets/products/` and the existing category hierarchy in that database.
