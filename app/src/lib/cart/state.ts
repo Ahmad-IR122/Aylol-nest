@@ -25,7 +25,8 @@ export type CartItem = CartReference & {
   stock: number;
   image: string | null;
 };
-export type CartError = "invalid" | "unavailable" | "stock" | "server" | "busy" | "full";
+export type CartError =
+  "invalid" | "unavailable" | "stock" | "server" | "busy" | "full" | "unauthorized";
 export type CartResult = { ok: true } | { ok: false; error: CartError };
 
 export function cartKey(item: Pick<CartReference, "slug" | "variantId">) {

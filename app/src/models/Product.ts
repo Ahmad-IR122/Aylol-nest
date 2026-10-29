@@ -1,6 +1,6 @@
 import mongoose, { Schema, type InferSchemaType } from "mongoose";
 
-import { imageSchema } from "./image.schema";
+import { imageSchema } from "./image.schema.ts";
 
 const productVariantSchema = new Schema(
   {

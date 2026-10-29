@@ -3,18 +3,24 @@ import { auth } from "@clerk/nextjs/server";
 
 import { connectDB } from "@/lib/db/mongoose";
 import { User } from "@/models/User";
+import { productReturnPath } from "@/lib/auth/product-return";
 
 type Props = {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ returnTo?: string | string[] }>;
 };
 
-export default async function AuthRedirectPage({ params }: Props) {
+export default async function AuthRedirectPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  const { returnTo } = await searchParams;
+  const productPath = productReturnPath(locale, returnTo);
 
   const { userId } = await auth();
 
   if (!userId) {
-    redirect(`/${locale}/sign-in`);
+    redirect(
+      `/${locale}/sign-in${productPath ? `?returnTo=${encodeURIComponent(productPath)}` : ""}`,
+    );
   }
 
   await connectDB();
@@ -33,5 +39,5 @@ export default async function AuthRedirectPage({ params }: Props) {
     redirect(`/${locale}/admin`);
   }
 
-  redirect(`/${locale}`);
+  redirect(productPath ?? `/${locale}`);
 }
