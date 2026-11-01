@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 
-import { connectDB } from "@/lib/db/mongoose";
-import { User } from "@/models/User";
+import { getCurrentCartUser } from "@/lib/auth/current-user";
 import { productReturnPath } from "@/lib/auth/product-return";
 
 type Props = {
@@ -23,15 +22,9 @@ export default async function AuthRedirectPage({ params, searchParams }: Props) 
     );
   }
 
-  await connectDB();
-
-  const user = await User.findOne({
-    clerkId: userId,
-    isActive: true,
-  }).lean();
+  const user = await getCurrentCartUser();
 
   if (!user) {
-    // The Clerk webhook may not have synced the user yet.
     redirect(`/${locale}`);
   }
 

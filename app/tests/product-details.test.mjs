@@ -83,9 +83,11 @@ const ProductDetails = require("../src/components/products/ProductDetails.tsx").
 const ProductGallery = require("../src/components/products/ProductGallery.tsx").default;
 const ProductImage = require("../src/components/home/ProductImage.tsx").default;
 const { productReturnPath } = require("../src/lib/auth/product-return.ts");
-test("sign-in return accepts only a product path in the current locale", () => {
+test("sign-in return accepts only a store path in the current locale", () => {
   assert.equal(productReturnPath("en", "/en/products/rose-set"), "/en/products/rose-set");
   assert.equal(productReturnPath("ar", "/ar/products/rose-set"), "/ar/products/rose-set");
+  assert.equal(productReturnPath("en", "/en/cart"), "/en/cart");
+  assert.equal(productReturnPath("ar", "/ar/cart"), "/ar/cart");
   for (const path of [
     "//evil.test",
     "https://evil.test",

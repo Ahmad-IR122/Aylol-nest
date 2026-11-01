@@ -9,7 +9,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useAuth } from "@clerk/nextjs";
 import type { CartError, CartItem, CartResult } from "@/lib/cart/state";
+import { usePathname } from "@/i18n/navigation";
 import CartDrawer from "./CartDrawer";
 
 export type ApiCartItem = CartItem & { id: string; lineTotal: number; available: boolean };
@@ -51,6 +53,8 @@ function errorFor(status: number): CartError {
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { isLoaded, userId } = useAuth();
+  const pathname = usePathname();
   const [cart, setCart] = useState<ApiCart>(emptyCart);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -88,9 +92,32 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => void refresh(), 0);
+    if (!isLoaded) return;
+    const timer = window.setTimeout(() => {
+      if (userId) {
+        void refresh();
+      } else {
+        ++requestVersion.current;
+        setCart(emptyCart);
+        setUnauthenticated(true);
+        setError(null);
+        setLoading(false);
+      }
+    }, 0);
     return () => window.clearTimeout(timer);
-  }, [refresh]);
+  }, [refresh, pathname, isLoaded, userId]);
+
+  useEffect(() => {
+    const onFocus = () => {
+      if (userId && !locked.current && document.visibilityState === "visible") void refresh();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
+  }, [refresh, userId]);
 
   async function change(url: string, method: string, body?: unknown): Promise<CartResult> {
     if (locked.current) return { ok: false, error: "busy" };

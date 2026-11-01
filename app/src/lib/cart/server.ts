@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { getCurrentUser } from "@/lib/auth/current-user";
+import { getCurrentCartUser } from "@/lib/auth/current-user";
 import { MAX_CART_LINES, cartReferenceSchema, type CartItem } from "@/lib/cart/state";
 import { getStorefrontProduct } from "@/lib/products/storefront";
 import { Cart } from "@/models/Cart";
@@ -27,7 +27,7 @@ export class CartApiError extends Error {
 }
 
 export async function ownerId() {
-  const user = await getCurrentUser();
+  const user = await getCurrentCartUser();
   if (!user) throw new CartApiError(401, "Authentication required");
   if (user.role !== "customer") throw new CartApiError(403, "Customer access required");
   return user._id;
@@ -117,6 +117,16 @@ export async function cartResponse(owner: mongoose.Types.ObjectId, status = 200)
     const variant = product?.variants.find((item) => item.id === line.variantId.toString());
     return product && variant ? [toItem(product, variant, line)] : [];
   });
+  const visibleIds = new Set(items.map((item) => item.id));
+  const removedIds = new Set(
+    (cart?.items ?? [])
+      .filter((line) => !visibleIds.has(line._id.toString()))
+      .map((line) => line._id.toString()),
+  );
+  if (removedIds.size)
+    await mutateCart(owner, (lines) =>
+      lines.filter((line) => !removedIds.has(line._id.toString())),
+    );
   return NextResponse.json(
     {
       cart: {
@@ -130,11 +140,7 @@ export async function cartResponse(owner: mongoose.Types.ObjectId, status = 200)
   );
 }
 
-export async function mutateCart(
-  owner: mongoose.Types.ObjectId,
-  mutate: (items: CartLine[]) => Promise<CartLine[]> | CartLine[],
-) {
-  // The unique owner index makes creation idempotent; revision guards every later write.
+export async function ensureCart(owner: mongoose.Types.ObjectId) {
   try {
     await Cart.updateOne(
       { owner },
@@ -145,6 +151,14 @@ export async function mutateCart(
     if (!(typeof error === "object" && error !== null && "code" in error && error.code === 11000))
       throw error;
   }
+}
+
+export async function mutateCart(
+  owner: mongoose.Types.ObjectId,
+  mutate: (items: CartLine[]) => Promise<CartLine[]> | CartLine[],
+) {
+  // The unique owner index makes creation idempotent; revision guards every later write.
+  await ensureCart(owner);
   for (let attempt = 0; attempt < 8; attempt++) {
     const cart = await Cart.findOne({ owner }).lean();
     if (!cart) continue;
