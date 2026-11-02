@@ -17,6 +17,7 @@ const orderItemSchema = new Schema(
       type: String,
       required: true,
       trim: true,
+      maxlength: 120,
     },
 
     name: {
@@ -24,11 +25,13 @@ const orderItemSchema = new Schema(
         type: String,
         required: true,
         trim: true,
+        maxlength: 200,
       },
       en: {
         type: String,
         required: true,
         trim: true,
+        maxlength: 200,
       },
     },
 
@@ -40,16 +43,19 @@ const orderItemSchema = new Schema(
     size: {
       type: String,
       required: true,
+      maxlength: 100,
     },
 
     color: {
       ar: {
         type: String,
         required: true,
+        maxlength: 120,
       },
       en: {
         type: String,
         required: true,
+        maxlength: 120,
       },
     },
 
@@ -58,8 +64,8 @@ const orderItemSchema = new Schema(
       required: true,
       min: 1,
       validate: {
-        validator: Number.isInteger,
-        message: "Quantity must be an integer",
+        validator: Number.isSafeInteger,
+        message: "Quantity must be a safe integer",
       },
     },
 
@@ -67,12 +73,14 @@ const orderItemSchema = new Schema(
       type: Number,
       required: true,
       min: 0,
+      validate: Number.isFinite,
     },
 
     totalPrice: {
       type: Number,
       required: true,
       min: 0,
+      validate: Number.isFinite,
     },
   },
   { _id: false },
@@ -84,30 +92,35 @@ const shippingAddressSchema = new Schema(
       type: String,
       required: true,
       trim: true,
+      maxlength: 120,
     },
 
     phone: {
       type: String,
       required: true,
       trim: true,
+      maxlength: 25,
+      match: /^\+?[0-9][0-9 ()-]{5,23}[0-9]$/,
     },
 
     city: {
       type: String,
       required: true,
       trim: true,
+      maxlength: 120,
     },
 
     area: {
       type: String,
-      required: true,
       trim: true,
+      default: "",
     },
 
     streetAddress: {
       type: String,
       required: true,
       trim: true,
+      maxlength: 500,
     },
 
     building: {
@@ -132,6 +145,21 @@ const orderSchema = new Schema(
       required: true,
       unique: true,
       immutable: true,
+      match: /^AN-\d{8}-[A-F0-9]{24}$/,
+    },
+
+    idempotencyKeyHash: {
+      type: String,
+      required: true,
+      immutable: true,
+      match: /^[a-f0-9]{64}$/,
+    },
+
+    requestHash: {
+      type: String,
+      required: true,
+      immutable: true,
+      match: /^[a-f0-9]{64}$/,
     },
 
     user: {
@@ -143,6 +171,7 @@ const orderSchema = new Schema(
     items: {
       type: [orderItemSchema],
       required: true,
+      immutable: true,
       validate: {
         validator: (items: unknown[]) => items.length > 0,
         message: "Order must contain at least one item",
@@ -157,17 +186,21 @@ const orderSchema = new Schema(
     shippingZone: {
       type: Schema.Types.ObjectId,
       ref: "ShippingZone",
+    },
+
+    shippingRegion: {
+      type: String,
+      enum: ["west_bank", "jerusalem", "inside_48"],
       required: true,
+      immutable: true,
     },
 
     shippingZoneName: {
       ar: {
         type: String,
-        required: true,
       },
       en: {
         type: String,
-        required: true,
       },
     },
 
@@ -175,12 +208,16 @@ const orderSchema = new Schema(
       type: Number,
       required: true,
       min: 0,
+      immutable: true,
+      validate: Number.isFinite,
     },
 
     shippingFee: {
       type: Number,
       required: true,
       min: 0,
+      immutable: true,
+      validate: Number.isFinite,
     },
 
     discount: {
@@ -193,6 +230,8 @@ const orderSchema = new Schema(
       type: Number,
       required: true,
       min: 0,
+      immutable: true,
+      validate: Number.isFinite,
     },
 
     currency: {
@@ -204,15 +243,15 @@ const orderSchema = new Schema(
 
     paymentMethod: {
       type: String,
-      enum: ["cod", "online"],
-      default: "cod",
+      enum: ["cash_on_delivery"],
+      default: "cash_on_delivery",
       required: true,
     },
 
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "failed", "refunded"],
-      default: "pending",
+      enum: ["unpaid", "paid", "failed", "refunded"],
+      default: "unpaid",
       required: true,
     },
 
@@ -227,6 +266,7 @@ const orderSchema = new Schema(
       type: String,
       trim: true,
       default: "",
+      maxlength: 1000,
     },
 
     adminNotes: {
@@ -252,6 +292,10 @@ const orderSchema = new Schema(
 );
 
 orderSchema.index({ user: 1, createdAt: -1 });
+orderSchema.index(
+  { user: 1, idempotencyKeyHash: 1 },
+  { unique: true, partialFilterExpression: { idempotencyKeyHash: { $type: "string" } } },
+);
 orderSchema.index({ status: 1, createdAt: -1 });
 orderSchema.index({ paymentStatus: 1 });
 
