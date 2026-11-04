@@ -161,18 +161,24 @@ export default function CartPage() {
                   <p className="mt-2 text-xs leading-6 text-[#817571] dark:text-[#aaa09b]">
                     {t("shippingExcluded")}
                   </p>
-                  <Button
-                    disabled
-                    aria-describedby="cart-page-checkout-note"
-                    className="mt-6 h-12 w-full bg-[#a97872] dark:bg-[#d4a39b]"
-                  >
-                    {t("checkout")}
-                  </Button>
+                  {cart.loading || cart.busy || cart.items.some((item) => !item.available) ? (
+                    <Button disabled className="mt-6 h-12 w-full bg-[#a97872] dark:bg-[#d4a39b]">
+                      {t("checkout")}
+                    </Button>
+                  ) : (
+                    <Button asChild className="mt-6 h-12 w-full bg-[#a97872] dark:bg-[#d4a39b]">
+                      <Link href="/checkout">{t("checkout")}</Link>
+                    </Button>
+                  )}
                   <p
                     id="cart-page-checkout-note"
                     className="mt-3 text-xs leading-6 text-[#817571] dark:text-[#aaa09b]"
                   >
-                    {t("checkoutUnavailable")}
+                    {t(
+                      cart.items.some((item) => !item.available)
+                        ? "checkoutStockWarning"
+                        : "checkoutHint",
+                    )}
                   </p>
                   <Button asChild variant="outline" className="mt-5 w-full">
                     <Link href="/">{t("continueShopping")}</Link>

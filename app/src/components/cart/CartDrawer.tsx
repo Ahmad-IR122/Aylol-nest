@@ -197,18 +197,33 @@ export default function CartDrawer() {
           <p className="mt-2 text-xs leading-6 text-[#817571] dark:text-[#aaa09b]">
             {t("shippingExcluded")}
           </p>
-          <Button
-            disabled
-            aria-describedby="cart-checkout-message"
-            className="mt-4 h-12 w-full rounded-xl bg-[#a97872] text-white dark:bg-[#d4a39b] dark:text-[#171717]"
-          >
-            {t("checkout")}
-          </Button>
+          {cart.loading ||
+          cart.busy ||
+          cart.items.length === 0 ||
+          cart.items.some((item) => !item.available) ? (
+            <Button
+              disabled
+              className="mt-4 h-12 w-full rounded-xl bg-[#a97872] text-white dark:bg-[#d4a39b] dark:text-[#171717]"
+            >
+              {t("checkout")}
+            </Button>
+          ) : (
+            <Button
+              asChild
+              className="mt-4 h-12 w-full rounded-xl bg-[#a97872] text-white dark:bg-[#d4a39b] dark:text-[#171717]"
+            >
+              <Link href="/checkout" onClick={cart.closeCart}>
+                {t("checkout")}
+              </Link>
+            </Button>
+          )}
           <p
             id="cart-checkout-message"
             className="mt-3 text-xs leading-6 text-[#817571] dark:text-[#aaa09b]"
           >
-            {t("checkoutUnavailable")}
+            {t(
+              cart.items.some((item) => !item.available) ? "checkoutStockWarning" : "checkoutHint",
+            )}
           </p>
         </div>
       </SheetContent>
