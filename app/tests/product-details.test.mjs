@@ -88,11 +88,18 @@ test("sign-in return accepts only a store path in the current locale", () => {
   assert.equal(productReturnPath("ar", "/ar/products/rose-set"), "/ar/products/rose-set");
   assert.equal(productReturnPath("en", "/en/cart"), "/en/cart");
   assert.equal(productReturnPath("ar", "/ar/cart"), "/ar/cart");
+  assert.equal(productReturnPath("en", "/en/checkout"), "/en/checkout");
+  assert.equal(
+    productReturnPath("ar", "/ar/checkout/confirmation/507f1f77bcf86cd799439011"),
+    "/ar/checkout/confirmation/507f1f77bcf86cd799439011",
+  );
   for (const path of [
     "//evil.test",
     "https://evil.test",
     "/ar/products/rose-set",
     "/en/admin",
+    "/en/checkout/confirmation/not-an-id",
+    "/en/checkout?next=https://evil.test",
     "/en/products/rose-set?next=/admin",
   ]) {
     assert.equal(productReturnPath("en", path), null);
