@@ -278,6 +278,40 @@
       "refunded": "تم رد المبلغ"
     }
   },
+  "AdminDashboard": {
+    "title": "لوحة التحكم",
+    "description": "نظرة سريعة على نشاط المتجر والمخزون.",
+    "summary": "ملخص لوحة التحكم",
+    "totalOrders": "إجمالي الطلبات",
+    "totalRevenue": "إجمالي الإيرادات",
+    "totalCustomers": "إجمالي العملاء",
+    "totalProducts": "المنتجات النشطة",
+    "pendingOrders": "الطلبات المعلقة",
+    "lowStockProducts": "منتجات منخفضة المخزون",
+    "revenueChart": "الإيرادات · آخر ٧ أيام",
+    "deliveredRevenue": "الطلبات المسلّمة حسب تاريخ التسليم (UTC)",
+    "noRevenue": "لا توجد إيرادات من طلبات مسلّمة خلال هذه الفترة.",
+    "ordersByStatus": "الطلبات حسب الحالة",
+    "recentOrders": "أحدث الطلبات",
+    "lowStockAlerts": "تنبيهات المخزون",
+    "viewOrders": "عرض الطلبات",
+    "viewProducts": "عرض المنتجات",
+    "noOrders": "لا توجد طلبات بعد.",
+    "noLowStock": "لا توجد خيارات نشطة بمخزون أقل من ٥ وحدات.",
+    "unitsLeft": "{count, plural, zero {لا وحدات متبقية} one {وحدة واحدة متبقية} two {وحدتان متبقيتان} few {# وحدات متبقية} many {# وحدة متبقية} other {# وحدة متبقية}}",
+    "moreLowStock": "{count, plural, one {منتج إضافي} two {منتجان إضافيان} few {# منتجات إضافية} many {# منتجًا إضافيًا} other {# منتج إضافي}}",
+    "loading": "جارٍ تحميل لوحة التحكم…",
+    "error": "تعذر تحميل بيانات لوحة التحكم.",
+    "retry": "إعادة المحاولة",
+    "statuses": {
+      "pending": "معلق",
+      "confirmed": "مؤكد",
+      "processing": "قيد التجهيز",
+      "shipped": "تم الشحن",
+      "delivered": "تم التسليم",
+      "cancelled": "ملغي"
+    }
+  },
   "AdminOrders": {
     "title": "الطلبات",
     "description": "راجع طلبات العملاء وحدّث مراحل تنفيذها.",
