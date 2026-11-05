@@ -15,11 +15,18 @@ import { usePathname } from "@/i18n/navigation";
 import CartDrawer from "./CartDrawer";
 
 export type ApiCartItem = CartItem & { id: string; lineTotal: number; available: boolean };
-type ApiCart = { id: string | null; items: ApiCartItem[]; subtotal: number; itemCount: number };
+type ApiCart = {
+  id: string | null;
+  items: ApiCartItem[];
+  subtotal: number;
+  itemCount: number;
+  revision: number;
+};
 type CartContextValue = {
   items: ApiCartItem[];
   count: number;
   subtotal: number;
+  revision: number;
   busy: boolean;
   loading: boolean;
   open: boolean;
@@ -43,7 +50,7 @@ type CartContextValue = {
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
-const emptyCart: ApiCart = { id: null, items: [], subtotal: 0, itemCount: 0 };
+const emptyCart: ApiCart = { id: null, items: [], subtotal: 0, itemCount: 0, revision: 0 };
 
 function errorFor(status: number): CartError {
   if (status === 400) return "invalid";
@@ -165,6 +172,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         items: cart.items,
         count: cart.itemCount,
         subtotal: cart.subtotal,
+        revision: cart.revision,
         busy,
         loading,
         open,

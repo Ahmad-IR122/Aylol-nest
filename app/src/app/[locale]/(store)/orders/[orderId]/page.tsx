@@ -118,7 +118,8 @@ export default async function OrderDetailsPage({ params }: Props) {
               </dl>
               <div className="mt-5 border-t border-[#eee5e0] pt-4 text-sm dark:border-[#3a3431]">
                 <p>
-                  {t("paymentMethod")}: {t("cashOnDelivery")}
+                  {t("paymentMethod")}:{" "}
+                  {t(String(order.paymentMethod) === "online" ? "online" : "cashOnDelivery")}
                 </p>
                 <p className="mt-2">
                   {t("paymentStatus")}: {t(`payments.${order.paymentStatus}`)}

@@ -249,6 +249,7 @@
     "total": "المجموع",
     "paymentMethod": "طريقة الدفع",
     "cashOnDelivery": "الدفع عند الاستلام",
+    "online": "الدفع الإلكتروني",
     "paymentStatus": "حالة الدفع",
     "shippingTitle": "معلومات التوصيل",
     "building": "المبنى",
@@ -271,6 +272,7 @@
     },
     "payments": {
       "unpaid": "غير مدفوع",
+      "pending": "قيد الانتظار",
       "paid": "مدفوع",
       "failed": "فشل الدفع",
       "refunded": "تم رد المبلغ"
@@ -309,6 +311,7 @@
     "address": "عنوان التوصيل",
     "paymentMethod": "طريقة الدفع",
     "cashOnDelivery": "الدفع عند الاستلام",
+    "online": "الدفع الإلكتروني",
     "notes": "ملاحظات العميل",
     "items": "المنتجات المطلوبة",
     "imageUnavailable": "الصورة غير متاحة",

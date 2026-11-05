@@ -66,6 +66,7 @@ export default function CheckoutPage() {
   const [submittedSummary, setSubmittedSummary] = useState<{
     items: ApiCartItem[];
     subtotal: number;
+    cartRevision: number;
   } | null>(null);
   const locked = useRef(false);
   const keyRef = useRef<string | null>(null);
@@ -109,18 +110,28 @@ export default function CheckoutPage() {
     }
 
     const key = (keyRef.current ??= crypto.randomUUID());
-    if (!submittedSummary) setSubmittedSummary({ items: cart.items, subtotal: cart.subtotal });
+    const cartRevision = submittedSummary?.cartRevision ?? cart.revision;
+    if (!submittedSummary)
+      setSubmittedSummary({ items: cart.items, subtotal: cart.subtotal, cartRevision });
     locked.current = true;
     setSubmitting(true);
     setError(null);
     try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        credentials: "same-origin",
-        cache: "no-store",
-        headers: { "Content-Type": "application/json", "Idempotency-Key": key },
-        body: JSON.stringify(parsed.data),
-      });
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 15000);
+      let response: Response;
+      try {
+        response = await fetch("/api/checkout", {
+          method: "POST",
+          credentials: "same-origin",
+          cache: "no-store",
+          headers: { "Content-Type": "application/json", "Idempotency-Key": key },
+          body: JSON.stringify({ ...parsed.data, cartRevision }),
+          signal: controller.signal,
+        });
+      } finally {
+        window.clearTimeout(timeout);
+      }
       const data: {
         orderId?: string;
         orderNumber?: string;

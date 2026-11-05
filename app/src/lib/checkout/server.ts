@@ -56,6 +56,8 @@ async function placeOrderInTransaction(
 
   const cart = await Cart.findOne({ owner }).session(session).lean();
   if (!cart?.items.length) throw new CheckoutError(409, "Cart is empty");
+  if (input.cartRevision === undefined || cart.revision !== input.cartRevision)
+    throw new CheckoutError(409, "Cart changed; retry checkout");
 
   const selections = new Map<
     string,

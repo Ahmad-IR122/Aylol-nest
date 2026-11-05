@@ -249,6 +249,7 @@
     "total": "Total",
     "paymentMethod": "Payment method",
     "cashOnDelivery": "Cash on delivery",
+    "online": "Online payment",
     "paymentStatus": "Payment status",
     "shippingTitle": "Shipping information",
     "building": "Building",
@@ -271,6 +272,7 @@
     },
     "payments": {
       "unpaid": "Unpaid",
+      "pending": "Pending",
       "paid": "Paid",
       "failed": "Failed",
       "refunded": "Refunded"
@@ -309,6 +311,7 @@
     "address": "Delivery address",
     "paymentMethod": "Payment method",
     "cashOnDelivery": "Cash on delivery",
+    "online": "Online payment",
     "notes": "Customer notes",
     "items": "Purchased items",
     "imageUnavailable": "Image unavailable",
