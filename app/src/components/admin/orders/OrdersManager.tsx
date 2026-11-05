@@ -71,14 +71,18 @@ function statusClass(status: OrderStatus) {
   return "bg-[#f8eeeb] text-[#704c47] dark:bg-[#3b2d2b] dark:text-[#e2ada4]";
 }
 
-export default function OrdersManager() {
+export default function OrdersManager({
+  initialStatus = "",
+}: {
+  initialStatus?: OrderStatus | "";
+}) {
   const locale = useLocale();
   const language = locale === "ar" ? "ar" : "en";
   const t = useTranslations("AdminOrders");
   const format = useFormatter();
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState<string>(initialStatus);
   const [page, setPage] = useState(1);
   const [revision, setRevision] = useState(0);
   const [list, setList] = useState<AdminOrderList | null>(null);

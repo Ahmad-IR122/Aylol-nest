@@ -278,6 +278,40 @@
       "refunded": "Refunded"
     }
   },
+  "AdminDashboard": {
+    "title": "Admin Dashboard",
+    "description": "Store activity and inventory at a glance.",
+    "summary": "Dashboard summary",
+    "totalOrders": "Total orders",
+    "totalRevenue": "Total revenue",
+    "totalCustomers": "Total customers",
+    "totalProducts": "Active products",
+    "pendingOrders": "Pending orders",
+    "lowStockProducts": "Low-stock products",
+    "revenueChart": "Revenue · last 7 days",
+    "deliveredRevenue": "Delivered orders, grouped by delivery date (UTC)",
+    "noRevenue": "No delivered revenue in this period.",
+    "ordersByStatus": "Orders by status",
+    "recentOrders": "Recent orders",
+    "lowStockAlerts": "Low-stock alerts",
+    "viewOrders": "View orders",
+    "viewProducts": "View products",
+    "noOrders": "No orders have been placed yet.",
+    "noLowStock": "No active variants are below 5 units.",
+    "unitsLeft": "{count, plural, one {# unit left} other {# units left}}",
+    "moreLowStock": "{count, plural, one {# more product} other {# more products}}",
+    "loading": "Loading dashboard…",
+    "error": "Dashboard data could not be loaded.",
+    "retry": "Try again",
+    "statuses": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    }
+  },
   "AdminOrders": {
     "title": "Orders",
     "description": "Review customer orders and update their progress.",
