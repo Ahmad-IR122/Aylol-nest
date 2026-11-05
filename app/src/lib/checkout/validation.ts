@@ -15,6 +15,7 @@ export const checkoutSchema = z.strictObject({
   city: requiredText(120),
   address: requiredText(500),
   notes: z.string().trim().max(1000).default(""),
+  cartRevision: z.number().int().nonnegative().optional(),
 });
 
 export const idempotencyKeySchema = z

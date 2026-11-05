@@ -38,6 +38,7 @@ const input = {
   city: "Ramallah",
   address: "Main Street 12",
   notes: "",
+  cartRevision: 0,
 };
 const parsedInput = checkoutSchema.parse(input);
 
@@ -183,6 +184,14 @@ test("checkout snapshots current prices, deducts stock, and clears the cart atom
   assert.equal(order.paymentMethod, "cash_on_delivery");
   assert.equal(order.paymentStatus, "unpaid");
   assert.equal(order.shippingRegion, "west_bank");
+});
+
+test("checkout rejects a cart revision that was not reviewed", async () => {
+  const db = fakeDatabase();
+  await assert.rejects(checkout(owner, { ...parsedInput, cartRevision: 1 }, key), { status: 409 });
+  assert.equal(db.state.product.variants[0].stock, 5);
+  assert.equal(db.state.orders.length, 0);
+  assert.equal(db.state.cart.items.length, 1);
 });
 
 test("insufficient stock rejects checkout without an order or cart change", async () => {

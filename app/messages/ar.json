@@ -4,7 +4,8 @@
     "boys": "الأولاد",
     "girls": "البنات",
     "cart": "السلة",
-    "login": "تسجيل الدخول"
+    "login": "تسجيل الدخول",
+    "myOrders": "طلباتي"
   },
   "Home": {
     "title": "أهلاً بكم في أيلول نيست",
@@ -66,6 +67,7 @@
     "restoreFailed": "تعذّر تحميل سلتك المحفوظة. يرجى المحاولة مجددًا.",
     "empty": "مساحة صغيرة لشيء جميل.",
     "continueShopping": "متابعة التسوق",
+    "viewOrderDetails": "عرض تفاصيل الطلب",
     "imagePlaceholder": "الصورة غير متوفرة",
     "decrease": "تقليل كمية {name}",
     "increase": "زيادة كمية {name}",
@@ -217,6 +219,65 @@
       "inside_48": "الداخل 48"
     }
   },
+  "CustomerOrders": {
+    "title": "طلباتي",
+    "loading": "جارٍ تحميل الطلبات",
+    "description": "راجع طلباتك وحالتها الحالية.",
+    "detailsTitle": "تفاصيل الطلب",
+    "orderNumber": "رقم الطلب",
+    "items": "{count, plural, zero {لا منتجات} one {منتج واحد} two {منتجان} few {# منتجات} many {# منتجًا} other {# منتج}}",
+    "viewDetails": "عرض التفاصيل",
+    "empty": "لم تقم بأي طلب بعد.",
+    "continueShopping": "متابعة التسوق",
+    "noPage": "لا توجد طلبات في هذه الصفحة.",
+    "firstPage": "العودة إلى الصفحة الأولى",
+    "pagination": "صفحات الطلبات",
+    "previous": "السابق",
+    "next": "التالي",
+    "pageOf": "الصفحة {page, number} من {total, number}",
+    "backToOrders": "العودة إلى طلباتي",
+    "itemsTitle": "المنتجات المشتراة",
+    "imagePlaceholder": "الصورة غير متاحة",
+    "size": "المقاس",
+    "color": "اللون",
+    "quantity": "الكمية {count, number}",
+    "unitPrice": "سعر القطعة",
+    "lineTotal": "مجموع المنتج",
+    "summaryTitle": "ملخص الطلب",
+    "subtotal": "المجموع الفرعي",
+    "shipping": "التوصيل",
+    "total": "المجموع",
+    "paymentMethod": "طريقة الدفع",
+    "cashOnDelivery": "الدفع عند الاستلام",
+    "online": "الدفع الإلكتروني",
+    "paymentStatus": "حالة الدفع",
+    "shippingTitle": "معلومات التوصيل",
+    "building": "المبنى",
+    "notes": "ملاحظاتك",
+    "regions": {
+      "west_bank": "الضفة الغربية",
+      "jerusalem": "القدس",
+      "inside_48": "الداخل 48"
+    },
+    "errorTitle": "تعذر تحميل طلباتك",
+    "errorDescription": "يرجى المحاولة مجددًا.",
+    "retry": "إعادة المحاولة",
+    "statuses": {
+      "pending": "تم استلام الطلب",
+      "confirmed": "تم التأكيد",
+      "processing": "جارٍ تجهيز الطلب",
+      "shipped": "تم الشحن",
+      "delivered": "تم التوصيل",
+      "cancelled": "ملغى"
+    },
+    "payments": {
+      "unpaid": "غير مدفوع",
+      "pending": "قيد الانتظار",
+      "paid": "مدفوع",
+      "failed": "فشل الدفع",
+      "refunded": "تم رد المبلغ"
+    }
+  },
   "AdminOrders": {
     "title": "الطلبات",
     "description": "راجع طلبات العملاء وحدّث مراحل تنفيذها.",
@@ -250,6 +311,7 @@
     "address": "عنوان التوصيل",
     "paymentMethod": "طريقة الدفع",
     "cashOnDelivery": "الدفع عند الاستلام",
+    "online": "الدفع الإلكتروني",
     "notes": "ملاحظات العميل",
     "items": "المنتجات المطلوبة",
     "imageUnavailable": "الصورة غير متاحة",

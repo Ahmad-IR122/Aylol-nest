@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import { Moon, Sun, ShoppingBag, Menu, X, LayoutDashboard } from "lucide-react";
+import { Moon, Sun, ShoppingBag, Menu, X, LayoutDashboard, Package } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -117,6 +117,14 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
             </Show>
 
             <Show when="signed-in">
+              {!isAdmin && (
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/orders" className="gap-2">
+                    <Package className="size-4" />
+                    {t("myOrders")}
+                  </Link>
+                </Button>
+              )}
               <UserButton />
             </Show>
           </div>
@@ -183,6 +191,18 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
             >
               {t("login")}
             </Link>
+          </Show>
+          <Show when="signed-in">
+            {!isAdmin && (
+              <Link
+                href="/orders"
+                onClick={() => setMenuOpen(false)}
+                className="hover:bg-secondary flex items-center gap-3 rounded-lg px-3 py-3 font-semibold"
+              >
+                <Package className="size-5" />
+                {t("myOrders")}
+              </Link>
+            )}
           </Show>
         </nav>
       )}

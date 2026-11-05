@@ -21,32 +21,41 @@ class OrderRequestError extends Error {
 }
 
 async function orderRequest<T>(url: string, options?: RequestInit): Promise<T> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 15000);
+  const onAbort = () => controller.abort();
+  options?.signal?.addEventListener("abort", onAbort, { once: true });
   let response: Response;
   try {
-    response = await fetch(url, { cache: "no-store", ...options });
+    response = await fetch(url, { cache: "no-store", ...options, signal: controller.signal });
+    if (!response.ok) {
+      const code: ErrorCode =
+        response.status === 401
+          ? "unauthorized"
+          : response.status === 403
+            ? "forbidden"
+            : response.status === 404
+              ? "notFound"
+              : response.status === 409
+                ? "conflict"
+                : response.status === 400
+                  ? "invalid"
+                  : "server";
+      throw new OrderRequestError(code);
+    }
+    try {
+      return (await response.json()) as T;
+    } catch {
+      throw new OrderRequestError("server");
+    }
   } catch (error) {
+    if (error instanceof OrderRequestError) throw error;
     if (options?.signal?.aborted) throw error;
+    if (controller.signal.aborted) throw new OrderRequestError("network");
     throw new OrderRequestError("network");
-  }
-  if (!response.ok) {
-    const code: ErrorCode =
-      response.status === 401
-        ? "unauthorized"
-        : response.status === 403
-          ? "forbidden"
-          : response.status === 404
-            ? "notFound"
-            : response.status === 409
-              ? "conflict"
-              : response.status === 400
-                ? "invalid"
-                : "server";
-    throw new OrderRequestError(code);
-  }
-  try {
-    return (await response.json()) as T;
-  } catch {
-    throw new OrderRequestError("server");
+  } finally {
+    window.clearTimeout(timeout);
+    options?.signal?.removeEventListener("abort", onAbort);
   }
 }
 
@@ -437,7 +446,10 @@ export default function OrdersManager() {
                     .filter(Boolean)
                     .join(", ")}
                 />
-                <Info label={t("paymentMethod")} value={t("cashOnDelivery")} />
+                <Info
+                  label={t("paymentMethod")}
+                  value={t(detail.paymentMethod === "online" ? "online" : "cashOnDelivery")}
+                />
                 <Info
                   label={t("paymentStatus")}
                   value={t(`paymentStatuses.${detail.paymentStatus}`)}

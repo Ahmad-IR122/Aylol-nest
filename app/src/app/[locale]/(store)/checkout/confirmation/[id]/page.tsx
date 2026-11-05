@@ -142,9 +142,14 @@ export default async function ConfirmationPage({ params }: Props) {
             </div>
           </aside>
         </div>
-        <Button asChild variant="outline" className="mt-6 h-11">
-          <Link href="/">{t("continueShopping")}</Link>
-        </Button>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button asChild className="h-11">
+            <Link href={`/orders/${id}`}>{t("viewOrderDetails")}</Link>
+          </Button>
+          <Button asChild variant="outline" className="h-11">
+            <Link href="/">{t("continueShopping")}</Link>
+          </Button>
+        </div>
       </div>
     </main>
   );

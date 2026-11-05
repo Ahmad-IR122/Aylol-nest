@@ -134,6 +134,7 @@ export async function cartResponse(owner: mongoose.Types.ObjectId, status = 200)
         items,
         subtotal: items.reduce((sum, item) => sum + item.lineTotal, 0),
         itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
+        revision: (cart?.revision ?? 0) + (removedIds.size ? 1 : 0),
       },
     },
     { status },
