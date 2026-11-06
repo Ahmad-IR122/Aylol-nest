@@ -25,6 +25,13 @@ const userSchema = new Schema(
       lowercase: true,
       trim: true,
     },
+    phone: {
+      type: String,
+      trim: true,
+      default: "",
+      maxlength: 10,
+      match: /^$|^(?:059|056)[0-9]{7}$/,
+    },
     imageUrl: {
       type: String,
       default: "",
@@ -38,6 +45,10 @@ const userSchema = new Schema(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
     },
   },
   {

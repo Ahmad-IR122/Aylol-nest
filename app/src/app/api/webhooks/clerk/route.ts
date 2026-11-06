@@ -25,6 +25,9 @@ export async function POST(request: NextRequest) {
 
       await connectDB();
 
+      const deletedUser = await User.exists({ clerkId: clerkUser.id, deletedAt: { $ne: null } });
+      if (deletedUser) return NextResponse.json({ received: true });
+
       await User.updateOne(
         { clerkId: clerkUser.id },
         {

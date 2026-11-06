@@ -20,7 +20,6 @@ export default function AdminShell({ children, locale }: Props) {
   const { resolvedTheme, setTheme } = useTheme();
 
   const isArabic = locale === "ar";
-  const isDark = resolvedTheme === "dark";
 
   return (
     <div
@@ -56,28 +55,13 @@ export default function AdminShell({ children, locale }: Props) {
             {/* Theme Toggle */}
             <button
               type="button"
-              onClick={() => setTheme(isDark ? "light" : "dark")}
-              aria-label={
-                isDark
-                  ? isArabic
-                    ? "تفعيل الوضع الفاتح"
-                    : "Switch to light mode"
-                  : isArabic
-                    ? "تفعيل الوضع الداكن"
-                    : "Switch to dark mode"
-              }
-              title={
-                isDark
-                  ? isArabic
-                    ? "الوضع الفاتح"
-                    : "Light mode"
-                  : isArabic
-                    ? "الوضع الداكن"
-                    : "Dark mode"
-              }
+              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+              aria-label={isArabic ? "تبديل المظهر" : "Toggle theme"}
+              title={isArabic ? "تبديل المظهر" : "Toggle theme"}
               className="flex size-10 items-center justify-center rounded-xl text-[#6d625e] transition-colors hover:bg-[#faf6f3] dark:text-[#f5efec] dark:hover:bg-[#332d2a]"
             >
-              {isDark ? <Sun size={21} /> : <Moon size={21} />}
+              <Sun size={21} className="hidden dark:block" aria-hidden="true" />
+              <Moon size={21} className="dark:hidden" aria-hidden="true" />
             </button>
 
             {/* Visit Store */}

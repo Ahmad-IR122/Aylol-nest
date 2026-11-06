@@ -4,11 +4,19 @@ import { orderStatuses, type OrderStatus } from "@/lib/orders/status";
 export default async function OrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; order?: string }>;
 }) {
-  const { status } = await searchParams;
+  const { status, order } = await searchParams;
   const initialStatus = orderStatuses.includes(status as OrderStatus)
     ? (status as OrderStatus)
     : "";
-  return <OrdersManager key={initialStatus} initialStatus={initialStatus} />;
+  const initialOrderId =
+    typeof order === "string" && /^[a-f\d]{24}$/i.test(order) ? order : undefined;
+  return (
+    <OrdersManager
+      key={`${initialStatus}-${initialOrderId ?? ""}`}
+      initialStatus={initialStatus}
+      initialOrderId={initialOrderId}
+    />
+  );
 }
