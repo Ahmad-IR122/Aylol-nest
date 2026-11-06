@@ -73,8 +73,10 @@ function statusClass(status: OrderStatus) {
 
 export default function OrdersManager({
   initialStatus = "",
+  initialOrderId,
 }: {
   initialStatus?: OrderStatus | "";
+  initialOrderId?: string;
 }) {
   const locale = useLocale();
   const language = locale === "ar" ? "ar" : "en";
@@ -168,6 +170,12 @@ export default function OrdersManager({
       if (!controller.signal.aborted) setDetailLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (!initialOrderId) return;
+    const timer = window.setTimeout(() => void openOrder(initialOrderId), 0);
+    return () => window.clearTimeout(timer);
+  }, [initialOrderId]);
 
   function close() {
     if (saving) return;
