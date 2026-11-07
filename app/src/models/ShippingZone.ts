@@ -25,12 +25,7 @@ const shippingZoneSchema = new Schema(
 
     cities: {
       type: [String],
-      required: true,
       default: [],
-      validate: {
-        validator: (cities: string[]) => cities.length > 0,
-        message: "Shipping zone must contain at least one city",
-      },
     },
 
     shippingFee: {
@@ -48,12 +43,10 @@ const shippingZoneSchema = new Schema(
     estimatedDeliveryDays: {
       min: {
         type: Number,
-        required: true,
         min: 0,
       },
       max: {
         type: Number,
-        required: true,
         min: 0,
       },
     },
@@ -74,13 +67,6 @@ const shippingZoneSchema = new Schema(
     collection: "shipping_zones",
   },
 );
-
-shippingZoneSchema.path("estimatedDeliveryDays").validate(function (value: {
-  min: number;
-  max: number;
-}) {
-  return Number.isInteger(value.min) && Number.isInteger(value.max) && value.max >= value.min;
-}, "Maximum delivery days must be greater than or equal to minimum delivery days");
 
 shippingZoneSchema.index({ isActive: 1, sortOrder: 1 });
 

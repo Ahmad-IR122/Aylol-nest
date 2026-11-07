@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { Check, ChevronLeft, ShoppingBag, Truck, Wallet } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 
@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Link, useRouter } from "@/i18n/navigation";
-import { checkoutSchema, shippingFees, type CheckoutInput } from "@/lib/checkout/validation";
+import { checkoutSchema, type CheckoutInput } from "@/lib/checkout/validation";
 import type { HomeLocale } from "@/lib/home-data";
 
 type FormValues = Omit<CheckoutInput, "region"> & { region: CheckoutInput["region"] | "" };
@@ -63,6 +63,11 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [uncertain, setUncertain] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [regions, setRegions] = useState<
+    { slug: CheckoutInput["region"]; shippingFee: number; name: { ar: string; en: string } }[]
+  >([]);
+  const [shippingLoading, setShippingLoading] = useState(true);
+  const [shippingError, setShippingError] = useState(false);
   const [submittedSummary, setSubmittedSummary] = useState<{
     items: ApiCartItem[];
     subtotal: number;
@@ -72,7 +77,28 @@ export default function CheckoutPage() {
   const keyRef = useRef<string | null>(null);
   const currency = (value: number) =>
     format.number(value, { style: "currency", currency: "ILS", currencyDisplay: "narrowSymbol" });
-  const fee = form.region ? shippingFees[form.region] : null;
+  const fee = regions.find((region) => region.slug === form.region)?.shippingFee ?? null;
+  const refreshShipping = useCallback(async () => {
+    setShippingLoading(true);
+    setShippingError(false);
+    try {
+      const response = await fetch("/api/shipping", { cache: "no-store" });
+      if (!response.ok) throw new Error("Shipping unavailable");
+      const data = await response.json();
+      if (!Array.isArray(data.regions)) throw new Error("Invalid shipping response");
+      setRegions(data.regions);
+    } catch {
+      setRegions([]);
+      setShippingError(true);
+    } finally {
+      setShippingLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => void refreshShipping(), 0);
+    return () => window.clearTimeout(timer);
+  }, [refreshShipping]);
   const unavailable = cart.items.some((item) => !item.available);
   const summary = uncertain && submittedSummary ? submittedSummary : cart;
 
@@ -88,6 +114,10 @@ export default function CheckoutPage() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (locked.current || completed) return;
+    if (!uncertain && (shippingLoading || shippingError || fee === null)) {
+      setError("unavailable");
+      return;
+    }
     if (cart.busy || (!uncertain && (cart.loading || cart.error))) {
       setError("server");
       return;
@@ -179,6 +209,7 @@ export default function CheckoutPage() {
           keyRef.current = null;
           setSubmittedSummary(null);
           void cart.refresh();
+          if (conflict === "unavailable") void refreshShipping();
         }
         return;
       }
@@ -279,6 +310,24 @@ export default function CheckoutPage() {
                   )}
                 </div>
               )}
+              {(shippingLoading || shippingError) && (
+                <div
+                  role="status"
+                  className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200"
+                >
+                  <p>{t(shippingError ? "shippingLoadError" : "shippingLoading")}</p>
+                  {shippingError && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => void refreshShipping()}
+                      className="mt-3"
+                    >
+                      {t("retryCart")}
+                    </Button>
+                  )}
+                </div>
+              )}
               {uncertain && (
                 <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
                   {t("retrySameDetails")}
@@ -341,9 +390,9 @@ export default function CheckoutPage() {
                         <SelectValue placeholder={t("chooseRegion")} />
                       </SelectTrigger>
                       <SelectContent dir={locale === "ar" ? "rtl" : "ltr"}>
-                        {(["west_bank", "jerusalem", "inside_48"] as const).map((region) => (
-                          <SelectItem key={region} value={region}>
-                            {t(`regions.${region}`)} · {currency(shippingFees[region])}
+                        {regions.map((region) => (
+                          <SelectItem key={region.slug} value={region.slug}>
+                            {region.name[locale]} · {currency(region.shippingFee)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -475,6 +524,7 @@ export default function CheckoutPage() {
                   cart.busy ||
                   (!uncertain && (cart.loading || !!cart.error)) ||
                   (!uncertain && unavailable) ||
+                  (!uncertain && (shippingLoading || shippingError || fee === null)) ||
                   (!uncertain && cart.items.length === 0)
                 }
                 className="mt-6 h-12 w-full rounded-xl bg-[#a97872] text-white hover:bg-[#91645e] dark:bg-[#d4a39b] dark:text-[#171717] dark:hover:bg-[#e4b7af]"

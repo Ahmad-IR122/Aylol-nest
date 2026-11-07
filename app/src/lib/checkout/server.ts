@@ -3,7 +3,8 @@ import "server-only";
 import { createHash, randomBytes } from "node:crypto";
 import mongoose, { type ClientSession } from "mongoose";
 
-import { shippingFeeFor, priceInCents, type CheckoutInput } from "@/lib/checkout/validation";
+import { priceInCents, type CheckoutInput } from "@/lib/checkout/validation";
+import { getShippingRegionForCheckout, initializeShippingRegions } from "@/lib/shipping/server";
 import { Cart } from "@/models/Cart";
 import { Order } from "@/models/Order";
 import { Product } from "@/models/Product";
@@ -58,6 +59,9 @@ async function placeOrderInTransaction(
   if (!cart?.items.length) throw new CheckoutError(409, "Cart is empty");
   if (input.cartRevision === undefined || cart.revision !== input.cartRevision)
     throw new CheckoutError(409, "Cart changed; retry checkout");
+
+  const zone = await getShippingRegionForCheckout(input.region, session);
+  if (!zone) throw new CheckoutError(409, "Shipping region is unavailable");
 
   const selections = new Map<
     string,
@@ -143,8 +147,8 @@ async function placeOrderInTransaction(
       throw new CheckoutError(409, "Insufficient stock or variant unavailable");
   }
 
-  const shippingFee = shippingFeeFor(input.region);
-  const totalCents = subtotalCents + shippingFee * 100;
+  const shippingFee = zone.shippingFee;
+  const totalCents = subtotalCents + priceInCents(shippingFee)!;
   if (!Number.isSafeInteger(totalCents)) throw new CheckoutError(409, "Cart total is too large");
   const orderId = new mongoose.Types.ObjectId(idempotencyKeyHash.slice(0, 24));
   const [order] = await Order.create(
@@ -163,6 +167,8 @@ async function placeOrderInTransaction(
           streetAddress: input.address,
         },
         shippingRegion: input.region,
+        shippingZone: zone._id,
+        shippingZoneName: zone.name,
         customerNotes: input.notes,
         subtotal: subtotalCents / 100,
         shippingFee,
@@ -197,6 +203,8 @@ export async function checkout(
   await Order.init();
   const replay = await existingOrder(owner, idempotencyKeyHash, requestHash);
   if (replay) return replay;
+
+  await initializeShippingRegions();
 
   const session = await mongoose.startSession();
   try {
