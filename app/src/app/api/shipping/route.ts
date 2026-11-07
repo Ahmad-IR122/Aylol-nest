@@ -12,4 +12,3 @@ export async function GET() {
     return NextResponse.json({ message: "Shipping configuration unavailable" }, { status: 503 });
   }
 }
-
