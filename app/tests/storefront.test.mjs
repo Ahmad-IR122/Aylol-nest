@@ -74,10 +74,12 @@ registerHooks({
 
 const require = createRequire(import.meta.url);
 const { Product } = require("../src/models/Product.ts");
+const { Category } = require("../src/models/Category.ts");
 const {
   getHomeProducts,
   getStorefrontProduct,
   getRelatedProducts,
+  getCategoryProducts,
 } = require("../src/lib/products/storefront.ts");
 const db = require("../src/lib/db/mongoose.ts");
 const requestContext = require("next/server");
@@ -455,5 +457,94 @@ test("detail failures remain server errors, related failures remain isolated, an
   await assert.rejects(
     () => getRelatedProducts({ id: "1", category: null }),
     (error) => error === signal,
+  );
+});
+
+test("boys and girls listings include active descendants and exclude other or inactive branches", async () => {
+  const categories = [
+    {
+      _id: "boys",
+      slug: "boys-clothing",
+      parent: null,
+      isActive: true,
+      name: { en: "Boys Clothing", ar: "ملابس أولاد" },
+    },
+    { _id: "boys-child", parent: "boys", isActive: true },
+    { _id: "boys-grandchild", parent: "boys-child", isActive: true },
+    { _id: "boys-inactive", parent: "boys", isActive: false },
+    { _id: "boys-hidden-child", parent: "boys-inactive", isActive: true },
+    {
+      _id: "girls",
+      slug: "girls-clothing",
+      parent: null,
+      isActive: true,
+      name: { en: "Girls Clothing", ar: "ملابس بنات" },
+    },
+    { _id: "girls-child", parent: "girls", isActive: true },
+  ];
+  const products = [
+    row("boys-root", { category: { _id: "boys", name: categories[0].name } }),
+    row("boys-nested", { category: { _id: "boys-grandchild", name: categories[0].name } }),
+    row("boys-hidden", { category: { _id: "boys-hidden-child", name: categories[0].name } }),
+    row("girls-child", { category: { _id: "girls-child", name: categories[5].name } }),
+    row("girls-inactive-product", {
+      category: { _id: "girls", name: categories[5].name },
+      isActive: false,
+    }),
+  ];
+  mock.method(Category, "findOne", (filter) => ({
+    select() {
+      return this;
+    },
+    async lean() {
+      return categories.find((item) => item.slug === filter.slug && item.isActive) ?? null;
+    },
+  }));
+  mock.method(Category, "find", (filter) => ({
+    select() {
+      return this;
+    },
+    async lean() {
+      return categories.filter((item) => item.isActive && filter.parent.$in.includes(item.parent));
+    },
+  }));
+  const matching = (filter) =>
+    products.filter((item) => item.isActive && filter.category.$in.includes(item.category._id));
+  mock.method(Product, "countDocuments", async (filter) => matching(filter).length);
+  mock.method(Product, "find", (filter) => ({
+    offset: 0,
+    select() {
+      return this;
+    },
+    sort() {
+      return this;
+    },
+    skip(value) {
+      this.offset = value;
+      return this;
+    },
+    limit(value) {
+      this.max = value;
+      return this;
+    },
+    populate() {
+      return this;
+    },
+    async lean() {
+      return matching(filter).slice(this.offset, this.offset + this.max);
+    },
+  }));
+
+  const boys = await getCategoryProducts("boys-clothing", 1);
+  const girls = await getCategoryProducts("girls-clothing", 1);
+  assert.equal(boys.title.en, "Boys Clothing");
+  assert.deepEqual(
+    boys.products.map((item) => item.slug),
+    ["outfit-boys-root", "outfit-boys-nested"],
+  );
+  assert.equal(girls.title.ar, "ملابس بنات");
+  assert.deepEqual(
+    girls.products.map((item) => item.slug),
+    ["outfit-girls-child"],
   );
 });

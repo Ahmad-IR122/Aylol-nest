@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { Moon, Sun, ShoppingBag, Menu, X, LayoutDashboard, Package } from "lucide-react";
 
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Show, UserButton } from "@clerk/nextjs";
 import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
@@ -21,6 +21,7 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
   const cartText = useTranslations("Cart");
   const cart = useCart();
   const locale = useLocale();
+  const pathname = usePathname();
   const isArabic = locale === "ar";
 
   const { setTheme } = useTheme();
@@ -52,7 +53,8 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
             <Link
               key={link.href}
               href={link.href}
-              className="text-foreground/80 hover:text-primary inline-flex min-h-11 min-w-11 items-center justify-center text-sm font-semibold transition-colors lg:min-h-0 lg:min-w-0"
+              aria-current={link.href !== "/" && pathname === link.href ? "page" : undefined}
+              className={`hover:text-primary inline-flex min-h-11 min-w-11 items-center justify-center text-sm font-semibold transition-colors lg:min-h-0 lg:min-w-0 ${link.href !== "/" && pathname === link.href ? "text-primary underline underline-offset-8" : "text-foreground/80"}`}
             >
               {link.label}
             </Link>
@@ -150,7 +152,8 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
               key={link.href}
               href={link.href}
               onClick={() => setMenuOpen(false)}
-              className="hover:bg-secondary rounded-lg px-3 py-3 font-semibold"
+              aria-current={link.href !== "/" && pathname === link.href ? "page" : undefined}
+              className={`hover:bg-secondary rounded-lg px-3 py-3 font-semibold ${link.href !== "/" && pathname === link.href ? "bg-secondary text-primary" : ""}`}
             >
               {link.label}
             </Link>

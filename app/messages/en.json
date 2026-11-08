@@ -7,6 +7,18 @@
     "login": "Sign In",
     "myOrders": "My Orders"
   },
+  "CategoryProducts": {
+    "boys": "Boys Clothing",
+    "girls": "Girls Clothing",
+    "empty": "No products are available in this collection yet.",
+    "noPage": "There are no products on this page.",
+    "loadError": "Products could not be loaded. Please try again later.",
+    "loading": "Loading products",
+    "pagination": "Product pages",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {total}"
+  },
   "Home": {
     "title": "Welcome to Aylol Nest",
     "description": "Beautiful clothing for boys and girls, from newborn to 14 years",

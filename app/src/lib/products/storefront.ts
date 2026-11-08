@@ -79,12 +79,13 @@ function toHomeProduct(product: PublicProduct): HomeProduct {
   };
 }
 
-function queryCards(filter: Record<string, unknown>, limit: number) {
-  return Product.find({ ...filter, isActive: true })
+function queryCards(filter: Record<string, unknown>, limit: number, skip = 0) {
+  const query = Product.find({ ...filter, isActive: true })
     .select(
       "name slug category images.url images.alt variants.isActive variants.price variants.stock variants.images.url variants.images.alt isNewArrival",
     )
-    .sort({ createdAt: -1, _id: -1 })
+    .sort({ createdAt: -1, _id: -1 });
+  return (skip ? query.skip(skip) : query)
     .limit(limit)
     .populate({
       path: "category",
@@ -93,6 +94,51 @@ function queryCards(filter: Record<string, unknown>, limit: number) {
       match: { isActive: true },
     })
     .lean<PublicProduct[]>();
+}
+
+export async function getCategoryProducts(slug: "boys-clothing" | "girls-clothing", page: number) {
+  await connection();
+  try {
+    const { connectDB } = await import("@/lib/db/mongoose");
+    await connectDB();
+    const root = await Category.findOne({ slug, isActive: true }).select("_id name").lean();
+    if (!root) return { title: null, products: [], totalPages: 0, error: false };
+
+    const ids = [root._id];
+    const visited = new Set([root._id.toString()]);
+    let frontier = [root._id];
+    while (frontier.length) {
+      const children = await Category.find({ parent: { $in: frontier }, isActive: true })
+        .select("_id")
+        .lean();
+      frontier = children.flatMap((child) => {
+        const id = child._id.toString();
+        if (visited.has(id)) return [];
+        visited.add(id);
+        return [child._id];
+      });
+      ids.push(...frontier);
+    }
+
+    const filter = { category: { $in: ids } };
+    const pageSize = 12;
+    const [count, rows] = await Promise.all([
+      Product.countDocuments({ ...filter, isActive: true }),
+      queryCards(filter, pageSize, (page - 1) * pageSize),
+    ]);
+    return {
+      title: localized(root.name),
+      products: rows.filter((row) => row.category).map(toHomeProduct),
+      totalPages: Math.ceil(count / pageSize),
+      error: false,
+    };
+  } catch (error) {
+    console.error(
+      "Category products could not be loaded:",
+      error instanceof Error ? error.name : "UnknownError",
+    );
+    return { title: null, products: [], totalPages: 0, error: true };
+  }
 }
 
 // React cache only deduplicates the page and metadata reads within one request.
