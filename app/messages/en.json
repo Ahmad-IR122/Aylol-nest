@@ -19,10 +19,24 @@
     "next": "Next",
     "pageOf": "Page {page} of {total}"
   },
+  "StoreBenefits": {
+    "title": "Why shop with Aylol Nest",
+    "fastSupportTitle": "Fast Support",
+    "fastSupportSubtitle": "Dedicated customer care",
+    "fastDeliveryTitle": "Fast Delivery",
+    "fastDeliverySubtitle": "Across the region",
+    "cashOnDeliveryTitle": "Cash on Delivery",
+    "cashOnDeliverySubtitle": "Shop with peace of mind",
+    "qualityProductsTitle": "Quality Products",
+    "qualityProductsSubtitle": "Quality you can trust"
+  },
   "Home": {
-    "title": "Welcome to Aylol Nest",
-    "description": "Beautiful clothing for boys and girls, from newborn to 14 years",
-    "shopNow": "Shop Now"
+    "heroLine1": "Little Outfits,",
+    "heroLine2": "Big Adventures.",
+    "heroDescription": "Discover adorable everyday styles for boys and girls, from newborn to 14 years.",
+    "heroImageAlt": "Two children holding hands in a field at sunset",
+    "shopBoys": "Shop Boys",
+    "shopGirls": "Shop Girls"
   },
   "StorefrontProducts": {
     "featuredEyebrow": "THOUGHTFULLY SELECTED",

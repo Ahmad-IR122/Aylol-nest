@@ -19,10 +19,24 @@
     "next": "التالي",
     "pageOf": "صفحة {page} من {total}"
   },
+  "StoreBenefits": {
+    "title": "مزايا التسوق من أيلول نيست",
+    "fastSupportTitle": "دعم سريع",
+    "fastSupportSubtitle": "خدمة عملاء مميزة",
+    "fastDeliveryTitle": "شحن سريع",
+    "fastDeliverySubtitle": "لكل أنحاء المنطقة",
+    "cashOnDeliveryTitle": "الدفع عند الاستلام",
+    "cashOnDeliverySubtitle": "تسوق براحة واطمئنان",
+    "qualityProductsTitle": "منتجات بجودة عالية",
+    "qualityProductsSubtitle": "جودة مضمونة"
+  },
   "Home": {
-    "title": "أهلاً بكم في أيلول نيست",
-    "description": "أجمل ملابس الأطفال من عمر يوم حتى 14 سنة",
-    "shopNow": "تسوق الآن"
+    "heroLine1": "إطلالات صغيرة،",
+    "heroLine2": "ومغامرات كبيرة.",
+    "heroDescription": "اكتشفوا أزياء يومية جميلة للأولاد والبنات، من حديثي الولادة حتى عمر 14 عامًا.",
+    "heroImageAlt": "طفلان يمسكان بأيدي بعضهما في حقل وقت الغروب",
+    "shopBoys": "تسوقوا للأولاد",
+    "shopGirls": "تسوقوا للبنات"
   },
   "StorefrontProducts": {
     "featuredEyebrow": "مختارة بعناية",
