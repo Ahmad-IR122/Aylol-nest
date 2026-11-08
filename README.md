@@ -57,9 +57,9 @@ The project currently uses:
 - [x] Product variants and inventory values.
 - [x] Product image upload to Cloudinary.
 - [x] Product activation, featured, and new-arrival flags.
-- [ ] Order management UI and API.
-- [ ] Customer management UI and API.
-- [ ] Shipping-zone management UI and API.
+- [x] Order management UI and API.
+- [x] Customer management UI and API.
+- [x] Shipping-zone management UI and API.
 
 The dashboard currently contains navigation entries for orders, customers, and shipping, but corresponding pages and management APIs are not present in the repository.
 
