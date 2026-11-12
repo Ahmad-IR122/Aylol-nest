@@ -33,6 +33,7 @@ export default function ShippingManager({ locale }: { locale: string }) {
       const response = await fetch("/api/admin/shipping", { cache: "no-store" });
       if (!response.ok) throw new Error();
       const data = await response.json();
+      if (!Array.isArray(data.regions)) throw new Error();
       setRegions(data.regions);
     } catch {
       setError(t("loadError"));
@@ -193,7 +194,7 @@ export default function ShippingManager({ locale }: { locale: string }) {
                     <Button
                       type="button"
                       variant="outline"
-                      className="mt-5"
+                      className="mt-5 min-h-11"
                       onClick={() => edit(region)}
                     >
                       {t("edit")}

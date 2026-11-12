@@ -153,7 +153,7 @@ export default function ProductsManager() {
   return (
     <ProductModalFocusContext value={restoreFocus}>
       <main
-        className="min-h-screen min-w-0 bg-[#faf8f6] px-4 py-8 text-[#352d2b] md:px-8 dark:bg-[#171717] dark:text-[#f5efec]"
+        className="min-h-dvh min-w-0 bg-[#faf8f6] px-4 py-8 text-[#352d2b] md:px-8 dark:bg-[#171717] dark:text-[#f5efec]"
         dir={language === "ar" ? "rtl" : "ltr"}
       >
         <div className="mx-auto max-w-7xl space-y-6">

@@ -28,6 +28,7 @@ export default function OrdersPagination({
           aria-label={t("previous")}
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
+          className="min-h-11 min-w-11"
         >
           <ChevronLeft className="size-4 rtl:rotate-180" />
         </Button>
@@ -38,6 +39,7 @@ export default function OrdersPagination({
           aria-label={t("next")}
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
+          className="min-h-11 min-w-11"
         >
           <ChevronRight className="size-4 rtl:rotate-180" />
         </Button>

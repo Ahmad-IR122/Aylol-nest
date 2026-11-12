@@ -63,9 +63,7 @@ export default function AdminSidebar({ locale, isOpen, onClose }: Props) {
       {/* Sidebar */}
       <aside
         dir={isArabic ? "rtl" : "ltr"}
-        className={`fixed inset-y-0 z-50 flex w-72 flex-col border-e border-[#eee5e0] bg-white transition-colors duration-300 dark:border-[#3a3431] dark:bg-[#211e1c] ${
-          isArabic ? "right-0" : "left-0"
-        } ${
+        className={`fixed inset-y-0 z-50 flex w-72 flex-col border-e border-[#eee5e0] bg-white transition-colors duration-300 dark:border-[#3a3431] dark:bg-[#211e1c] ${"start-0"} ${
           isOpen
             ? "translate-x-0"
             : isArabic
@@ -88,7 +86,7 @@ export default function AdminSidebar({ locale, isOpen, onClose }: Props) {
             type="button"
             onClick={onClose}
             aria-label={isArabic ? "إغلاق القائمة" : "Close menu"}
-            className="rounded-lg p-2 text-[#817571] transition-colors hover:bg-[#faf6f3] lg:hidden dark:text-[#aaa09b] dark:hover:bg-[#332d2a]"
+            className="size-11 rounded-lg p-2 text-[#817571] transition-colors hover:bg-[#faf6f3] lg:hidden dark:text-[#aaa09b] dark:hover:bg-[#332d2a]"
           >
             <X size={20} />
           </button>
