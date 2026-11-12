@@ -32,7 +32,7 @@ export default function HeroSection() {
           src="/images/home/hero-banner-mobile.webp"
           alt={t("heroImageAlt")}
           fill
-          priority
+          preload
           sizes="(max-width: 1023px) 100vw, 1px"
           className="object-cover object-center lg:hidden"
         />
@@ -40,7 +40,7 @@ export default function HeroSection() {
           src="/images/home/hero-banner.webp"
           alt={t("heroImageAlt")}
           fill
-          priority
+          preload
           sizes="(min-width: 1024px) 100vw, 1px"
           className="hidden object-cover object-center lg:block"
           style={isArabic ? { transform: "scaleX(-1)" } : undefined}

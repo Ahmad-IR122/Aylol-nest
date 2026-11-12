@@ -87,6 +87,11 @@ export default function CheckoutPage() {
       const data = await response.json();
       if (!Array.isArray(data.regions)) throw new Error("Invalid shipping response");
       setRegions(data.regions);
+      setForm((previous) =>
+        data.regions.some((region: { slug: string }) => region.slug === previous.region)
+          ? previous
+          : { ...previous, region: "" },
+      );
     } catch {
       setRegions([]);
       setShippingError(true);

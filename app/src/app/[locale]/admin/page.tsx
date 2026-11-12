@@ -13,7 +13,7 @@ import { getDashboardData } from "@/lib/admin/dashboard";
 
 export const dynamic = "force-dynamic";
 const panel =
-  "rounded-2xl border border-[#eee5e0] bg-white p-5 shadow-sm dark:border-[#3a3431] dark:bg-[#292524]";
+  "min-w-0 rounded-2xl border border-[#eee5e0] bg-white p-5 shadow-sm dark:border-[#3a3431] dark:bg-[#292524]";
 
 export default async function AdminDashboardPage() {
   const [locale, t, data] = await Promise.all([
@@ -66,7 +66,7 @@ export default async function AdminDashboardPage() {
   ];
   const maxRevenue = Math.max(...data.revenueDays.map((day) => day.revenue), 1);
   return (
-    <main className="min-h-screen bg-[#faf8f6] px-5 py-8 md:px-10 dark:bg-[#171717]">
+    <main className="min-h-dvh bg-[#faf8f6] px-5 py-8 md:px-10 dark:bg-[#171717]">
       <div className="mx-auto max-w-7xl space-y-8">
         <header>
           <p className="text-sm font-medium text-[#a97872] dark:text-[#d4a39b]">Aylol Nest</p>
@@ -152,7 +152,7 @@ export default async function AdminDashboardPage() {
               </h2>
               <Link
                 href={ordersHref}
-                className="text-sm font-semibold text-[#a97872] dark:text-[#d4a39b]"
+                className="inline-flex min-h-11 items-center text-sm font-semibold text-[#a97872] dark:text-[#d4a39b]"
               >
                 {t("viewOrders")}
               </Link>
@@ -179,7 +179,7 @@ export default async function AdminDashboardPage() {
               </h2>
               <Link
                 href={ordersHref}
-                className="text-sm font-semibold text-[#a97872] dark:text-[#d4a39b]"
+                className="inline-flex min-h-11 items-center text-sm font-semibold text-[#a97872] dark:text-[#d4a39b]"
               >
                 {t("viewOrders")}
               </Link>
@@ -222,7 +222,7 @@ export default async function AdminDashboardPage() {
               </h2>
               <Link
                 href={productsHref}
-                className="text-sm font-semibold text-[#a97872] dark:text-[#d4a39b]"
+                className="inline-flex min-h-11 items-center text-sm font-semibold text-[#a97872] dark:text-[#d4a39b]"
               >
                 {t("viewProducts")}
               </Link>
