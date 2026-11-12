@@ -103,6 +103,7 @@ export default function ContactForm() {
               aria-invalid={!!errors[field]}
               aria-describedby={errors[field] ? `error-${field}` : undefined}
               required
+              disabled={status === "loading"}
               className="min-h-36"
             />
           ) : (
@@ -127,6 +128,7 @@ export default function ContactForm() {
               aria-invalid={!!errors[field]}
               aria-describedby={errors[field] ? `error-${field}` : undefined}
               required={field !== "phone"}
+              disabled={status === "loading"}
               className="h-11"
             />
           )}

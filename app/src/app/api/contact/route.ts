@@ -6,6 +6,25 @@ import { ContactRateLimit } from "@/models/ContactRateLimit";
 
 export const runtime = "nodejs";
 
+async function readBodyText(request: Request, maxBytes: number): Promise<string | null> {
+  const reader = request.body?.getReader();
+  if (!reader) return "";
+
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maxBytes) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  return Buffer.concat(chunks).toString("utf8");
+}
+
 export async function POST(request: Request) {
   let submittedKey: string | null = null;
   const origin = request.headers.get("origin");
@@ -15,8 +34,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ code: "invalidRequest" }, { status: 415 });
 
   try {
-    const body = await request.text();
-    if (body.length > 8000) return NextResponse.json({ code: "invalidRequest" }, { status: 413 });
+    const body = await readBodyText(request, 24_000);
+    if (body === null || body.length > 8000)
+      return NextResponse.json({ code: "invalidRequest" }, { status: 413 });
     const parsed = contactSchema.safeParse(JSON.parse(body));
     if (!parsed.success) {
       const fields = [...new Set(parsed.error.issues.map((issue) => String(issue.path[0])))];
