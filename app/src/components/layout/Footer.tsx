@@ -44,7 +44,7 @@ export default async function Footer() {
             {/* Social Media */}
             <div className="flex items-center justify-center gap-4 md:justify-start">
               <a
-                href="https://www.instagram.com/aylol_nest.ps?dlrf=MW8ydTJxc2JqbWxoaw=="
+                href="https://www.instagram.com/aylol.nest?srtk=MWRoYmZvcWFqeDN3MQ%3D%3D&utm_source=qr"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
