@@ -137,7 +137,7 @@ export default function ContactForm() {
           )}
         </div>
       ))}
-      <div className="absolute -left-[10000px]" aria-hidden="true">
+      <div className="hidden" aria-hidden="true">
         <label htmlFor="contact-website">Website</label>
         <input
           id="contact-website"

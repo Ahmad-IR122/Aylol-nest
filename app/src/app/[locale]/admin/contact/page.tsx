@@ -62,7 +62,7 @@ export default async function AdminContactPage({ params, searchParams }: Props) 
                 <div className="mt-5 flex flex-wrap gap-3">
                   <a
                     href={`mailto:${item.email}?subject=${encodeURIComponent(`Re: ${item.subject}`)}`}
-                    className="inline-flex min-h-10 items-center rounded-lg bg-[#a97872] px-4 py-2 text-sm font-semibold text-white hover:bg-[#91615c]"
+                    className="inline-flex min-h-11 items-center rounded-lg bg-[#a97872] px-4 py-2 text-sm font-semibold text-white hover:bg-[#91615c]"
                   >
                     {t("reply")}
                   </a>
@@ -75,7 +75,7 @@ export default async function AdminContactPage({ params, searchParams }: Props) 
                     />
                     <button
                       type="submit"
-                      className="min-h-10 rounded-lg border border-[#c9b8a4] px-4 py-2 text-sm font-semibold hover:bg-[#faf6f3] dark:hover:bg-[#332d2a]"
+                      className="min-h-11 rounded-lg border border-[#c9b8a4] px-4 py-2 text-sm font-semibold hover:bg-[#faf6f3] dark:hover:bg-[#332d2a]"
                     >
                       {t(item.status === "handled" ? "markNew" : "markHandled")}
                     </button>

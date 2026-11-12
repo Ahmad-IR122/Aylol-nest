@@ -102,7 +102,7 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
               variant="outline"
               size="sm"
               asChild
-              className="hidden items-center gap-2 border-[#a97872]/40 text-[#a97872] hover:bg-[#f8eeeb] md:inline-flex dark:text-[#d4a39b] dark:hover:bg-[#3b2d2b]"
+              className="hidden min-h-11 items-center gap-2 border-[#a97872]/40 text-[#a97872] hover:bg-[#f8eeeb] md:inline-flex lg:min-h-7 dark:text-[#d4a39b] dark:hover:bg-[#3b2d2b]"
             >
               <Link href="/admin">
                 <LayoutDashboard className="size-4" />

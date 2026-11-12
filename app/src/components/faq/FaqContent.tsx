@@ -73,14 +73,20 @@ export default function FaqContent() {
               ) : item === "viewOrders" || item === "accountOrders" ? (
                 <>
                   <span>{t(`answers.${item}`)} </span>
-                  <Link href="/orders" className="underline underline-offset-4">
+                  <Link
+                    href="/orders"
+                    className="inline-flex min-h-11 items-center underline underline-offset-4"
+                  >
                     {t("myOrdersLink")}
                   </Link>
                 </>
               ) : item === "returnPolicy" ? (
                 <>
                   <span>{t("answers.returnPolicy")} </span>
-                  <Link href="/contact" className="underline underline-offset-4">
+                  <Link
+                    href="/contact"
+                    className="inline-flex min-h-11 items-center underline underline-offset-4"
+                  >
                     {t("contactLink")}
                   </Link>
                 </>
