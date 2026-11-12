@@ -33,7 +33,7 @@ export default function OrdersTable({
   ] as const;
 
   return (
-    <div className="hidden overflow-x-auto md:block">
+    <div className="hidden overflow-x-auto lg:block">
       <table className="w-full min-w-[820px] text-start text-sm">
         <thead className="bg-[#faf8f6] text-xs text-[#817571] dark:bg-[#211e1c] dark:text-[#aaa09b]">
           <tr>
@@ -61,7 +61,7 @@ export default function OrdersTable({
               <td className="px-4 py-4">{t(`paymentStatuses.${order.paymentStatus}`)}</td>
               <td className="px-4 py-4">
                 <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${statusClass(order.status)}`}
+                  className={`inline-flex whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${statusClass(order.status)}`}
                 >
                   {t(`statuses.${order.status}`)}
                 </span>

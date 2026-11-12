@@ -3,7 +3,6 @@ import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { MapPin, Mail, Phone, Clock3, Heart } from "lucide-react";
 import { FaFacebook, FaInstagram, FaTiktok } from "react-icons/fa";
-import { contactConfig } from "@/lib/contact/config";
 
 const shopLinks = [
   { label: "girls", href: "/girls" },
@@ -44,41 +43,35 @@ export default async function Footer() {
 
             {/* Social Media */}
             <div className="flex items-center justify-center gap-4 md:justify-start">
-              {contactConfig.instagram && (
-                <a
-                  href={contactConfig.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                  className="inline-flex size-11 items-center justify-center transition-colors hover:text-[#A78162]"
-                >
-                  <FaInstagram size={20} />
-                </a>
-              )}
+              <a
+                href="https://www.instagram.com/aylol_nest.ps?dlrf=MW8ydTJxc2JqbWxoaw=="
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="inline-flex size-11 items-center justify-center transition-colors hover:text-[#A78162]"
+              >
+                <FaInstagram size={20} />
+              </a>
 
-              {contactConfig.facebook && (
-                <a
-                  href={contactConfig.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Facebook"
-                  className="inline-flex size-11 items-center justify-center transition-colors hover:text-[#A78162]"
-                >
-                  <FaFacebook size={20} />
-                </a>
-              )}
+              <a
+                href="https://www.facebook.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="inline-flex size-11 items-center justify-center transition-colors hover:text-[#A78162]"
+              >
+                <FaFacebook size={20} />
+              </a>
 
-              {contactConfig.tiktok && (
-                <a
-                  href={contactConfig.tiktok}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="TikTok"
-                  className="inline-flex size-11 items-center justify-center text-sm font-bold transition-colors hover:text-[#A78162]"
-                >
-                  <FaTiktok size={20} />
-                </a>
-              )}
+              <a
+                href="https://www.tiktok.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TikTok"
+                className="inline-flex size-11 items-center justify-center text-sm font-bold transition-colors hover:text-[#A78162]"
+              >
+                <FaTiktok size={20} />
+              </a>
             </div>
           </div>
 
@@ -123,28 +116,19 @@ export default async function Footer() {
             <h3 className="mb-6 text-sm font-semibold">{t("contact")}</h3>
 
             <div className="flex flex-col items-center gap-4 text-sm text-[#8A7B6B] md:items-start dark:text-stone-400">
-              {contactConfig.email && (
-                <div className="flex items-center justify-center gap-3 md:justify-start">
-                  <Mail size={17} className="shrink-0" />
-                  <span>{contactConfig.email}</span>
-                </div>
-              )}
+              <div className="flex items-center justify-center gap-3 md:justify-start">
+                <Mail size={17} className="shrink-0" />
+                <span>support@aylolnest.com</span>
+              </div>
 
-              {contactConfig.phone && (
-                <div className="flex items-center justify-center gap-3 md:justify-start">
-                  <Phone size={17} className="shrink-0" />
-                  <span dir="ltr">{contactConfig.phone}</span>
-                </div>
-              )}
+              <div className="flex items-center justify-center gap-3 md:justify-start">
+                <Phone size={17} className="shrink-0" />
+                <span dir="ltr">+970 59 123 4567</span>
+              </div>
 
               <div className="flex items-center justify-center gap-3 md:justify-start">
                 <MapPin size={17} className="shrink-0" />
                 <span>{t("location")}</span>
-              </div>
-
-              <div className="flex items-center justify-center gap-3 md:justify-start">
-                <Clock3 size={17} className="shrink-0" />
-                <span>{t("workingHours")}</span>
               </div>
             </div>
           </div>

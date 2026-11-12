@@ -77,7 +77,7 @@ export default function OrdersResults({
       className="overflow-hidden rounded-2xl border border-[#eee5e0] bg-white dark:border-[#3a3431] dark:bg-[#292524]"
       aria-label={t("title")}
     >
-      <div className="space-y-3 p-4 md:hidden">
+      <div className="space-y-3 p-4 lg:hidden">
         {list.orders.map((order) => (
           <OrderCard
             key={order._id}

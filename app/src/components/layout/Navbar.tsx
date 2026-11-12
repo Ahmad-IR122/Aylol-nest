@@ -31,6 +31,7 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
     { href: "/", label: t("home") },
     { href: "/boys", label: t("boys") },
     { href: "/girls", label: t("girls") },
+    { href: "/babies", label: t("babies") },
   ];
 
   return (
