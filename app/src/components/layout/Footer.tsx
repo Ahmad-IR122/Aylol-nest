@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
-import { MapPin, Mail, Phone, Clock3, Heart } from "lucide-react";
+import { MapPin, Mail, Phone, Heart } from "lucide-react";
 import { FaFacebook, FaInstagram, FaTiktok } from "react-icons/fa";
 
 const shopLinks = [
