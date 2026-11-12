@@ -96,13 +96,18 @@ function queryCards(filter: Record<string, unknown>, limit: number, skip = 0) {
     .lean<PublicProduct[]>();
 }
 
-export async function getCategoryProducts(slug: "boys-clothing" | "girls-clothing", page: number) {
+export async function getCategoryProducts(
+  slug: "boys-clothing" | "girls-clothing" | "newborn-clothing",
+  page: number,
+) {
   await connection();
   try {
     const { connectDB } = await import("@/lib/db/mongoose");
     await connectDB();
-    const root = await Category.findOne({ slug, isActive: true }).select("_id name").lean();
-    if (!root) return { title: null, products: [], totalPages: 0, error: false };
+    const root = await Category.findOne({ slug, isActive: true })
+      .select("_id name description")
+      .lean();
+    if (!root) return { title: null, description: null, products: [], totalPages: 0, error: false };
 
     const ids = [root._id];
     const visited = new Set([root._id.toString()]);
@@ -128,6 +133,7 @@ export async function getCategoryProducts(slug: "boys-clothing" | "girls-clothin
     ]);
     return {
       title: localized(root.name),
+      description: localized(root.description),
       products: rows.filter((row) => row.category).map(toHomeProduct),
       totalPages: Math.ceil(count / pageSize),
       error: false,
@@ -137,7 +143,35 @@ export async function getCategoryProducts(slug: "boys-clothing" | "girls-clothin
       "Category products could not be loaded:",
       error instanceof Error ? error.name : "UnknownError",
     );
-    return { title: null, products: [], totalPages: 0, error: true };
+    return { title: null, description: null, products: [], totalPages: 0, error: true };
+  }
+}
+
+export async function getNewArrivalProducts(page: number) {
+  await connection();
+  try {
+    const { connectDB } = await import("@/lib/db/mongoose");
+    await connectDB();
+    const categories = await Category.find({ isActive: true }).select("_id").lean();
+    const filter = { category: { $in: categories.map((category) => category._id) } };
+    const pageSize = 12;
+    const [count, rows] = await Promise.all([
+      Product.countDocuments({ ...filter, isActive: true }),
+      queryCards(filter, pageSize, (page - 1) * pageSize),
+    ]);
+    return {
+      title: null,
+      description: null,
+      products: rows.filter((row) => row.category).map(toHomeProduct),
+      totalPages: Math.ceil(count / pageSize),
+      error: false,
+    };
+  } catch (error) {
+    console.error(
+      "New arrivals could not be loaded:",
+      error instanceof Error ? error.name : "UnknownError",
+    );
+    return { title: null, description: null, products: [], totalPages: 0, error: true };
   }
 }
 

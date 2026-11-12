@@ -3,7 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SignOutButton } from "@clerk/nextjs";
-import { LayoutDashboard, Package, Tags, ShoppingBag, Users, Truck, LogOut, X } from "lucide-react";
+import {
+  LayoutDashboard,
+  Package,
+  Tags,
+  ShoppingBag,
+  Users,
+  Truck,
+  Mail,
+  LogOut,
+  X,
+} from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type Props = {
   locale: string;
@@ -14,6 +25,7 @@ type Props = {
 export default function AdminSidebar({ locale, isOpen, onClose }: Props) {
   const pathname = usePathname();
   const isArabic = locale === "ar";
+  const contactText = useTranslations("AdminContact");
 
   const links = [
     {
@@ -45,6 +57,11 @@ export default function AdminSidebar({ locale, isOpen, onClose }: Props) {
       href: `/${locale}/admin/shipping`,
       label: isArabic ? "التوصيل" : "Shipping",
       icon: Truck,
+    },
+    {
+      href: `/${locale}/admin/contact`,
+      label: contactText("sidebar"),
+      icon: Mail,
     },
   ];
 

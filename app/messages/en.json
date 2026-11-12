@@ -3,6 +3,8 @@
     "home": "Home",
     "boys": "Boys",
     "girls": "Girls",
+    "babies": "Babies",
+    "newArrivals": "New Arrivals",
     "cart": "Cart",
     "login": "Sign In",
     "myOrders": "My Orders"
@@ -10,6 +12,10 @@
   "CategoryProducts": {
     "boys": "Boys Clothing",
     "girls": "Girls Clothing",
+    "babies": "Babies Clothing",
+    "babiesDescription": "Soft essentials for newborns and babies.",
+    "newArrivals": "New Arrivals",
+    "newArrivalsDescription": "Discover the latest children's clothing collections from Aylol Nest.",
     "empty": "No products are available in this collection yet.",
     "noPage": "There are no products on this page.",
     "loadError": "Products could not be loaded. Please try again later.",
@@ -74,6 +80,87 @@
     "workingHours": "Working hours: To be announced",
     "rights": "All rights reserved.",
     "madeWith": "Made with love"
+  },
+  "AdminContact": {
+    "sidebar": "Messages",
+    "title": "Contact messages",
+    "description": "Read customer messages and reply using your email app. Mark a message handled after responding.",
+    "empty": "No contact messages yet.",
+    "emptyPage": "No messages on this page.",
+    "new": "New",
+    "handled": "Handled",
+    "reply": "Reply by email",
+    "markHandled": "Mark handled",
+    "markNew": "Mark new",
+    "pagination": "Message pages",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {total}"
+  },
+  "ContactPage": {
+    "title": "Contact Us",
+    "intro": "Have a question for Aylol Nest? Send us a message and we will get back to you.",
+    "information": "Contact information",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "whatsappLabel": "WhatsApp",
+    "addressLabel": "Address",
+    "social": "Follow us",
+    "formTitle": "Send a message",
+    "fullName": "Full name",
+    "email": "Email address",
+    "phone": "Phone number (optional)",
+    "subject": "Subject",
+    "message": "Message",
+    "submit": "Send message",
+    "submitting": "Sending…",
+    "success": "Your message was sent successfully.",
+    "error": "We could not send your message. Please try again.",
+    "rateLimited": "Too many messages. Please try again later.",
+    "validation": {
+      "fullName": "Enter your full name (up to 120 characters).",
+      "email": "Enter a valid email address.",
+      "phone": "Enter a valid phone number or leave this blank.",
+      "subject": "Enter a subject (up to 150 characters).",
+      "message": "Enter a message between 10 and 3,000 characters."
+    }
+  },
+  "FAQPage": {
+    "title": "Frequently Asked Questions",
+    "intro": "Find answers about shopping with Aylol Nest.",
+    "searchLabel": "Search questions",
+    "searchPlaceholder": "Search FAQs…",
+    "categoriesLabel": "FAQ categories",
+    "noResults": "No questions match your search.",
+    "feesUnavailable": "Current shipping fees are unavailable. Please try again later.",
+    "myOrdersLink": "My Orders",
+    "contactLink": "Contact Us",
+    "categories": {
+      "all": "All",
+      "orders": "Orders",
+      "shipping": "Shipping & Delivery",
+      "payments": "Payments",
+      "products": "Products & Sizes",
+      "returns": "Returns & Exchanges",
+      "accounts": "Accounts"
+    },
+    "questions": {
+      "viewOrders": "Where can I view my orders?",
+      "regions": "Where do you deliver?",
+      "fees": "What are the shipping fees?",
+      "payment": "Which payment methods do you accept?",
+      "sizes": "What sizes are available?",
+      "returnPolicy": "What is your returns and exchanges policy?",
+      "accountOrders": "How can I check orders in my account?"
+    },
+    "answers": {
+      "viewOrders": "You can view your orders on the",
+      "regions": "We deliver to the West Bank, Jerusalem, and Inside 48.",
+      "payment": "Cash on Delivery is the available payment method.",
+      "sizes": "We sell children's clothing for boys and girls. Sizes range from newborn to 14 years, depending on the product.",
+      "returnPolicy": "Please contact us for the current policy.",
+      "accountOrders": "Sign in and visit"
+    }
   },
   "ComingSoon": {
     "eyebrow": "SOMETHING LOVELY IS ON ITS WAY",
