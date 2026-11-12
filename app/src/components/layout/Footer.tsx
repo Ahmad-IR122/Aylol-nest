@@ -21,7 +21,7 @@ export default async function Footer() {
   const t = await getTranslations("Footer");
 
   return (
-<footer className="border-t border-[#E8DED4] bg-[#F5F0E9] text-[#3B342D] dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">
+    <footer className="border-t border-[#E8DED4] bg-[#F5F0E9] text-[#3B342D] dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">
       <div className="mx-auto max-w-7xl px-6 pt-14 pb-8 sm:px-8 lg:px-10">
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 gap-12 text-center md:grid-cols-2 md:text-start lg:grid-cols-4">
@@ -130,6 +130,7 @@ export default async function Footer() {
                 <MapPin size={17} className="shrink-0" />
                 <span>{t("location")}</span>
               </div>
+            </div>
           </div>
         </div>
 
