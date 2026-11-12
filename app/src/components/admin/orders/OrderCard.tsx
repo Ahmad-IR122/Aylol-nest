@@ -28,7 +28,7 @@ export default function OrderCard({
           <bdi>{order.orderNumber}</bdi>
         </p>
         <span
-          className={`inline-flex whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${statusClass(order.status)}`}
+          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap ${statusClass(order.status)}`}
         >
           {t(`statuses.${order.status}`)}
         </span>

@@ -61,7 +61,7 @@ export default function OrdersTable({
               <td className="px-4 py-4">{t(`paymentStatuses.${order.paymentStatus}`)}</td>
               <td className="px-4 py-4">
                 <span
-                  className={`inline-flex whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${statusClass(order.status)}`}
+                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap ${statusClass(order.status)}`}
                 >
                   {t(`statuses.${order.status}`)}
                 </span>
