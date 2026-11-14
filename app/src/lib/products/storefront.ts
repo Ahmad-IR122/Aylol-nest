@@ -7,6 +7,7 @@ import { Product, type IProduct } from "@/models/Product";
 import type { HomeProduct } from "@/lib/home-data";
 import type { LocalizedText } from "@/types/category";
 import type { StorefrontImage, StorefrontProduct } from "@/types/storefront";
+import { ExploreSelection } from "@/models/ExploreSelection";
 
 export type StorefrontProducts = { products: HomeProduct[]; error: boolean };
 
@@ -19,6 +20,24 @@ type PublicProduct = Pick<IProduct, "name" | "slug" | "isNewArrival"> & {
   category: Pick<ICategory, "name"> | null;
   images: PublicImage[];
   variants: PublicVariant[];
+};
+
+type ExploreCardProduct = Omit<PublicProduct, "category" | "variants"> & {
+  category: (Pick<ICategory, "name"> & { _id: { toString(): string } }) | null;
+  createdAt: Date;
+  variants: (PublicVariant & { size: string; color: { name: LocalizedText } })[];
+};
+
+export type ExploreFilters = {
+  search?: string;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  size?: string;
+  color?: string;
+  availability?: "in" | "out";
+  sort?: "selected" | "newest" | "priceAsc" | "priceDesc" | "name";
+  page: number;
 };
 
 type DetailProduct = Omit<IProduct, "category"> & {
@@ -94,6 +113,95 @@ function queryCards(filter: Record<string, unknown>, limit: number, skip = 0) {
       match: { isActive: true },
     })
     .lean<PublicProduct[]>();
+}
+
+export async function getExploreProducts(filters: ExploreFilters, locale: "ar" | "en") {
+  await connection();
+  try {
+    const { connectDB } = await import("@/lib/db/mongoose");
+    await connectDB();
+    const selection = await ExploreSelection.findById("explore").select("productIds").lean();
+    const ids = selection?.productIds.map(String) ?? [];
+    if (!ids.length) return { products: [], categories: [], totalPages: 0, total: 0, error: false };
+    const rows = await Product.find({ _id: { $in: ids }, isActive: true })
+      .select(
+        "name slug category images.url images.alt variants.isActive variants.price variants.stock variants.size variants.color.name variants.images.url variants.images.alt isNewArrival createdAt",
+      )
+      .populate({ path: "category", model: Category, select: "name", match: { isActive: true } })
+      .lean<ExploreCardProduct[]>();
+    const byId = new Map(
+      rows.filter((row) => row.category).map((row) => [row._id.toString(), row]),
+    );
+    const ordered = ids.flatMap((id) => {
+      const row = byId.get(id);
+      return row ? [row] : [];
+    });
+    const categories = [
+      ...new Map(
+        ordered.map((row) => [
+          row.category!._id.toString(),
+          {
+            id: row.category!._id.toString(),
+            name: localized(row.category!.name),
+          },
+        ]),
+      ).values(),
+    ];
+    const search = filters.search?.trim().toLocaleLowerCase() ?? "";
+    const size = filters.size?.trim().toLocaleLowerCase() ?? "";
+    const color = filters.color?.trim().toLocaleLowerCase() ?? "";
+    const matches = ordered.filter((row) => {
+      if (
+        search &&
+        ![localized(row.name).ar, localized(row.name).en].some((name) =>
+          name.toLocaleLowerCase().includes(search),
+        )
+      )
+        return false;
+      if (filters.category && row.category?._id.toString() !== filters.category) return false;
+      const variants = row.variants.filter(
+        (variant) =>
+          variant.isActive &&
+          Number.isFinite(variant.price) &&
+          (!size || variant.size?.toLocaleLowerCase().includes(size)) &&
+          (!color ||
+            [variant.color?.name?.ar, variant.color?.name?.en].some((name) =>
+              name?.toLocaleLowerCase().includes(color),
+            )) &&
+          (filters.minPrice === undefined || variant.price >= filters.minPrice) &&
+          (filters.maxPrice === undefined || variant.price <= filters.maxPrice),
+      );
+      return (
+        variants.length > 0 &&
+        (filters.availability !== "in" || variants.some((variant) => variant.stock > 0)) &&
+        (filters.availability !== "out" || variants.every((variant) => variant.stock <= 0))
+      );
+    });
+    if (filters.sort && filters.sort !== "selected")
+      matches.sort((a, b) => {
+        if (filters.sort === "newest") return b.createdAt.getTime() - a.createdAt.getTime();
+        if (filters.sort === "name")
+          return localized(a.name)[locale].localeCompare(localized(b.name)[locale], locale);
+        const price = (row: ExploreCardProduct) =>
+          Math.min(...row.variants.filter((v) => v.isActive).map((v) => v.price));
+        return filters.sort === "priceAsc" ? price(a) - price(b) : price(b) - price(a);
+      });
+    const pageSize = 12;
+    const start = (filters.page - 1) * pageSize;
+    return {
+      products: matches.slice(start, start + pageSize).map(toHomeProduct),
+      categories,
+      totalPages: Math.ceil(matches.length / pageSize),
+      total: matches.length,
+      error: false,
+    };
+  } catch (error) {
+    console.error(
+      "Explore products could not be loaded:",
+      error instanceof Error ? error.name : "UnknownError",
+    );
+    return { products: [], categories: [], totalPages: 0, total: 0, error: true };
+  }
 }
 
 export async function getCategoryProducts(

@@ -40,8 +40,10 @@ registerHooks({
 const { NextRequest } = await import("next/server.js");
 const collection = await import("../src/app/api/admin/products/route.ts");
 const single = await import("../src/app/api/admin/products/[id]/route.ts");
+const explore = await import("../src/app/api/admin/explore/route.ts");
 const auth = await import(authUrl);
 const { Product } = await import("../src/models/Product.ts");
+const { ExploreSelection } = await import("../src/models/ExploreSelection.ts");
 const { Category } = await import("../src/models/Category.ts");
 const { Order } = await import("../src/models/Order.ts");
 const { createProductSchema, updateProductSchema, parseProductQuery } =
@@ -111,11 +113,42 @@ test("every handler rejects unauthenticated and non-admin callers before databas
       [single.GET, "GET"],
       [single.PATCH, "PATCH"],
       [single.DELETE, "DELETE"],
+      [explore.GET, "GET"],
+      [explore.PUT, "PUT"],
     ]) {
       assert.equal((await handler(request(method), context)).status, status);
     }
   }
   assert.equal(database.mock.callCount(), 0);
+});
+
+test("Explore selection validates IDs, prevents duplicates, and atomically checks revisions", async () => {
+  const selection = { revision: 0, productIds: [] };
+  const secondId = "507f1f77bcf86cd799439015";
+  mock.method(ExploreSelection, "updateOne", async () => ({}));
+  mock.method(Product, "countDocuments", async (filter) => filter._id.$in.length);
+  mock.method(ExploreSelection, "findOneAndUpdate", (filter, changes) => ({
+    lean: async () => {
+      if (filter.revision !== selection.revision) return null;
+      selection.productIds = changes.$set.productIds;
+      selection.revision += 1;
+      return selection;
+    },
+  }));
+  const save = (payload) =>
+    new NextRequest("https://example.test/api/admin/explore", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+  assert.equal((await explore.PUT(save({ revision: 0, productIds: [id, id] }))).status, 400);
+  assert.equal((await explore.PUT(save({ revision: 0, productIds: ["bad"] }))).status, 400);
+  assert.equal((await explore.PUT(save({ revision: 0, productIds: [id, secondId] }))).status, 200);
+  assert.equal(String(selection.productIds[0]), id);
+  assert.equal((await explore.PUT(save({ revision: 0, productIds: [] }))).status, 409);
+  assert.equal((await explore.PUT(save({ revision: 1, productIds: [secondId, id] }))).status, 200);
+  assert.deepEqual(selection.productIds.map(String), [secondId, id]);
+  assert.equal((await explore.PUT(save({ revision: 2, productIds: [] }))).status, 200);
+  assert.deepEqual(selection.productIds, []);
 });
 
 test("validation rejects unsafe types, fields, image URLs, stock, and query inputs", () => {

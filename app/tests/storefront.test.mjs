@@ -75,11 +75,13 @@ registerHooks({
 const require = createRequire(import.meta.url);
 const { Product } = require("../src/models/Product.ts");
 const { Category } = require("../src/models/Category.ts");
+const { ExploreSelection } = require("../src/models/ExploreSelection.ts");
 const {
   getHomeProducts,
   getStorefrontProduct,
   getRelatedProducts,
   getCategoryProducts,
+  getExploreProducts,
 } = require("../src/lib/products/storefront.ts");
 const db = require("../src/lib/db/mongoose.ts");
 const requestContext = require("next/server");
@@ -188,6 +190,101 @@ function render(Component, props, locale = "en") {
   );
 }
 afterEach(() => mock.restoreAll());
+
+test("Explore uses only the saved order and filters within active selected products", async () => {
+  const rows = [
+    row("1", { createdAt: new Date("2024-01-01") }),
+    row("2", { createdAt: new Date("2025-01-01"), name: { ar: "ثوب", en: "Dress" } }),
+    row("3", { isActive: false }),
+    row("4"),
+  ];
+  mock.method(ExploreSelection, "findById", () => ({
+    select() {
+      return this;
+    },
+    lean: async () => ({ productIds: ["2", "3", "1"] }),
+  }));
+  mock.method(Product, "find", (filter) => ({
+    select() {
+      return this;
+    },
+    populate() {
+      return this;
+    },
+    lean: async () => rows.filter((item) => filter._id.$in.includes(item._id) && item.isActive),
+  }));
+  const initial = await getExploreProducts({ page: 1 }, "en");
+  assert.deepEqual(
+    initial.products.map((product) => product.id),
+    ["2", "1"],
+  );
+  assert.equal(initial.categories.length, 1);
+  assert.equal(initial.total, 2);
+  const searched = await getExploreProducts({ page: 1, search: "Dress" }, "en");
+  assert.deepEqual(
+    searched.products.map((product) => product.id),
+    ["2"],
+  );
+  const filtered = await getExploreProducts(
+    { page: 1, size: "2Y", color: "Pink", minPrice: 90, maxPrice: 100, availability: "in" },
+    "en",
+  );
+  assert.deepEqual(
+    filtered.products.map((product) => product.id),
+    ["2", "1"],
+  );
+  const sorted = await getExploreProducts({ page: 1, sort: "newest" }, "en");
+  assert.deepEqual(
+    sorted.products.map((product) => product.id),
+    ["2", "1"],
+  );
+});
+
+test("Explore never falls back to the full catalog when selection is empty", async () => {
+  mock.method(ExploreSelection, "findById", () => ({
+    select() {
+      return this;
+    },
+    lean: async () => null,
+  }));
+  const find = mock.method(Product, "find", () => {
+    throw new Error("Catalog must not be queried");
+  });
+  const result = await getExploreProducts({ page: 1 }, "ar");
+  assert.deepEqual(result.products, []);
+  assert.equal(result.error, false);
+  assert.equal(find.mock.callCount(), 0);
+});
+
+test("Explore pagination keeps the saved order across pages", async () => {
+  const rows = Array.from({ length: 13 }, (_, index) => row(String(index + 1)));
+  mock.method(ExploreSelection, "findById", () => ({
+    select() {
+      return this;
+    },
+    lean: async () => ({ productIds: rows.map((item) => item._id) }),
+  }));
+  mock.method(Product, "find", () => ({
+    select() {
+      return this;
+    },
+    populate() {
+      return this;
+    },
+    lean: async () => [...rows].reverse(),
+  }));
+  const first = await getExploreProducts({ page: 1 }, "en");
+  const second = await getExploreProducts({ page: 2 }, "en");
+  assert.equal(first.totalPages, 2);
+  assert.deepEqual(
+    first.products.map((product) => product.id),
+    rows.slice(0, 12).map((item) => item._id),
+  );
+  assert.deepEqual(
+    second.products.map((product) => product.id),
+    ["13"],
+  );
+});
 
 test("home queries are bounded, newest first, active-only, and featured flags are respected", async () => {
   const rows = Array.from({ length: 12 }, (_, i) =>
