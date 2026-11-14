@@ -12,6 +12,7 @@ import ProductFormModal from "./ProductFormModal";
 import ProductDetailsModal from "./ProductDetailsModal";
 import DeleteProductModal from "./DeleteProductModal";
 import ProductsTable from "./ProductsTable";
+import ExploreManager from "./ExploreManager";
 import {
   ProductModal,
   ProductModalFocusContext,
@@ -301,6 +302,7 @@ export default function ProductsManager() {
               onToggle={(product) => void toggle(product)}
             />
           )}
+          <ExploreManager />
         </div>
         {(modal?.kind === "create" || (modal?.kind === "edit" && modal.product)) && (
           <ProductFormModal

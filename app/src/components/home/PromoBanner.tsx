@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { homeCopy, type HomeLocale } from "@/lib/home-data";
 
 export default function PromoBanner() {
@@ -33,7 +33,7 @@ export default function PromoBanner() {
           </p>
 
           <Link
-            href={`/${locale}/products`}
+            href="/explor"
             className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-[#3B342D] px-9 font-semibold text-white transition-colors hover:bg-[#65564A] dark:bg-[#E8DED4] dark:text-[#3B342D] dark:hover:bg-[#C9B8A4]"
           >
             {t.bannerAction}

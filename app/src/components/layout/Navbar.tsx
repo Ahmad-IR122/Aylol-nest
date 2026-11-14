@@ -29,6 +29,7 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
 
   const links = [
     { href: "/", label: t("home") },
+    { href: "/explor", label: t("explore") },
     { href: "/boys", label: t("boys") },
     { href: "/girls", label: t("girls") },
     { href: "/babies", label: t("babies") },
