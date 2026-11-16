@@ -20,7 +20,6 @@ export default function AdminShell({ children, locale }: Props) {
   const { resolvedTheme, setTheme } = useTheme();
 
   const isArabic = locale === "ar";
-
   return (
     <div
       dir={isArabic ? "rtl" : "ltr"}
