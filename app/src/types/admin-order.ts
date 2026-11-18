@@ -19,7 +19,8 @@ export type AdminOrder = AdminOrderSummary & {
     streetAddress: string;
     building?: string;
   };
-  shippingRegion: "west_bank" | "jerusalem" | "inside_48";
+  shippingRegion: string;
+  shippingZoneName?: { ar?: string; en?: string };
   customerNotes?: string;
   items: {
     product: string;

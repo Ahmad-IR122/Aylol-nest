@@ -133,7 +133,10 @@ export default async function OrderDetailsPage({ params }: Props) {
                 <br />
                 <bdi>{address.phone}</bdi>
                 <br />
-                {t(`regions.${order.shippingRegion}`)}
+                {order.shippingZoneName?.[language] ||
+                  (t.has(`regions.${order.shippingRegion}`)
+                    ? t(`regions.${order.shippingRegion}`)
+                    : order.shippingRegion)}
                 <br />
                 {address.city}
                 {address.area && (

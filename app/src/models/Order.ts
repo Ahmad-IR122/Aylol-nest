@@ -165,7 +165,11 @@ const orderSchema = new Schema(
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+    },
+
+    guestOwner: {
+      type: Schema.Types.ObjectId,
+      immutable: true,
     },
 
     items: {
@@ -190,7 +194,6 @@ const orderSchema = new Schema(
 
     shippingRegion: {
       type: String,
-      enum: ["west_bank", "jerusalem", "inside_48"],
       required: true,
       immutable: true,
     },

@@ -85,7 +85,15 @@ export default function OrderDetailsDialog({
               <OrderInfo label={t("customer")} value={detail.shippingAddress.fullName} />
               <OrderInfo label={t("phone")} value={detail.shippingAddress.phone} />
               <OrderInfo label={t("date")} value={date(detail.createdAt)} />
-              <OrderInfo label={t("region")} value={t(`regions.${detail.shippingRegion}`)} />
+              <OrderInfo
+                label={t("region")}
+                value={
+                  detail.shippingZoneName?.[language] ||
+                  (t.has(`regions.${detail.shippingRegion}`)
+                    ? t(`regions.${detail.shippingRegion}`)
+                    : detail.shippingRegion)
+                }
+              />
               <OrderInfo label={t("city")} value={detail.shippingAddress.city} />
               <OrderInfo
                 label={t("address")}

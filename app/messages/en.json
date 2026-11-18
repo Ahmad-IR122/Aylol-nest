@@ -13,25 +13,6 @@
   "Explore": {
     "title": "Explore",
     "description": "Discover pieces selected by Aylol Nest.",
-    "search": "Search products",
-    "category": "Category",
-    "allCategories": "All categories",
-    "minPrice": "Minimum price (ILS)",
-    "maxPrice": "Maximum price (ILS)",
-    "size": "Size",
-    "color": "Color",
-    "availability": "Availability",
-    "all": "All",
-    "inStock": "In stock",
-    "outOfStock": "Out of stock",
-    "sort": "Sort by",
-    "selectedOrder": "Selected order",
-    "newest": "Newest",
-    "priceAsc": "Price: low to high",
-    "priceDesc": "Price: high to low",
-    "name": "Name",
-    "apply": "Apply filters",
-    "clear": "Clear",
     "empty": "No Explore products are available yet.",
     "noPage": "There are no products on this page.",
     "loadError": "Explore products could not be loaded. Please try again later.",
@@ -206,7 +187,7 @@
     },
     "answers": {
       "viewOrders": "You can view your orders on the",
-      "regions": "We deliver to the West Bank, Jerusalem, and Inside 48.",
+      "regions": "We deliver to the West Bank, Jerusalem, and 48 Areas.",
       "payment": "Cash on Delivery is the available payment method.",
       "sizes": "We sell children's clothing for boys and girls. Sizes range from newborn to 14 years, depending on the product.",
       "returnPolicy": "Please contact us for the current policy.",
@@ -291,9 +272,10 @@
     "availableSizes": "Available sizes",
     "sizeAvailability": "Select a size above to check the colors and stock currently available.",
     "delivery": "Delivery & payment",
+    "deliveryUnavailable": "Delivery rates are currently unavailable.",
     "westBank": "West Bank",
     "jerusalem": "Jerusalem",
-    "inside48": "Inside 48 areas",
+    "inside48": "48 Areas",
     "relatedEyebrow": "MORE TO DISCOVER",
     "relatedTitle": "You May Also Like",
     "relatedError": "We couldn't load more products right now. Please try again later.",
@@ -310,9 +292,13 @@
     "nextImage": "Next image",
     "imageCounter": "{current, number} / {total, number}",
     "imagePlaceholder": "Image unavailable",
-    "buyNowCartHint": "This adds your selection to the cart, where you can continue to checkout."
+    "buyNowCartHint": "Add your selection and go straight to the delivery form."
   },
   "AdminShipping": {
+    "addRegion": "Add delivery region",
+    "nameAr": "Region name in Arabic",
+    "nameEn": "Region name in English",
+    "invalidName": "Enter the region name in Arabic and English.",
     "title": "Shipping Management",
     "description": "Set delivery fees and availability for each region. Existing orders keep their original fees.",
     "loading": "Loading shipping regions…",
@@ -355,7 +341,7 @@
     "regions": {
       "west_bank": "West Bank",
       "jerusalem": "Jerusalem",
-      "inside_48": "Inside 48"
+      "inside_48": "48 Areas"
     },
     "paymentTitle": "Payment method",
     "cashOnDelivery": "Cash on delivery",
@@ -399,7 +385,7 @@
     "regions": {
       "west_bank": "West Bank",
       "jerusalem": "Jerusalem",
-      "inside_48": "Inside 48"
+      "inside_48": "48 Areas"
     }
   },
   "CustomerOrders": {
@@ -440,7 +426,7 @@
     "regions": {
       "west_bank": "West Bank",
       "jerusalem": "Jerusalem",
-      "inside_48": "Inside 48"
+      "inside_48": "48 Areas"
     },
     "errorTitle": "Could not load your orders",
     "errorDescription": "Please try again.",
@@ -562,7 +548,7 @@
     "regions": {
       "west_bank": "West Bank",
       "jerusalem": "Jerusalem",
-      "inside_48": "Inside 48"
+      "inside_48": "48 Areas"
     },
     "errors": {
       "unauthorized": "Sign in again to manage orders.",

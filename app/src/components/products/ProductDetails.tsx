@@ -84,7 +84,7 @@ export default function ProductDetails({ product }: { product: StorefrontProduct
       const result = await cart.addItem(product.slug, selected.id, quantity, product.id);
       if (result.ok) {
         setFeedback({ ok: true, message: t("addedToCart") });
-        if (buyNow) router.push("/cart");
+        if (buyNow) router.push("/checkout");
       } else if (result.error === "unauthorized") {
         router.push(`/sign-in?returnTo=${encodeURIComponent(productPath)}`);
       } else {

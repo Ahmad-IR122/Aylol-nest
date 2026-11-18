@@ -40,7 +40,7 @@ export function escapeOrderSearch(value: string) {
 const listFields =
   "orderNumber shippingAddress.fullName shippingAddress.phone createdAt total paymentStatus status";
 const detailFields =
-  "orderNumber shippingAddress shippingRegion customerNotes items.product items.variantId items.sku items.name items.imageUrl items.size items.color items.quantity items.unitPrice items.totalPrice subtotal shippingFee total currency paymentMethod paymentStatus status createdAt updatedAt deliveredAt cancelledAt";
+  "orderNumber shippingAddress shippingRegion shippingZoneName customerNotes items.product items.variantId items.sku items.name items.imageUrl items.size items.color items.quantity items.unitPrice items.totalPrice subtotal shippingFee total currency paymentMethod paymentStatus status createdAt updatedAt deliveredAt cancelledAt";
 
 export async function listOrders(input: z.infer<typeof orderListSchema>) {
   const filter: mongoose.QueryFilter<IOrder> = {};

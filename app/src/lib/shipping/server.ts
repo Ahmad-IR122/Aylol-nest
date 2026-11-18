@@ -1,13 +1,13 @@
 import "server-only";
 
 import { connectDB } from "@/lib/db/mongoose";
-import { priceInCents, shippingRegions, type ShippingRegion } from "@/lib/checkout/validation";
+import { priceInCents, shippingRegionPattern, type ShippingRegion } from "@/lib/checkout/validation";
 import { ShippingZone } from "@/models/ShippingZone";
 
 const defaults = [
   { slug: "west_bank", name: { ar: "الضفة الغربية", en: "West Bank" }, shippingFee: 20 },
   { slug: "jerusalem", name: { ar: "القدس", en: "Jerusalem" }, shippingFee: 30 },
-  { slug: "inside_48", name: { ar: "الداخل 48", en: "Inside 48" }, shippingFee: 70 },
+  { slug: "inside_48", name: { ar: "مناطق ٤٨", en: "48 Areas" }, shippingFee: 70 },
 ] as const;
 
 export async function initializeShippingRegions() {
@@ -21,20 +21,30 @@ export async function initializeShippingRegions() {
       { upsert: true, timestamps: false },
     );
   }
+  await ShippingZone.updateOne(
+    { slug: "inside_48", "name.ar": { $in: ["الداخل 48", "الداخل ٤٨", "مناطق الداخل 48"] } },
+    { $set: { "name.ar": "مناطق ٤٨" } },
+    { timestamps: false },
+  );
+  await ShippingZone.updateOne(
+    { slug: "inside_48", "name.en": { $in: ["Inside 48", "Inside 48 areas"] } },
+    { $set: { "name.en": "48 Areas" } },
+    { timestamps: false },
+  );
 }
 
 export async function getShippingRegions() {
   await initializeShippingRegions();
-  const zones = await ShippingZone.find({ slug: { $in: shippingRegions } })
+  const zones = await ShippingZone.find({ slug: shippingRegionPattern })
     .select("_id slug name shippingFee isActive updatedAt")
+    .sort({ sortOrder: 1, createdAt: 1, _id: 1 })
     .lean();
-  return shippingRegions.map((slug) => {
-    const zone = zones.find((entry) => entry.slug === slug);
-    if (!zone || priceInCents(zone.shippingFee) === null)
-      throw new Error(`Shipping configuration unavailable for ${slug}`);
+  return zones.map((zone) => {
+    if (priceInCents(zone.shippingFee) === null)
+      throw new Error(`Shipping configuration unavailable for ${zone.slug}`);
     return {
       id: zone._id.toString(),
-      slug,
+      slug: zone.slug,
       name: zone.name,
       shippingFee: zone.shippingFee,
       isActive: zone.isActive,

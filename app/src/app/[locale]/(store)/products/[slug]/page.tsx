@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import type { HomeLocale } from "@/lib/home-data";
 import { galleryImages } from "@/lib/products/selection";
 import { getRelatedProducts, getStorefrontProduct } from "@/lib/products/storefront";
+import { getShippingRegions } from "@/lib/shipping/server";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -63,17 +64,18 @@ export default async function ProductPage({ params }: Props) {
   const product = await getStorefrontProduct(slug);
   if (!product) notFound();
   const language: HomeLocale = locale === "ar" ? "ar" : "en";
-  const [related, t, format] = await Promise.all([
+  const [related, t, format, delivery] = await Promise.all([
     getRelatedProducts(product),
     getTranslations({ locale, namespace: "ProductDetails" }),
     getFormatter({ locale }),
+    getShippingRegions()
+      .then((regions) => regions.filter((region) => region.isActive))
+      .catch((error: unknown) => {
+        console.error("Product delivery rates unavailable:", error);
+        return [];
+      }),
   ]);
   const sizes = [...new Set(product.variants.map((variant) => variant.size))];
-  const delivery = [
-    { key: "westBank", fee: 20 },
-    { key: "jerusalem", fee: 30 },
-    { key: "inside48", fee: 70 },
-  ] as const;
   const summaryClass =
     "flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 py-5 text-base font-semibold marker:content-none [&::-webkit-details-marker]:hidden";
 
@@ -167,13 +169,14 @@ export default async function ProductPage({ params }: Props) {
                 />
               </summary>
               <div className="pb-6 text-sm text-[#817571] dark:text-[#aaa09b]">
+                {delivery.length === 0 && <p>{t("deliveryUnavailable")}</p>}
                 <dl className="space-y-3">
-                  {delivery.map(({ key, fee }) => (
-                    <div key={key} className="flex justify-between gap-4">
-                      <dt>{t(key)}</dt>
+                  {delivery.map(({ slug, name, shippingFee }) => (
+                    <div key={slug} className="flex justify-between gap-4">
+                      <dt>{name?.[language] || name?.en || slug}</dt>
                       <dd className="font-semibold text-[#352d2b] dark:text-[#f5efec]">
                         <bdi>
-                          {format.number(fee, {
+                          {format.number(shippingFee, {
                             style: "currency",
                             currency: "ILS",
                             currencyDisplay: "narrowSymbol",

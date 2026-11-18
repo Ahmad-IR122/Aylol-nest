@@ -6,8 +6,12 @@ import { routing } from "./i18n/routing";
 const handleI18nRouting = createMiddleware(routing);
 
 export default clerkMiddleware(async (_auth, request) => {
-  // API routes should not be handled by next-intl
-  if (request.nextUrl.pathname.startsWith("/api/") || request.nextUrl.pathname === "/api") {
+  const { pathname } = request.nextUrl;
+  // Keep API and public-file URLs intact while still providing Clerk context on errors.
+  if (
+    /^\/(?:api|trpc|images|\.well-known)(?:\/|$)/.test(pathname) ||
+    /^\/(?:favicon\.ico|icon\.png|(?:file|globe|next|vercel|window)\.svg)$/.test(pathname)
+  ) {
     return;
   }
 
@@ -15,5 +19,6 @@ export default clerkMiddleware(async (_auth, request) => {
 });
 
 export const config = {
-  matcher: ["/((?!_next|.*\\..*).*)", "/(api|trpc)(.*)"],
+  // Dotted paths can still resolve to a storefront page or its error layout.
+  matcher: "/((?!_next(?:/|$)).*)",
 };
