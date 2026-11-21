@@ -14,6 +14,7 @@ const shopLinks = [
 const serviceLinks = [
   { label: "contactUs", href: "/contact" },
   { label: "faq", href: "/faq" },
+  { label: "returns", href: "/exchange-policy" },
 ] as const;
 
 export default async function Footer() {

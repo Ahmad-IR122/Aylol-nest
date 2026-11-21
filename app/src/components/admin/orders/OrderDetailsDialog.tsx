@@ -163,7 +163,7 @@ export default function OrderDetailsDialog({
               </div>
               <div className="flex justify-between text-lg font-semibold">
                 <span>{t("total")}</span>
-                <bdi>{currency(detail.total)}</bdi>
+                <bdi>{currency(detail.total - (detail.shippingFee ?? 0))}</bdi>
               </div>
             </div>
             <div className="rounded-xl border border-[#eee5e0] p-4 dark:border-[#3a3431]">

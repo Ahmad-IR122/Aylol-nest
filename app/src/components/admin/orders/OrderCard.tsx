@@ -38,7 +38,7 @@ export default function OrderCard({
       </p>
       <p className="mt-1 text-[#817571] dark:text-[#aaa09b]">{date(order.createdAt)}</p>
       <p className="mt-2 font-semibold">
-        <bdi>{currency(order.total)}</bdi> · {t(`paymentStatuses.${order.paymentStatus}`)}
+        <bdi>{currency(order.total - (order.shippingFee ?? 0))}</bdi> · {t(`paymentStatuses.${order.paymentStatus}`)}
       </p>
       <Button
         type="button"

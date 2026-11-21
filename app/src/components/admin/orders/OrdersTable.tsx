@@ -56,7 +56,7 @@ export default function OrdersTable({
               </td>
               <td className="px-4 py-4 whitespace-nowrap">{date(order.createdAt)}</td>
               <td className="px-4 py-4 whitespace-nowrap">
-                <bdi>{currency(order.total)}</bdi>
+                <bdi>{currency(order.total - (order.shippingFee ?? 0))}</bdi>
               </td>
               <td className="px-4 py-4">{t(`paymentStatuses.${order.paymentStatus}`)}</td>
               <td className="px-4 py-4">

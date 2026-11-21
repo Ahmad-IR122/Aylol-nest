@@ -157,7 +157,14 @@
       "message": "Enter a message between 10 and 3,000 characters."
     }
   },
+  "ExchangePolicy": {
+    "title": "Exchange policy",
+    "intro": "To request an exchange, contact us with your order number, item name, requested size, and reason for the exchange.",
+    "details": "We review your request and confirm replacement availability, any delivery fees, and handover steps before you send the item.",
+    "contact": "Contact us to request an exchange"
+  },
   "FAQPage": {
+    "exchangePolicyLink": "Exchange policy",
     "title": "Frequently Asked Questions",
     "intro": "Find answers about shopping with Aylol Nest.",
     "searchLabel": "Search questions",
@@ -190,7 +197,7 @@
       "regions": "We deliver to the West Bank, Jerusalem, and 48 Areas.",
       "payment": "Cash on Delivery is the available payment method.",
       "sizes": "We sell children's clothing for boys and girls. Sizes range from newborn to 14 years, depending on the product.",
-      "returnPolicy": "Please contact us for the current policy.",
+      "returnPolicy": "See the exchange policy for how to request an exchange.",
       "accountOrders": "Sign in and visit"
     }
   },
@@ -452,7 +459,7 @@
     "description": "Store activity and inventory at a glance.",
     "summary": "Dashboard summary",
     "totalOrders": "Total orders",
-    "totalRevenue": "Total revenue",
+    "totalRevenue": "Net revenue",
     "totalCustomers": "Total customers",
     "totalProducts": "Active products",
     "pendingOrders": "Pending orders",
@@ -502,7 +509,7 @@
     "customer": "Customer",
     "phone": "Phone",
     "date": "Order date",
-    "total": "Total",
+    "total": "Total excluding shipping",
     "paymentStatus": "Payment",
     "orderStatus": "Status",
     "actions": "Actions",

@@ -6,6 +6,7 @@ export type AdminOrderSummary = {
   shippingAddress: { fullName: string; phone: string };
   createdAt: string;
   total: number;
+  shippingFee: number;
   paymentStatus: string;
   status: OrderStatus;
 };
@@ -35,7 +36,6 @@ export type AdminOrder = AdminOrderSummary & {
     totalPrice: number;
   }[];
   subtotal: number;
-  shippingFee: number;
   currency: "ILS";
   paymentMethod: string;
   updatedAt: string;

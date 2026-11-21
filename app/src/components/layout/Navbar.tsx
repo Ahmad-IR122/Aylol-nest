@@ -129,7 +129,7 @@ export function Navbar({ isAdmin = false }: NavbarProps) {
                   </Link>
                 </Button>
               )}
-              <UserButton />
+              <UserButton userProfileMode="navigation" userProfileUrl={`/${locale}/account`} />
             </Show>
           </div>
 

@@ -86,7 +86,11 @@ export default function AdminShell({ children, locale }: Props) {
               <Bell size={21} />
             </button>
 
-            <UserButton appearance={{ elements: { userButtonTrigger: "!size-11" } }} />
+            <UserButton
+              userProfileMode="navigation"
+              userProfileUrl={`/${locale}/account`}
+              appearance={{ elements: { userButtonTrigger: "!size-11" } }}
+            />
           </div>
         </header>
 

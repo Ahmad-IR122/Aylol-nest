@@ -9,7 +9,7 @@ type Props = {
 export default async function SignInPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const { returnTo } = await searchParams;
-  const productPath = productReturnPath(locale, returnTo);
+  const returnPath = returnTo === `/${locale}/account` ? returnTo : productReturnPath(locale, returnTo);
 
   return (
     <main
@@ -19,7 +19,7 @@ export default async function SignInPage({ params, searchParams }: Props) {
       <SignIn
         routing="hash"
         signUpUrl={`/${locale}/sign-up`}
-        forceRedirectUrl={`/${locale}/auth/redirect${productPath ? `?returnTo=${encodeURIComponent(productPath)}` : ""}`}
+        forceRedirectUrl={`/${locale}/auth/redirect${returnPath ? `?returnTo=${encodeURIComponent(returnPath)}` : ""}`}
       />
     </main>
   );

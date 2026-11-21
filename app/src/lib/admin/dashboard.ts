@@ -46,6 +46,7 @@ export async function getDashboardData() {
     isActive: true,
     variants: { $elemMatch: { isActive: true, stock: { $lt: 5 } } },
   };
+  const totalWithoutShipping = { $subtract: ["$total", { $ifNull: ["$shippingFee", 0] }] };
 
   const [orderResult, productResult, customers] = await Promise.all([
     Order.aggregate<OrderMetrics>([
@@ -66,7 +67,7 @@ export async function getDashboardData() {
                           { $ne: ["$paymentStatus", "refunded"] },
                         ],
                       },
-                      "$total",
+                      totalWithoutShipping,
                       0,
                     ],
                   },
@@ -84,7 +85,7 @@ export async function getDashboardData() {
                 orderNumber: 1,
                 customer: "$shippingAddress.fullName",
                 createdAt: 1,
-                total: 1,
+                total: totalWithoutShipping,
                 status: 1,
               },
             },
@@ -102,7 +103,7 @@ export async function getDashboardData() {
                 _id: {
                   $dateToString: { format: "%Y-%m-%d", date: "$deliveredAt", timezone: "UTC" },
                 },
-                revenue: { $sum: "$total" },
+                revenue: { $sum: totalWithoutShipping },
               },
             },
           ],

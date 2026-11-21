@@ -50,7 +50,7 @@ export default function AdminSidebar({ locale, isOpen, onClose }: Props) {
     },
     {
       href: `/${locale}/admin/customers`,
-      label: isArabic ? "العملاء" : "Customers",
+      label: isArabic ? "الزبائن" : "Customers",
       icon: Users,
     },
     {

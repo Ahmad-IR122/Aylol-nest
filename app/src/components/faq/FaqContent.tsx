@@ -84,10 +84,10 @@ export default function FaqContent() {
                 <>
                   <span>{t("answers.returnPolicy")} </span>
                   <Link
-                    href="/contact"
+                    href="/exchange-policy"
                     className="inline-flex min-h-11 items-center underline underline-offset-4"
                   >
-                    {t("contactLink")}
+                    {t("exchangePolicyLink")}
                   </Link>
                 </>
               ) : (

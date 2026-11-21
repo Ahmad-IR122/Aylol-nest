@@ -44,7 +44,12 @@ export default async function AdminDashboardPage() {
       href: ordersHref,
       icon: Wallet,
     },
-    { label: t("totalCustomers"), value: number.format(data.totalCustomers), icon: Users },
+    {
+      label: t("totalCustomers"),
+      value: number.format(data.totalCustomers),
+      href: `/${locale}/admin/customers`,
+      icon: Users,
+    },
     {
       label: t("totalProducts"),
       value: number.format(data.totalProducts),
