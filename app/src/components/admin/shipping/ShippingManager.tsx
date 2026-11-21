@@ -87,15 +87,18 @@ export default function ShippingManager({ locale }: { locale: string }) {
     setSaving(true);
     setError("");
     try {
-      const response = await fetch(creating ? "/api/admin/shipping" : `/api/admin/shipping/${editing}`, {
-        method: creating ? "POST" : "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          shippingFee: amount,
-          isActive: active,
-          ...(creating ? { name } : {}),
-        }),
-      });
+      const response = await fetch(
+        creating ? "/api/admin/shipping" : `/api/admin/shipping/${editing}`,
+        {
+          method: creating ? "POST" : "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            shippingFee: amount,
+            isActive: active,
+            ...(creating ? { name } : {}),
+          }),
+        },
+      );
       if (!response.ok) throw new Error();
       const data: { region: Region } = await response.json();
       setRegions((current) =>

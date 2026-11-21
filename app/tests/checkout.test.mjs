@@ -116,7 +116,9 @@ function fakeDatabase({
     assert.ok(filter.slug);
     return { acknowledged: true };
   });
-  mock.method(ShippingZone, "findOne", ({ slug }) => query(slug === state.zone.slug ? state.zone : null));
+  mock.method(ShippingZone, "findOne", ({ slug }) =>
+    query(slug === state.zone.slug ? state.zone : null),
+  );
   mock.method(Order, "init", async () => Order);
   mock.method(Order, "findOne", (filter) =>
     query(
@@ -241,7 +243,10 @@ test("checkout uses the configured fee and snapshots the name of an added region
   const shippingSlug = "region_0123456789abcdef0123456789abcdef";
   const db = fakeDatabase({ shippingSlug, shippingFee: 12.5 });
   const checkoutInput = checkoutSchema.parse({ ...input, region: shippingSlug });
-  await assert.rejects(checkout(owner, { ...checkoutInput, region: "region_00000000000000000000000000000000" }, key), { status: 409 });
+  await assert.rejects(
+    checkout(owner, { ...checkoutInput, region: "region_00000000000000000000000000000000" }, key),
+    { status: 409 },
+  );
   await checkout(owner, checkoutInput, key);
   const [order] = db.state.orders;
   await new Order(order).validate();

@@ -171,7 +171,11 @@ function catalog(rows, { home = false } = {}) {
               return item[key] === value;
             }),
           )
-          .sort((a, b) => (usesDisplayOrder ? (a.sortOrder ?? 0) - (b.sortOrder ?? 0) : 0) || b.createdAt - a.createdAt)
+          .sort(
+            (a, b) =>
+              (usesDisplayOrder ? (a.sortOrder ?? 0) - (b.sortOrder ?? 0) : 0) ||
+              b.createdAt - a.createdAt,
+          )
           .slice(0, limit);
       },
     };

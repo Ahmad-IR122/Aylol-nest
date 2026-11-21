@@ -1,7 +1,11 @@
 import "server-only";
 
 import { connectDB } from "@/lib/db/mongoose";
-import { priceInCents, shippingRegionPattern, type ShippingRegion } from "@/lib/checkout/validation";
+import {
+  priceInCents,
+  shippingRegionPattern,
+  type ShippingRegion,
+} from "@/lib/checkout/validation";
 import { ShippingZone } from "@/models/ShippingZone";
 
 const defaults = [

@@ -19,7 +19,10 @@ export default async function ExchangePolicyPage() {
         <h1 className="text-3xl font-bold md:text-4xl">{t("title")}</h1>
         <p>{t("intro")}</p>
         <p>{t("details")}</p>
-        <Link href="/contact" className="inline-flex min-h-11 items-center underline underline-offset-4">
+        <Link
+          href="/contact"
+          className="inline-flex min-h-11 items-center underline underline-offset-4"
+        >
           {t("contact")}
         </Link>
       </div>

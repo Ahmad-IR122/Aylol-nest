@@ -39,7 +39,8 @@ export default async function ConfirmationPage({ params }: Props) {
     format.number(value, { style: "currency", currency: "ILS", currencyDisplay: "narrowSymbol" });
   const region = order.shippingRegion;
   const regionName =
-    order.shippingZoneName?.[language] || (t.has(`regions.${region}`) ? t(`regions.${region}`) : region);
+    order.shippingZoneName?.[language] ||
+    (t.has(`regions.${region}`) ? t(`regions.${region}`) : region);
 
   return (
     <main

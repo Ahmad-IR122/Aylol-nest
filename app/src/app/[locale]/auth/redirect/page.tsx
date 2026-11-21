@@ -12,7 +12,8 @@ type Props = {
 export default async function AuthRedirectPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const { returnTo } = await searchParams;
-  const returnPath = returnTo === `/${locale}/account` ? returnTo : productReturnPath(locale, returnTo);
+  const returnPath =
+    returnTo === `/${locale}/account` ? returnTo : productReturnPath(locale, returnTo);
 
   const { userId } = await auth();
 

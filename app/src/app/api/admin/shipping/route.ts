@@ -28,16 +28,19 @@ export async function POST(request: Request) {
       slug: `region_${randomUUID().replaceAll("-", "")}`,
       sortOrder: 3,
     });
-    return NextResponse.json({
-      region: {
-        id: region._id.toString(),
-        slug: region.slug,
-        name: region.name,
-        shippingFee: region.shippingFee,
-        isActive: region.isActive,
-        updatedAt: region.updatedAt,
+    return NextResponse.json(
+      {
+        region: {
+          id: region._id.toString(),
+          slug: region.slug,
+          name: region.name,
+          shippingFee: region.shippingFee,
+          isActive: region.isActive,
+          updatedAt: region.updatedAt,
+        },
       },
-    }, { status: 201 });
+      { status: 201 },
+    );
   } catch (error) {
     if (error instanceof UnauthorizedError)
       return NextResponse.json({ message: error.message }, { status: 401 });

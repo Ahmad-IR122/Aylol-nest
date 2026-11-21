@@ -133,7 +133,9 @@ function toItem(
 
 export async function cartResponse(owner?: mongoose.Types.ObjectId, status = 200) {
   if (!owner)
-    return NextResponse.json({ cart: { id: null, items: [], subtotal: 0, itemCount: 0, revision: 0 } });
+    return NextResponse.json({
+      cart: { id: null, items: [], subtotal: 0, itemCount: 0, revision: 0 },
+    });
   const cart = await Cart.findOne({ owner }).lean();
   const products = await Product.find({
     _id: { $in: cart?.items.map((item) => item.product) ?? [] },

@@ -37,10 +37,10 @@ async function existingOrder(
   const query = Order.findOne({
     ...ownership,
     idempotencyKeyHash,
-    ...("guestOwner" in ownership ? { _id: new mongoose.Types.ObjectId(idempotencyKeyHash.slice(0, 24)) } : {}),
-  }).select(
-    "_id orderNumber requestHash",
-  );
+    ...("guestOwner" in ownership
+      ? { _id: new mongoose.Types.ObjectId(idempotencyKeyHash.slice(0, 24)) }
+      : {}),
+  }).select("_id orderNumber requestHash");
   if (session) query.session(session);
   const order = await query.lean();
   if (!order) return null;
@@ -203,7 +203,9 @@ export async function checkout(
   guest = false,
 ): Promise<CheckoutResult> {
   const ownership = guest ? { guestOwner: owner } : { user: owner };
-  const idempotencyKeyHash = hash(`${guest ? "guest:" : ""}${owner}:${idempotencyKey.toLowerCase()}`);
+  const idempotencyKeyHash = hash(
+    `${guest ? "guest:" : ""}${owner}:${idempotencyKey.toLowerCase()}`,
+  );
   const requestHash = hash(JSON.stringify(input));
 
   // Ensure the unique indexes exist before accepting any checkout request.
@@ -216,7 +218,8 @@ export async function checkout(
   const session = await mongoose.startSession();
   try {
     const result = await session.withTransaction(
-      () => placeOrderInTransaction(owner, ownership, input, idempotencyKeyHash, requestHash, session),
+      () =>
+        placeOrderInTransaction(owner, ownership, input, idempotencyKeyHash, requestHash, session),
       {
         readConcern: { level: "snapshot" },
         writeConcern: { w: "majority" },
