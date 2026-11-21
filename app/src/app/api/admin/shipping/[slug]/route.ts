@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin, UnauthorizedError, ForbiddenError } from "@/lib/auth/require-admin";
-import { shippingRegions, priceInCents } from "@/lib/checkout/validation";
+import { shippingRegionSchema, priceInCents } from "@/lib/checkout/validation";
 import { initializeShippingRegions } from "@/lib/shipping/server";
 import { ShippingZone } from "@/models/ShippingZone";
 
@@ -20,7 +20,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ sl
   try {
     await requireAdmin();
     const { slug } = await params;
-    if (!shippingRegions.some((region) => region === slug))
+    if (!shippingRegionSchema.safeParse(slug).success)
       return NextResponse.json({ message: "Unknown shipping region" }, { status: 404 });
     const origin = request.headers.get("origin");
     if (origin && origin !== new URL(request.url).origin)

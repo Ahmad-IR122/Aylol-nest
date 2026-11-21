@@ -1,11 +1,15 @@
 import "server-only";
 
+import { createHash, randomBytes } from "node:crypto";
+import { auth } from "@clerk/nextjs/server";
 import mongoose from "mongoose";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getCurrentCartUser } from "@/lib/auth/current-user";
 import { MAX_CART_LINES, cartReferenceSchema, type CartItem } from "@/lib/cart/state";
+import { connectDB } from "@/lib/db/mongoose";
 import { getStorefrontProduct } from "@/lib/products/storefront";
 import { Cart } from "@/models/Cart";
 import { Product } from "@/models/Product";
@@ -26,11 +30,40 @@ export class CartApiError extends Error {
   }
 }
 
+const guestCookie = "aylol_guest";
+
+export async function cartOwner(createGuest = false) {
+  const { userId } = await auth();
+  if (userId) {
+    const user = await getCurrentCartUser();
+    if (!user) throw new CartApiError(401, "Authentication required");
+    if (user.role !== "customer") throw new CartApiError(403, "Customer access required");
+    return { id: user._id, guest: false };
+  }
+
+  const cookieStore = await cookies();
+  let token = cookieStore.get(guestCookie)?.value ?? "";
+  if (!/^[a-f0-9]{64}$/.test(token)) {
+    if (!createGuest) return null;
+    token = randomBytes(32).toString("hex");
+    cookieStore.set(guestCookie, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 30 * 24 * 60 * 60,
+    });
+  }
+
+  await connectDB();
+  const id = createHash("sha256").update(token).digest("hex").slice(0, 24);
+  return { id: new mongoose.Types.ObjectId(id), guest: true };
+}
+
 export async function ownerId() {
-  const user = await getCurrentCartUser();
-  if (!user) throw new CartApiError(401, "Authentication required");
-  if (user.role !== "customer") throw new CartApiError(403, "Customer access required");
-  return user._id;
+  const owner = await cartOwner(true);
+  if (!owner) throw new CartApiError(409, "Cart is empty");
+  return owner.id;
 }
 
 export async function readBody(request: Request): Promise<unknown> {
@@ -98,7 +131,11 @@ function toItem(
   };
 }
 
-export async function cartResponse(owner: mongoose.Types.ObjectId, status = 200) {
+export async function cartResponse(owner?: mongoose.Types.ObjectId, status = 200) {
+  if (!owner)
+    return NextResponse.json({
+      cart: { id: null, items: [], subtotal: 0, itemCount: 0, revision: 0 },
+    });
   const cart = await Cart.findOne({ owner }).lean();
   const products = await Product.find({
     _id: { $in: cart?.items.map((item) => item.product) ?? [] },

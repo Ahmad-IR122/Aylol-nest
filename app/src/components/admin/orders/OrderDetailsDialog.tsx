@@ -85,7 +85,15 @@ export default function OrderDetailsDialog({
               <OrderInfo label={t("customer")} value={detail.shippingAddress.fullName} />
               <OrderInfo label={t("phone")} value={detail.shippingAddress.phone} />
               <OrderInfo label={t("date")} value={date(detail.createdAt)} />
-              <OrderInfo label={t("region")} value={t(`regions.${detail.shippingRegion}`)} />
+              <OrderInfo
+                label={t("region")}
+                value={
+                  detail.shippingZoneName?.[language] ||
+                  (t.has(`regions.${detail.shippingRegion}`)
+                    ? t(`regions.${detail.shippingRegion}`)
+                    : detail.shippingRegion)
+                }
+              />
               <OrderInfo label={t("city")} value={detail.shippingAddress.city} />
               <OrderInfo
                 label={t("address")}
@@ -155,7 +163,7 @@ export default function OrderDetailsDialog({
               </div>
               <div className="flex justify-between text-lg font-semibold">
                 <span>{t("total")}</span>
-                <bdi>{currency(detail.total)}</bdi>
+                <bdi>{currency(detail.total - (detail.shippingFee ?? 0))}</bdi>
               </div>
             </div>
             <div className="rounded-xl border border-[#eee5e0] p-4 dark:border-[#3a3431]">

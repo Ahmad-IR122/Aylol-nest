@@ -14,9 +14,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const { userId } = await auth();
-  if (!userId) redirect(`/${locale}/sign-in?returnTo=${encodeURIComponent(`/${locale}/checkout`)}`);
-
-  const user = await getCurrentCartUser();
-  if (!user || user.role !== "customer") redirect(`/${locale}`);
+  if (userId) {
+    const user = await getCurrentCartUser();
+    if (!user || user.role !== "customer") redirect(`/${locale}`);
+  }
   return <CheckoutPage />;
 }

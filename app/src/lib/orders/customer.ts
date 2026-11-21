@@ -37,7 +37,7 @@ export async function getCustomerOrder(customerId: mongoose.Types.ObjectId, orde
   if (!/^[a-f\d]{24}$/i.test(orderId)) return null;
   return Order.findOne({ _id: orderId, user: customerId })
     .select(
-      "orderNumber createdAt status paymentMethod paymentStatus items.name items.imageUrl items.sku items.size items.color items.quantity items.unitPrice items.totalPrice subtotal shippingFee total shippingRegion shippingAddress customerNotes",
+      "orderNumber createdAt status paymentMethod paymentStatus items.name items.imageUrl items.sku items.size items.color items.quantity items.unitPrice items.totalPrice subtotal shippingFee total shippingRegion shippingZoneName shippingAddress customerNotes",
     )
     .lean();
 }

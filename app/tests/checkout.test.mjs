@@ -64,6 +64,7 @@ function fakeDatabase({
   transactionUnavailable = false,
   shippingFee = 20,
   shippingActive = true,
+  shippingSlug = "west_bank",
 } = {}) {
   let state = {
     cart: {
@@ -93,7 +94,7 @@ function fakeDatabase({
     orders: [],
     zone: {
       _id: "507f1f77bcf86cd799439014",
-      slug: "west_bank",
+      slug: shippingSlug,
       name: { ar: "الضفة الغربية", en: "West Bank" },
       shippingFee,
       isActive: shippingActive,
@@ -102,19 +103,29 @@ function fakeDatabase({
   mock.method(mongoose, "connect", async () => mongoose);
   mock.method(ShippingZone, "init", async () => ShippingZone);
   mock.method(ShippingZone, "updateOne", async (filter, update, options) => {
+    const nameField = Object.keys(filter).find((field) => field.startsWith("name."));
+    if (nameField) {
+      assert.equal(filter.slug, "inside_48");
+      assert.deepEqual(Object.keys(update.$set), [nameField]);
+      assert.equal(options.timestamps, false);
+      return { acknowledged: true };
+    }
     assert.deepEqual(Object.keys(update), ["$setOnInsert"]);
     assert.equal(options.upsert, true);
     assert.equal(options.timestamps, false);
     assert.ok(filter.slug);
     return { acknowledged: true };
   });
-  mock.method(ShippingZone, "findOne", () => query(state.zone));
+  mock.method(ShippingZone, "findOne", ({ slug }) =>
+    query(slug === state.zone.slug ? state.zone : null),
+  );
   mock.method(Order, "init", async () => Order);
   mock.method(Order, "findOne", (filter) =>
     query(
       state.orders.find(
         (order) =>
           String(order.user) === String(filter.user) &&
+          String(order.guestOwner) === String(filter.guestOwner) &&
           order.idempotencyKeyHash === filter.idempotencyKeyHash,
       ) ?? null,
     ),
@@ -204,6 +215,19 @@ test("checkout snapshots current prices, deducts stock, and clears the cart atom
   assert.equal(String(order.shippingZone), db.state.zone._id);
 });
 
+test("guest checkout saves an order without a user and replays after clearing the cart", async () => {
+  const db = fakeDatabase();
+  const result = await checkout(owner, parsedInput, key, true);
+  const [order] = db.state.orders;
+  await new Order(order).validate();
+  assert.equal(order.user, undefined);
+  assert.equal(String(order.guestOwner), String(owner));
+  assert.deepEqual(db.state.cart.items, []);
+  assert.deepEqual(await checkout(owner, parsedInput, key, true), { ...result, replayed: true });
+  await assert.rejects(checkout(owner, parsedInput, key), { status: 409 });
+  assert.equal(db.state.orders.length, 1);
+});
+
 test("checkout snapshots changed database fees without changing earlier orders", async () => {
   const db = fakeDatabase({ shippingFee: 24.5 });
   await checkout(owner, parsedInput, key);
@@ -213,6 +237,22 @@ test("checkout snapshots changed database fees without changing earlier orders",
   db.state.zone.shippingFee = 40;
   assert.equal(previous.shippingFee, 24.5);
   assert.equal(previous.total, 215.5);
+});
+
+test("checkout uses the configured fee and snapshots the name of an added region", async () => {
+  const shippingSlug = "region_0123456789abcdef0123456789abcdef";
+  const db = fakeDatabase({ shippingSlug, shippingFee: 12.5 });
+  const checkoutInput = checkoutSchema.parse({ ...input, region: shippingSlug });
+  await assert.rejects(
+    checkout(owner, { ...checkoutInput, region: "region_00000000000000000000000000000000" }, key),
+    { status: 409 },
+  );
+  await checkout(owner, checkoutInput, key);
+  const [order] = db.state.orders;
+  await new Order(order).validate();
+  assert.equal(order.shippingRegion, shippingSlug);
+  assert.equal(order.shippingFee, 12.5);
+  assert.deepEqual(order.shippingZoneName, db.state.zone.name);
 });
 
 test("inactive shipping region rejects checkout before stock changes", async () => {

@@ -6,6 +6,7 @@ export type AdminOrderSummary = {
   shippingAddress: { fullName: string; phone: string };
   createdAt: string;
   total: number;
+  shippingFee: number;
   paymentStatus: string;
   status: OrderStatus;
 };
@@ -19,7 +20,8 @@ export type AdminOrder = AdminOrderSummary & {
     streetAddress: string;
     building?: string;
   };
-  shippingRegion: "west_bank" | "jerusalem" | "inside_48";
+  shippingRegion: string;
+  shippingZoneName?: { ar?: string; en?: string };
   customerNotes?: string;
   items: {
     product: string;
@@ -34,7 +36,6 @@ export type AdminOrder = AdminOrderSummary & {
     totalPrice: number;
   }[];
   subtotal: number;
-  shippingFee: number;
   currency: "ILS";
   paymentMethod: string;
   updatedAt: string;

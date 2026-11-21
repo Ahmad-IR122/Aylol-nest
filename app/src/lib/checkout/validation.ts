@@ -1,14 +1,15 @@
 import { z } from "zod";
 
-export const shippingRegions = ["west_bank", "jerusalem", "inside_48"] as const;
-export type ShippingRegion = (typeof shippingRegions)[number];
+export const shippingRegionPattern = /^(?:west_bank|jerusalem|inside_48|region_[a-f0-9]{32})$/;
+export const shippingRegionSchema = z.string().regex(shippingRegionPattern);
+export type ShippingRegion = z.infer<typeof shippingRegionSchema>;
 
 const requiredText = (max: number) => z.string().trim().min(1).max(max);
 
 export const checkoutSchema = z.strictObject({
   customerName: requiredText(120),
   phone: requiredText(25).regex(/^\+?[0-9][0-9 ()-]{5,23}[0-9]$/),
-  region: z.enum(shippingRegions),
+  region: shippingRegionSchema,
   city: requiredText(120),
   address: requiredText(500),
   notes: z.string().trim().max(1000).default(""),

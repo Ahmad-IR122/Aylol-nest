@@ -136,10 +136,11 @@ const row = (id = "1", overrides = {}) => ({
   ...overrides,
 });
 
-function catalog(rows) {
+function catalog(rows, { home = false } = {}) {
   return mock.method(Product, "find", (filter) => {
     assert.equal(filter.isActive, true, "public queries must explicitly require active products");
     let limit;
+    let usesDisplayOrder;
     return {
       select(projection) {
         assert.ok(projection.includes("variants.isActive"));
@@ -147,7 +148,8 @@ function catalog(rows) {
         return this;
       },
       sort(order) {
-        assert.deepEqual(order, { createdAt: -1, _id: -1 });
+        usesDisplayOrder = order.sortOrder === 1;
+        if (home) assert.deepEqual(order, { sortOrder: 1, createdAt: -1, _id: -1 });
         return this;
       },
       limit(value) {
@@ -169,7 +171,11 @@ function catalog(rows) {
               return item[key] === value;
             }),
           )
-          .sort((a, b) => b.createdAt - a.createdAt)
+          .sort(
+            (a, b) =>
+              (usesDisplayOrder ? (a.sortOrder ?? 0) - (b.sortOrder ?? 0) : 0) ||
+              b.createdAt - a.createdAt,
+          )
           .slice(0, limit);
       },
     };
@@ -286,23 +292,23 @@ test("Explore pagination keeps the saved order across pages", async () => {
   );
 });
 
-test("home queries are bounded, newest first, active-only, and featured flags are respected", async () => {
+test("home queries respect display order, use newest as a tiebreaker, and stay bounded", async () => {
   const rows = Array.from({ length: 12 }, (_, i) =>
-    row(String(i + 1), { isFeatured: i % 2 === 0 }),
+    row(String(i + 1), { isFeatured: i % 2 === 0, sortOrder: i === 0 ? 0 : 1 }),
   );
   rows.push(row("99", { isActive: false, isFeatured: true }));
-  catalog(rows);
+  catalog(rows, { home: true });
   const result = await getHomeProducts();
   assert.equal(result.arrivals.products.length, 8);
   assert.deepEqual(
     result.arrivals.products.map((p) => p.id),
-    ["12", "11", "10", "9", "8", "7", "6", "5"],
+    ["1", "12", "11", "10", "9", "8", "7", "6"],
   );
   assert.deepEqual(
     result.featured.products.map((p) => p.id),
-    ["11", "9", "7", "5"],
+    ["1", "11", "9", "7"],
   );
-  assert.equal(result.arrivals.products[0].isNew, false, "newest unflagged products still appear");
+  assert.equal(result.arrivals.products[1].isNew, false, "newest unflagged products still appear");
 });
 
 test("public cards derive price, stock and images from active variants without leaking internal data", async () => {

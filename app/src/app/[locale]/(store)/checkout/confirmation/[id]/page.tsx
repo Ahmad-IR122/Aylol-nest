@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import { auth } from "@clerk/nextjs/server";
 import { CheckCircle2 } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import ProductImage from "@/components/home/ProductImage";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
-import { getCurrentCartUser } from "@/lib/auth/current-user";
+import { CartApiError, cartOwner } from "@/lib/cart/server";
 import { orderForCustomer } from "@/lib/checkout/order-confirmation";
 import type { HomeLocale } from "@/lib/home-data";
 
@@ -22,16 +21,13 @@ export default async function ConfirmationPage({ params }: Props) {
   const { locale, id } = await params;
   if (!/^[a-f\d]{24}$/i.test(id)) notFound();
 
-  const { userId } = await auth();
-  if (!userId)
-    redirect(
-      `/${locale}/sign-in?returnTo=${encodeURIComponent(`/${locale}/checkout/confirmation/${id}`)}`,
-    );
+  const owner = await cartOwner().catch((error: unknown) => {
+    if (error instanceof CartApiError) notFound();
+    throw error;
+  });
+  if (!owner) notFound();
 
-  const user = await getCurrentCartUser();
-  if (!user || user.role !== "customer") notFound();
-
-  const order = await orderForCustomer(id, user._id);
+  const order = await orderForCustomer(id, owner.id, owner.guest);
   if (!order) notFound();
 
   const language: HomeLocale = locale === "ar" ? "ar" : "en";
@@ -43,9 +39,8 @@ export default async function ConfirmationPage({ params }: Props) {
     format.number(value, { style: "currency", currency: "ILS", currencyDisplay: "narrowSymbol" });
   const region = order.shippingRegion;
   const regionName =
-    region === "west_bank" || region === "jerusalem" || region === "inside_48"
-      ? t(`regions.${region}`)
-      : "";
+    order.shippingZoneName?.[language] ||
+    (t.has(`regions.${region}`) ? t(`regions.${region}`) : region);
 
   return (
     <main
@@ -143,9 +138,11 @@ export default async function ConfirmationPage({ params }: Props) {
           </aside>
         </div>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Button asChild className="h-11">
-            <Link href={`/orders/${id}`}>{t("viewOrderDetails")}</Link>
-          </Button>
+          {!owner.guest && (
+            <Button asChild className="h-11">
+              <Link href={`/orders/${id}`}>{t("viewOrderDetails")}</Link>
+            </Button>
+          )}
           <Button asChild variant="outline" className="h-11">
             <Link href="/">{t("continueShopping")}</Link>
           </Button>

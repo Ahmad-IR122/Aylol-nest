@@ -101,22 +101,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isLoaded) return;
     const timer = window.setTimeout(() => {
-      if (userId) {
-        void refresh();
-      } else {
-        ++requestVersion.current;
-        setCart(emptyCart);
-        setUnauthenticated(true);
-        setError(null);
-        setLoading(false);
-      }
+      if (!locked.current) void refresh();
     }, 0);
     return () => window.clearTimeout(timer);
   }, [refresh, pathname, isLoaded, userId]);
 
   useEffect(() => {
     const onFocus = () => {
-      if (userId && !locked.current && document.visibilityState === "visible") void refresh();
+      if (isLoaded && !locked.current && document.visibilityState === "visible") void refresh();
     };
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onFocus);
@@ -124,7 +116,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onFocus);
     };
-  }, [refresh, userId]);
+  }, [refresh, isLoaded]);
 
   async function change(url: string, method: string, body?: unknown): Promise<CartResult> {
     if (locked.current) return { ok: false, error: "busy" };
@@ -191,7 +183,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           if (document.activeElement instanceof HTMLElement)
             opener.current = document.activeElement;
           setOpen(true);
-          void refresh();
+          if (!locked.current) void refresh();
         },
         closeCart: () => setOpen(false),
         restoreFocus: () =>

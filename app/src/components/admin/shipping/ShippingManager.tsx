@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { useFormatter, useTranslations } from "next-intl";
+import { priceInCents } from "@/lib/checkout/validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -20,6 +21,7 @@ export default function ShippingManager({ locale }: { locale: string }) {
   const [regions, setRegions] = useState<Region[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [fee, setFee] = useState("");
   const [active, setActive] = useState(true);
@@ -47,7 +49,17 @@ export default function ShippingManager({ locale }: { locale: string }) {
     return () => window.clearTimeout(timer);
   }, [load]);
 
+  function addRegion() {
+    setCreating(true);
+    setEditing(null);
+    setFee("");
+    setActive(true);
+    setError("");
+    setSuccess("");
+  }
+
   function edit(region: Region) {
+    setCreating(false);
     setEditing(region.slug);
     setFee(String(region.shippingFee));
     setActive(region.isActive);
@@ -57,30 +69,44 @@ export default function ShippingManager({ locale }: { locale: string }) {
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!editing || saving) return;
+    if ((!editing && !creating) || saving) return;
     const amount = Number(fee);
-    if (
-      fee.trim() === "" ||
-      !Number.isFinite(amount) ||
-      amount < 0 ||
-      !Number.isSafeInteger(amount * 100)
-    ) {
+    if (fee.trim() === "" || priceInCents(amount) === null) {
       setError(t("invalidFee"));
+      return;
+    }
+    const fields = new FormData(event.currentTarget);
+    const name = {
+      ar: String(fields.get("nameAr") ?? "").trim(),
+      en: String(fields.get("nameEn") ?? "").trim(),
+    };
+    if (creating && (!name.ar || !name.en)) {
+      setError(t("invalidName"));
       return;
     }
     setSaving(true);
     setError("");
     try {
-      const response = await fetch(`/api/admin/shipping/${editing}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shippingFee: amount, isActive: active }),
-      });
-      if (!response.ok) throw new Error();
-      const data = await response.json();
-      setRegions((current) =>
-        current.map((region) => (region.slug === editing ? data.region : region)),
+      const response = await fetch(
+        creating ? "/api/admin/shipping" : `/api/admin/shipping/${editing}`,
+        {
+          method: creating ? "POST" : "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            shippingFee: amount,
+            isActive: active,
+            ...(creating ? { name } : {}),
+          }),
+        },
       );
+      if (!response.ok) throw new Error();
+      const data: { region: Region } = await response.json();
+      setRegions((current) =>
+        creating
+          ? [...current, data.region]
+          : current.map((region) => (region.slug === editing ? data.region : region)),
+      );
+      setCreating(false);
       setEditing(null);
       setSuccess(t("saved"));
     } catch {
@@ -89,6 +115,62 @@ export default function ShippingManager({ locale }: { locale: string }) {
       setSaving(false);
     }
   }
+
+  const regionForm = (
+    <form onSubmit={(event) => void save(event)} className="mt-5 space-y-4">
+      {creating && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="space-y-1 text-sm font-medium">
+            <span>{t("nameAr")}</span>
+            <Input name="nameAr" dir="rtl" maxLength={120} required />
+          </label>
+          <label className="space-y-1 text-sm font-medium">
+            <span>{t("nameEn")}</span>
+            <Input name="nameEn" dir="ltr" maxLength={120} required />
+          </label>
+        </div>
+      )}
+      <label className="block text-sm font-medium" htmlFor="shipping-fee">
+        {t("fee")}
+      </label>
+      <Input
+        id="shipping-fee"
+        type="number"
+        min="0"
+        step="0.01"
+        required
+        value={fee}
+        onChange={(event) => setFee(event.target.value)}
+        className="dark:bg-[#211e1c]"
+      />
+      <label className="flex items-center gap-3 text-sm">
+        <input
+          type="checkbox"
+          checked={active}
+          onChange={(event) => setActive(event.target.checked)}
+          className="size-4 accent-[#a97872]"
+        />
+        {t("available")}
+      </label>
+      <div className="flex gap-2">
+        <Button type="submit" disabled={saving}>
+          {t(saving ? "saving" : "save")}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={saving}
+          onClick={() => {
+            setCreating(false);
+            setEditing(null);
+            setError("");
+          }}
+        >
+          {t("cancel")}
+        </Button>
+      </div>
+    </form>
+  );
 
   return (
     <main
@@ -103,6 +185,9 @@ export default function ShippingManager({ locale }: { locale: string }) {
           <h1 className="mt-2 text-3xl font-semibold">{t("title")}</h1>
           <p className="mt-2 text-sm text-[#817571] dark:text-[#aaa09b]">{t("description")}</p>
         </div>
+        <Button type="button" onClick={addRegion} disabled={loading || creating || saving}>
+          {t("addRegion")}
+        </Button>
         {error && (
           <p
             role="alert"
@@ -118,6 +203,12 @@ export default function ShippingManager({ locale }: { locale: string }) {
           >
             {success}
           </p>
+        )}
+        {creating && (
+          <section className="rounded-2xl border border-[#eee5e0] bg-white p-5 dark:border-[#3a3431] dark:bg-[#292524]">
+            <h2 className="text-xl font-semibold">{t("addRegion")}</h2>
+            {regionForm}
+          </section>
         )}
         {loading ? (
           <p>{t("loading")}</p>
@@ -142,43 +233,7 @@ export default function ShippingManager({ locale }: { locale: string }) {
                   </span>
                 </div>
                 {editing === region.slug ? (
-                  <form onSubmit={(event) => void save(event)} className="mt-5 space-y-4">
-                    <label className="block text-sm font-medium" htmlFor={`fee-${region.slug}`}>
-                      {t("fee")}
-                    </label>
-                    <Input
-                      id={`fee-${region.slug}`}
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      required
-                      value={fee}
-                      onChange={(event) => setFee(event.target.value)}
-                      className="dark:bg-[#211e1c]"
-                    />
-                    <label className="flex items-center gap-3 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={active}
-                        onChange={(event) => setActive(event.target.checked)}
-                        className="size-4 accent-[#a97872]"
-                      />
-                      {t("available")}
-                    </label>
-                    <div className="flex gap-2">
-                      <Button type="submit" disabled={saving}>
-                        {t(saving ? "saving" : "save")}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        disabled={saving}
-                        onClick={() => setEditing(null)}
-                      >
-                        {t("cancel")}
-                      </Button>
-                    </div>
-                  </form>
+                  regionForm
                 ) : (
                   <div className="mt-5">
                     <p className="text-sm text-[#817571] dark:text-[#aaa09b]">{t("fee")}</p>
@@ -195,6 +250,7 @@ export default function ShippingManager({ locale }: { locale: string }) {
                       type="button"
                       variant="outline"
                       className="mt-5 min-h-11"
+                      disabled={saving}
                       onClick={() => edit(region)}
                     >
                       {t("edit")}

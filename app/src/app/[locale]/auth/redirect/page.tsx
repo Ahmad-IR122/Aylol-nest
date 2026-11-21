@@ -12,13 +12,14 @@ type Props = {
 export default async function AuthRedirectPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const { returnTo } = await searchParams;
-  const productPath = productReturnPath(locale, returnTo);
+  const returnPath =
+    returnTo === `/${locale}/account` ? returnTo : productReturnPath(locale, returnTo);
 
   const { userId } = await auth();
 
   if (!userId) {
     redirect(
-      `/${locale}/sign-in${productPath ? `?returnTo=${encodeURIComponent(productPath)}` : ""}`,
+      `/${locale}/sign-in${returnPath ? `?returnTo=${encodeURIComponent(returnPath)}` : ""}`,
     );
   }
 
@@ -28,9 +29,13 @@ export default async function AuthRedirectPage({ params, searchParams }: Props) 
     redirect(`/${locale}`);
   }
 
+  if (returnPath === `/${locale}/account`) {
+    redirect(returnPath);
+  }
+
   if (user.role === "admin") {
     redirect(`/${locale}/admin`);
   }
 
-  redirect(productPath ?? `/${locale}`);
+  redirect(returnPath ?? `/${locale}`);
 }

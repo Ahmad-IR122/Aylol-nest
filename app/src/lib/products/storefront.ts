@@ -98,12 +98,20 @@ function toHomeProduct(product: PublicProduct): HomeProduct {
   };
 }
 
-function queryCards(filter: Record<string, unknown>, limit: number, skip = 0) {
+const newestFirst = { createdAt: -1, _id: -1 } as const;
+const homeDisplayOrder = { sortOrder: 1, ...newestFirst } as const;
+
+function queryCards(
+  filter: Record<string, unknown>,
+  limit: number,
+  skip = 0,
+  sort: typeof newestFirst | typeof homeDisplayOrder = newestFirst,
+) {
   const query = Product.find({ ...filter, isActive: true })
     .select(
       "name slug category images.url images.alt variants.isActive variants.price variants.stock variants.images.url variants.images.alt isNewArrival",
     )
-    .sort({ createdAt: -1, _id: -1 });
+    .sort(sort);
   return (skip ? query.skip(skip) : query)
     .limit(limit)
     .populate({
@@ -397,8 +405,8 @@ export async function getHomeProducts(): Promise<{
     const { connectDB } = await import("@/lib/db/mongoose");
     await connectDB();
     const [featured, arrivals] = await Promise.all([
-      queryCards({ isFeatured: true }, 4),
-      queryCards({}, 8),
+      queryCards({ isFeatured: true }, 4, 0, homeDisplayOrder),
+      queryCards({}, 8, 0, homeDisplayOrder),
     ]);
     return {
       featured: { products: featured.map(toHomeProduct), error: false },

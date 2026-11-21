@@ -29,14 +29,18 @@ function orderNumber() {
 }
 
 async function existingOrder(
-  owner: mongoose.Types.ObjectId,
+  ownership: { user: mongoose.Types.ObjectId } | { guestOwner: mongoose.Types.ObjectId },
   idempotencyKeyHash: string,
   requestHash: string,
   session?: ClientSession,
 ): Promise<CheckoutResult | null> {
-  const query = Order.findOne({ user: owner, idempotencyKeyHash }).select(
-    "_id orderNumber requestHash",
-  );
+  const query = Order.findOne({
+    ...ownership,
+    idempotencyKeyHash,
+    ...("guestOwner" in ownership
+      ? { _id: new mongoose.Types.ObjectId(idempotencyKeyHash.slice(0, 24)) }
+      : {}),
+  }).select("_id orderNumber requestHash");
   if (session) query.session(session);
   const order = await query.lean();
   if (!order) return null;
@@ -47,12 +51,13 @@ async function existingOrder(
 
 async function placeOrderInTransaction(
   owner: mongoose.Types.ObjectId,
+  ownership: Parameters<typeof existingOrder>[0],
   input: CheckoutInput,
   idempotencyKeyHash: string,
   requestHash: string,
   session: ClientSession,
 ): Promise<CheckoutResult> {
-  const replay = await existingOrder(owner, idempotencyKeyHash, requestHash, session);
+  const replay = await existingOrder(ownership, idempotencyKeyHash, requestHash, session);
   if (replay) return replay;
 
   const cart = await Cart.findOne({ owner }).session(session).lean();
@@ -158,7 +163,7 @@ async function placeOrderInTransaction(
         orderNumber: orderNumber(),
         idempotencyKeyHash,
         requestHash,
-        user: owner,
+        ...ownership,
         items,
         shippingAddress: {
           fullName: input.customerName,
@@ -195,13 +200,17 @@ export async function checkout(
   owner: mongoose.Types.ObjectId,
   input: CheckoutInput,
   idempotencyKey: string,
+  guest = false,
 ): Promise<CheckoutResult> {
-  const idempotencyKeyHash = hash(`${owner}:${idempotencyKey.toLowerCase()}`);
+  const ownership = guest ? { guestOwner: owner } : { user: owner };
+  const idempotencyKeyHash = hash(
+    `${guest ? "guest:" : ""}${owner}:${idempotencyKey.toLowerCase()}`,
+  );
   const requestHash = hash(JSON.stringify(input));
 
   // Ensure the unique indexes exist before accepting any checkout request.
   await Order.init();
-  const replay = await existingOrder(owner, idempotencyKeyHash, requestHash);
+  const replay = await existingOrder(ownership, idempotencyKeyHash, requestHash);
   if (replay) return replay;
 
   await initializeShippingRegions();
@@ -209,7 +218,8 @@ export async function checkout(
   const session = await mongoose.startSession();
   try {
     const result = await session.withTransaction(
-      () => placeOrderInTransaction(owner, input, idempotencyKeyHash, requestHash, session),
+      () =>
+        placeOrderInTransaction(owner, ownership, input, idempotencyKeyHash, requestHash, session),
       {
         readConcern: { level: "snapshot" },
         writeConcern: { w: "majority" },
@@ -221,7 +231,7 @@ export async function checkout(
     return result;
   } catch (error) {
     // A commit may have succeeded even if its acknowledgement was lost.
-    const committed = await existingOrder(owner, idempotencyKeyHash, requestHash);
+    const committed = await existingOrder(ownership, idempotencyKeyHash, requestHash);
     if (committed) return committed;
     if (error instanceof CheckoutError) throw error;
     if (typeof error === "object" && error !== null && "code" in error && error.code === 11000)

@@ -51,3 +51,21 @@ test("confirmation reads only the signed-in customer's order and displayed field
   assert.equal(queries.length, 2);
   assert.ok(queries.every((filter) => filter._id === orderId && filter.user));
 });
+
+test("guest confirmation requires the guest owner and does not match a customer order", async () => {
+  const guestOrder = { _id: orderId, guestOwner: ownerId };
+  mock.method(Order, "findOne", (filter) => ({
+    select() {
+      return this;
+    },
+    async lean() {
+      return filter._id === orderId && String(filter.guestOwner) === String(guestOrder.guestOwner)
+        ? guestOrder
+        : null;
+    },
+  }));
+
+  assert.equal(await orderForCustomer(orderId, ownerId, true), guestOrder);
+  assert.equal(await orderForCustomer(orderId, otherId, true), null);
+  assert.equal(await orderForCustomer(orderId, ownerId), null);
+});
