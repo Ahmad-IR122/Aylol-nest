@@ -45,8 +45,8 @@ The project currently uses:
 - [x] Light and dark theme switching.
 - [x] Clerk sign-in and sign-up pages.
 - [x] Client-side shopping cart drawer with server-side catalog and stock validation.
-- [ ] Checkout and order submission.
-- [ ] Online payment processing.
+- [x] Checkout and order submission.
+- [x] Online payment processing.
 
 ### Admin Features
 
