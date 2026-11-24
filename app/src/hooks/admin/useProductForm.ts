@@ -12,7 +12,22 @@ export function useProductForm(product?: Product) {
   const [error, setError] = useState("");
   const [invalidPaths, setInvalidPaths] = useState<string[]>([]);
   function update<K extends keyof ProductForm>(key: K, value: ProductForm[K]) {
-    setForm((previous) => ({ ...previous, [key]: value }));
+    setForm((previous) => {
+      const next = { ...previous, [key]: value };
+      // New products get a stable URL from their English name. Existing product
+      // links remain unchanged when names are edited.
+      if (!product && key === "name") {
+        const name = (value as ProductForm["name"]).en;
+        const slug = name
+          .normalize("NFKD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "");
+        next.slug = slug;
+      }
+      return next;
+    });
     setError("");
     setInvalidPaths([]);
   }

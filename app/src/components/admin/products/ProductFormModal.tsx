@@ -133,15 +133,6 @@ export default function ProductFormModal({
                       }
                     />
                   ))}
-                  <ProductField
-                    label={t("slug")}
-                    name="slug"
-                    required
-                    dir="ltr"
-                    value={form.slug}
-                    hint={t("slugHint")}
-                    onChange={(event) => update("slug", event.target.value.toLowerCase())}
-                  />
                   <ProductSelect
                     label={t("category")}
                     name="category"
