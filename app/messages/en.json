@@ -89,6 +89,7 @@
     "fromPrice": "From {price}",
     "priceUnavailable": "Currently unavailable",
     "imagePlaceholder": "Product image unavailable",
+    "addToCart": "Add to Cart",
     "empty": "No products are available at the moment.",
     "loadError": "Products could not be loaded. Please try again later."
   },

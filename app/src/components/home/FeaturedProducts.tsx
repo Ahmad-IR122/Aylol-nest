@@ -1,5 +1,6 @@
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import ProductImage from "@/components/home/ProductImage";
+import ProductCardAddButton from "@/components/home/ProductCardAddButton";
 import { Link } from "@/i18n/navigation";
 import type { HomeLocale, HomeProduct } from "@/lib/home-data";
 import type { StorefrontProducts } from "@/lib/products/storefront";
@@ -64,6 +65,12 @@ export function ProductCard({ product }: { product: HomeProduct }) {
           </span>
         </div>
       </Link>
+      <ProductCardAddButton
+        slug={product.slug}
+        productId={product.id}
+        variantId={product.quickAddVariantId}
+        inStock={product.inStock}
+      />
     </article>
   );
 }
