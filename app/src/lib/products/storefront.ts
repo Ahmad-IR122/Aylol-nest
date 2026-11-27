@@ -95,7 +95,9 @@ function toHomeProduct(product: PublicProduct): HomeProduct {
     imageAlt: { ar: image?.alt?.ar ?? "", en: image?.alt?.en ?? "" },
     inStock: variants.some((variant) => variant.stock > 0),
     quickAddVariantId:
-      variants.length === 1 && variants[0].stock > 0 ? variants[0]._id.toString() : undefined,
+      variants.length === 1 && variants[0].stock > 0 && variants[0]._id
+        ? variants[0]._id.toString()
+        : undefined,
     isNew: product.isNewArrival,
   };
 }
@@ -111,7 +113,7 @@ function queryCards(
 ) {
   const query = Product.find({ ...filter, isActive: true })
     .select(
-      "name slug category images.url images.alt variants.isActive variants.price variants.stock variants.images.url variants.images.alt isNewArrival",
+      "name slug category images.url images.alt variants._id variants.isActive variants.price variants.stock variants.images.url variants.images.alt isNewArrival",
     )
     .sort(sort);
   return (skip ? query.skip(skip) : query)
