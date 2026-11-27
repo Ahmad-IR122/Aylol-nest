@@ -21,11 +21,16 @@ export default function ProductCardAddButton({
   const cartText = useTranslations("Cart");
   const cart = useCart();
   const locale = useLocale() as HomeLocale;
-  const className = "mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#8A6B56] px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#765943] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#a97872] disabled:cursor-not-allowed disabled:opacity-55";
+  const className =
+    "mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#8A6B56] px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#765943] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#a97872] disabled:cursor-not-allowed disabled:opacity-55";
 
   if (!variantId || !inStock) {
     return (
-      <Link href={`/products/${slug}`} aria-disabled={!inStock} className={`${className} ${!inStock ? "pointer-events-none opacity-55" : ""}`}>
+      <Link
+        href={`/products/${slug}`}
+        aria-disabled={!inStock}
+        className={`${className} ${!inStock ? "pointer-events-none opacity-55" : ""}`}
+      >
         <ShoppingBag size={19} aria-hidden="true" />
         {t("addToCart")}
       </Link>
