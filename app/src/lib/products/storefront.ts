@@ -12,7 +12,7 @@ import { ExploreSelection } from "@/models/ExploreSelection";
 export type StorefrontProducts = { products: HomeProduct[]; error: boolean };
 
 type PublicImage = Pick<IProduct["images"][number], "url" | "alt">;
-type PublicVariant = Pick<IProduct["variants"][number], "isActive" | "price" | "stock"> & {
+type PublicVariant = Pick<IProduct["variants"][number], "_id" | "isActive" | "price" | "stock"> & {
   images: PublicImage[];
 };
 type PublicProduct = Pick<IProduct, "name" | "slug" | "isNewArrival"> & {
@@ -94,6 +94,8 @@ function toHomeProduct(product: PublicProduct): HomeProduct {
     image: image?.url ?? null,
     imageAlt: { ar: image?.alt?.ar ?? "", en: image?.alt?.en ?? "" },
     inStock: variants.some((variant) => variant.stock > 0),
+    quickAddVariantId:
+      variants.length === 1 && variants[0].stock > 0 ? variants[0]._id.toString() : undefined,
     isNew: product.isNewArrival,
   };
 }

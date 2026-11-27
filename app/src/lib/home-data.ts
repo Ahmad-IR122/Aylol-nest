@@ -13,6 +13,7 @@ export type HomeProduct = {
   imageAlt: LocalizedText;
   inStock: boolean;
   isNew?: boolean;
+  quickAddVariantId?: string;
 };
 
 export const homeCopy = {
